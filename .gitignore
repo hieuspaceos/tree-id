@@ -22,6 +22,10 @@ bin/
 # production
 /build
 
+# Payload CMS admin bundle build artifacts (generated during next build)
+/src/app/api/payload/
+/src/app/payload/
+
 # misc
 .DS_Store
 *.pem
