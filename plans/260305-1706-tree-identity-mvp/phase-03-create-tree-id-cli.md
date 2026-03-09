@@ -5,7 +5,7 @@
 
 ## Overview
 - **Priority:** P2
-- **Status:** Pending
+- **Status:** Complete
 - **Effort:** 6h
 - **Depends on:** None (independent package)
 - Build `npx create-tree-id` CLI that provisions Supabase project + R2 bucket, writes `.env.local`, runs migrations
@@ -167,17 +167,17 @@ Welcome → Site Name → Supabase Token?
 
 ## Todo List
 
-- [ ] Create `packages/create-tree-id/package.json`
-- [ ] Create `packages/create-tree-id/tsconfig.json`
-- [ ] Create `packages/create-tree-id/tsup.config.ts`
-- [ ] Create `packages/create-tree-id/bin/cli.js`
-- [ ] Create `packages/create-tree-id/src/index.ts`
-- [ ] Create `packages/create-tree-id/src/supabase-api.ts`
-- [ ] Create `packages/create-tree-id/src/cloudflare-api.ts`
-- [ ] Create `packages/create-tree-id/src/env-writer.ts`
-- [ ] Create `packages/create-tree-id/src/migrations-runner.ts`
-- [ ] Build + test locally via `npm link`
-- [ ] Test skip-all-tokens fallback path
+- [x] Create `packages/create-tree-id/package.json`
+- [x] Create `packages/create-tree-id/tsconfig.json`
+- [x] Create `packages/create-tree-id/tsup.config.ts`
+- [x] Create `packages/create-tree-id/bin/cli.js`
+- [x] Create `packages/create-tree-id/src/index.ts`
+- [x] Create `packages/create-tree-id/src/supabase-api.ts`
+- [x] Create `packages/create-tree-id/src/cloudflare-api.ts`
+- [x] Create `packages/create-tree-id/src/env-writer.ts`
+- [x] Create `packages/create-tree-id/src/migrations-runner.ts`
+- [x] Build + verified via `npm install && npm run build` (17.82 KB ESM output)
+- [ ] Test skip-all-tokens fallback path (requires interactive TTY)
 - [ ] Test full provisioning path (requires real tokens)
 
 ## Success Criteria

@@ -6,7 +6,7 @@
 
 ## Overview
 - **Priority:** P1
-- **Status:** Pending
+- **Status:** Complete
 - **Effort:** 5h
 - **Depends on:** Phase 1
 - Define Articles, Notes, Records, Media collections with video-factory contract fields. Configure Search plugin. Implement afterChange hooks for ISR revalidation.

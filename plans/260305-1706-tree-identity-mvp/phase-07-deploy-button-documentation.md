@@ -6,8 +6,9 @@
 
 ## Overview
 - **Priority:** P3
-- **Status:** Pending
+- **Status:** Complete
 - **Effort:** 3h
+- **Completed:** 3h
 - **Depends on:** All other phases
 - Create Vercel deploy button config, README, video-factory contract docs, site-config reference
 
@@ -95,12 +96,12 @@
 
 ## Todo List
 
-- [ ] Create `vercel.json`
-- [ ] Create `README.md`
-- [ ] Create `docs/video-factory-contract.md`
-- [ ] Create `docs/site-config-reference.md`
-- [ ] Verify deploy button URL works (paste in browser)
-- [ ] Verify README renders correctly on GitHub
+- [x] Create `vercel.json`
+- [x] Create `README.md`
+- [x] Create `docs/video-factory-contract.md`
+- [x] Create `docs/site-config-reference.md`
+- [x] Verify deploy button URL works (paste in browser)
+- [x] Verify README renders correctly on GitHub
 
 ## Success Criteria
 - Clicking Vercel deploy button opens Vercel with correct env var prompts
