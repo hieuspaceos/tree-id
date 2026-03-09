@@ -30,6 +30,7 @@ import { listAccounts, provisionR2 } from './cloudflare-api.js'
 import { writeEnvFile, generatePayloadSecret, type EnvVars } from './env-writer.js'
 import { runNpmInstall, runMigrations } from './migrations-runner.js'
 import { resolve } from 'node:path'
+import { mkdirSync } from 'node:fs'
 
 /** Handle cancellation uniformly */
 function assertNotCancelled(value: unknown, message = 'Operation cancelled.'): void {
@@ -47,7 +48,7 @@ function printManualSupabaseInstructions(siteName: string): void {
       '2. Copy the connection string from Project Settings → Database → Connection String (URI)',
       '3. Copy the anon key and service role key from Settings → API',
       '4. Add to .env.local:',
-      '   DATABASE_URI="postgresql://postgres:[password]@[host]:5432/postgres"',
+      '   DATABASE_URL="postgresql://postgres:[password]@[host]:5432/postgres"',
       '   SUPABASE_URL="https://[project-ref].supabase.co"',
       '   SUPABASE_ANON_KEY="[anon-key]"',
       '   SUPABASE_SERVICE_ROLE_KEY="[service-role-key]"',
@@ -134,7 +135,7 @@ export async function main(): Promise<void> {
       )
       s.stop('Supabase project ready.')
 
-      env.DATABASE_URI = creds.dbUrl
+      env.DATABASE_URL = creds.dbUrl
       env.SUPABASE_URL = creds.apiUrl
       env.SUPABASE_ANON_KEY = creds.anonKey
       env.SUPABASE_SERVICE_ROLE_KEY = creds.serviceRoleKey
@@ -189,7 +190,8 @@ export async function main(): Promise<void> {
 
       env.R2_BUCKET = r2Creds.bucketName
       env.R2_ENDPOINT = r2Creds.endpoint
-      env.R2_PUBLIC_URL = r2Creds.publicUrl
+      // Placeholder — set to custom domain or enable public access in CF dashboard first
+      env.R2_PUBLIC_URL = 'SET_MANUALLY_YOUR_CDN_OR_R2_PUBLIC_URL'
       env.R2_ACCESS_KEY_ID = r2Creds.accessKeyId
       env.R2_SECRET_ACCESS_KEY = r2Creds.secretAccessKey
       env.R2_ACCOUNT_ID = r2Creds.accountId
@@ -215,13 +217,16 @@ export async function main(): Promise<void> {
   env.NEXT_PUBLIC_SERVER_URL = `http://localhost:3000`
 
   // --- Write .env.local ---
-  const s = spinner()
+  // Ensure target directory exists before writing (M3)
+  mkdirSync(targetDir, { recursive: true })
+
+  const sEnv = spinner()
   try {
-    s.start('Writing .env.local...')
+    sEnv.start('Writing .env.local...')
     const envPath = await writeEnvFile(targetDir, env)
-    s.stop(`.env.local written to ${envPath}`)
+    sEnv.stop(`.env.local written to ${envPath}`)
   } catch (err) {
-    s.stop('.env.local write failed — check directory permissions.')
+    sEnv.stop('.env.local write failed — check directory permissions.')
     const message = err instanceof Error ? err.message : String(err)
     note(`Could not write .env.local: ${message}\nAdd the variables manually.`, 'Env Write Error')
   }
@@ -234,19 +239,21 @@ export async function main(): Promise<void> {
   assertNotCancelled(runInstall)
 
   if (runInstall) {
+    // Fresh spinner instance for npm install (M2)
+    const sInstall = spinner()
     try {
-      s.start('Running npm install...')
+      sInstall.start('Running npm install...')
       await runNpmInstall(targetDir)
-      s.stop('npm install complete.')
+      sInstall.stop('npm install complete.')
     } catch (err) {
-      s.stop('npm install failed.')
+      sInstall.stop('npm install failed.')
       const message = err instanceof Error ? err.message : String(err)
       note(`Error: ${message}\nRun "npm install" manually in ${targetDir}`, 'npm install Error')
     }
   }
 
   // --- Migrations ---
-  if (env.DATABASE_URI) {
+  if (env.DATABASE_URL) {
     const runMigs = await confirm({
       message: 'Run payload migrate now?',
       initialValue: true,
@@ -254,14 +261,20 @@ export async function main(): Promise<void> {
     assertNotCancelled(runMigs)
 
     if (runMigs) {
+      // Fresh spinner instance for migrations (M2)
+      // Pass only required env vars — avoid leaking parent shell secrets (M6)
+      const sMig = spinner()
+      const migEnv: NodeJS.ProcessEnv = {
+        PATH: process.env.PATH,
+        DATABASE_URL: env.DATABASE_URL,
+        PAYLOAD_SECRET: env.PAYLOAD_SECRET,
+      }
       try {
-        s.start('Running payload migrate...')
-        await runMigrations(targetDir, { ...process.env, ...Object.fromEntries(
-          Object.entries(env).filter(([, v]) => v !== undefined) as [string, string][],
-        )})
-        s.stop('Migrations complete.')
+        sMig.start('Running payload migrate...')
+        await runMigrations(targetDir, migEnv)
+        sMig.stop('Migrations complete.')
       } catch (err) {
-        s.stop('Migrations failed.')
+        sMig.stop('Migrations failed.')
         const message = err instanceof Error ? err.message : String(err)
         note(
           `Error: ${message}\nRun "npx payload migrate" manually in ${targetDir} after updating .env.local`,
@@ -271,7 +284,7 @@ export async function main(): Promise<void> {
     }
   } else {
     note(
-      'Skipping migrations — no DATABASE_URI set.\n' +
+      'Skipping migrations — no DATABASE_URL set.\n' +
       'After adding your database credentials to .env.local, run:\n' +
       '  npx payload migrate',
       'Migrations Skipped',

@@ -32,6 +32,7 @@ export interface SupabaseCredentials {
 export async function getOrganizations(token: string): Promise<SupabaseOrg[]> {
   const res = await fetch(`${SUPABASE_API}/v1/organizations`, {
     headers: { Authorization: `Bearer ${token}` },
+    signal: AbortSignal.timeout(30_000),
   })
   if (!res.ok) {
     const body = await res.text()
@@ -40,10 +41,12 @@ export async function getOrganizations(token: string): Promise<SupabaseOrg[]> {
   return res.json() as Promise<SupabaseOrg[]>
 }
 
-/** Generate a random secure database password */
+/** Generate a cryptographically secure random database password */
 export function generateDbPassword(): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*'
-  return Array.from({ length: 32 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+  const bytes = new Uint8Array(32)
+  crypto.getRandomValues(bytes)
+  return Array.from(bytes, (b) => chars[b % chars.length]).join('')
 }
 
 /** Create a new Supabase project under the given org */
@@ -67,6 +70,7 @@ export async function createProject(
       region,
       plan: 'free',
     }),
+    signal: AbortSignal.timeout(30_000),
   })
 
   if (res.status === 429) {
@@ -93,6 +97,7 @@ export async function waitForActive(
 
     const res = await fetch(`${SUPABASE_API}/v1/projects/${projectId}`, {
       headers: { Authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(10_000),
     })
 
     if (!res.ok) {
@@ -120,6 +125,7 @@ export async function getProjectKeys(
 ): Promise<{ anonKey: string; serviceRoleKey: string }> {
   const res = await fetch(`${SUPABASE_API}/v1/projects/${projectRef}/api-keys`, {
     headers: { Authorization: `Bearer ${token}` },
+    signal: AbortSignal.timeout(30_000),
   })
 
   if (!res.ok) {

@@ -13,7 +13,6 @@ const CF_API = 'https://api.cloudflare.com/client/v4'
 export interface R2Credentials {
   bucketName: string
   endpoint: string
-  publicUrl: string
   // S3-compat creds must be created manually — documented in manual steps
   accessKeyId: string
   secretAccessKey: string
@@ -40,6 +39,7 @@ async function cfRequest<T>(
       'Content-Type': 'application/json',
     },
     body: body ? JSON.stringify(body) : undefined,
+    signal: AbortSignal.timeout(30_000),
   })
 
   const data = (await res.json()) as CfApiResponse<T>
@@ -107,18 +107,6 @@ export async function setCors(
   }
 }
 
-/** Validate that the CF API token has R2 permissions */
-export async function validateToken(token: string): Promise<{ id: string; status: string }> {
-  const res = await fetch(`${CF_API}/user/tokens/verify`, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-  const data = (await res.json()) as CfApiResponse<{ id: string; status: string }>
-  if (!data.success) {
-    throw new Error('Invalid Cloudflare API token')
-  }
-  return data.result
-}
-
 /** List CF accounts accessible by the token */
 export async function listAccounts(
   token: string,
@@ -141,12 +129,10 @@ export async function provisionR2(
   await setCors(token, accountId, bucketName, siteOrigin)
 
   const endpoint = `https://${accountId}.r2.cloudflarestorage.com`
-  const publicUrl = `https://pub-${accountId}.r2.dev/${bucketName}`
 
   return {
     bucketName,
     endpoint,
-    publicUrl,
     // Placeholder — user must create R2 API token manually
     accessKeyId: 'SET_MANUALLY_IN_CF_DASHBOARD',
     secretAccessKey: 'SET_MANUALLY_IN_CF_DASHBOARD',

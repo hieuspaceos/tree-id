@@ -8,14 +8,15 @@ import { chmod } from 'node:fs/promises'
 import { join } from 'node:path'
 
 export interface EnvVars {
-  // Supabase
-  DATABASE_URI?: string
+  // Supabase / Database — Payload reads DATABASE_URL
+  DATABASE_URL?: string
   SUPABASE_URL?: string
   SUPABASE_ANON_KEY?: string
   SUPABASE_SERVICE_ROLE_KEY?: string
   // Cloudflare R2
   R2_BUCKET?: string
   R2_ENDPOINT?: string
+  // Public URL for serving media (custom domain or R2 dev URL — must be enabled manually)
   R2_PUBLIC_URL?: string
   R2_ACCESS_KEY_ID?: string
   R2_SECRET_ACCESS_KEY?: string
@@ -53,7 +54,7 @@ function renderEnvContent(vars: EnvVars): string {
   ]
 
   // Supabase section
-  const supabaseKeys = ['DATABASE_URI', 'SUPABASE_URL', 'SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY']
+  const supabaseKeys = ['DATABASE_URL', 'SUPABASE_URL', 'SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY']
   const supabaseVars = supabaseKeys.filter((k) => vars[k] !== undefined)
   if (supabaseVars.length > 0) {
     lines.push('# --- Supabase ---')
