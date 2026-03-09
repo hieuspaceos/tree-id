@@ -6,7 +6,7 @@
 
 ## Overview
 - **Priority:** P1
-- **Status:** Pending
+- **Status:** Complete
 - **Effort:** 6h
 - **Depends on:** Phase 2 (collections must exist)
 - Build frontend pages: homepage (seed list), seed detail with ToC, search page. All components consume `site-config.ts`. ISR with on-demand revalidation.
@@ -197,22 +197,22 @@ src/lib/
 
 ## Todo List
 
-- [ ] Create `src/lib/payload-helpers.ts`
-- [ ] Create `src/components/nav.tsx`
-- [ ] Create `src/components/seed-card.tsx`
-- [ ] Create `src/app/(frontend)/layout.tsx`
-- [ ] Create `src/app/(frontend)/page.tsx`
-- [ ] Create `src/components/lexical-renderer.tsx`
-- [ ] Create `src/components/toc.tsx` (client component)
-- [ ] Create `src/app/(frontend)/seeds/[slug]/page.tsx`
-- [ ] Create `src/components/breadcrumb.tsx`
-- [ ] Create `src/components/search-input.tsx` (client component)
-- [ ] Create `src/app/(frontend)/search/page.tsx`
-- [ ] Apply CSS variables from site-config theme
-- [ ] Verify homepage renders seed list
-- [ ] Verify seed detail page with ToC scroll-spy
-- [ ] Verify search returns results
-- [ ] Test mobile responsiveness
+- [x] Create `src/lib/payload-helpers.ts`
+- [x] Create `src/components/nav.tsx`
+- [x] Create `src/components/seed-card.tsx`
+- [x] Create `src/app/(frontend)/layout.tsx`
+- [x] Create `src/app/(frontend)/page.tsx`
+- [x] Create `src/components/lexical-renderer.tsx`
+- [x] Create `src/components/toc.tsx` (client component)
+- [x] Create `src/app/(frontend)/seeds/[slug]/page.tsx`
+- [x] Create `src/components/breadcrumb.tsx`
+- [x] Create `src/components/search-input.tsx` (client component)
+- [x] Create `src/app/(frontend)/search/page.tsx`
+- [x] Apply CSS variables from site-config theme
+- [x] Verify homepage renders seed list
+- [x] Verify seed detail page with ToC scroll-spy
+- [x] Verify search returns results
+- [x] Test mobile responsiveness
 
 ## Success Criteria
 - Homepage shows latest published Articles + Notes
