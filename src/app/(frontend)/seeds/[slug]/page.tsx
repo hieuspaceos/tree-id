@@ -101,10 +101,15 @@ export default async function SeedPage({ params }: SeedPageProps) {
 }
 
 export async function generateStaticParams() {
-  const payload = await getPayloadClient()
-  const [articles, notes] = await Promise.all([
-    payload.find({ collection: 'articles', where: { status: { equals: 'published' } }, limit: 100 }),
-    payload.find({ collection: 'notes', where: { status: { equals: 'published' } }, limit: 100 }),
-  ])
-  return [...articles.docs, ...notes.docs].map((doc) => ({ slug: (doc as unknown as SeedDoc).slug }))
+  try {
+    const payload = await getPayloadClient()
+    const [articles, notes] = await Promise.all([
+      payload.find({ collection: 'articles', where: { status: { equals: 'published' } }, limit: 100 }),
+      payload.find({ collection: 'notes', where: { status: { equals: 'published' } }, limit: 100 }),
+    ])
+    return [...articles.docs, ...notes.docs].map((doc) => ({ slug: (doc as unknown as SeedDoc).slug }))
+  } catch {
+    // DB unavailable at build time (first deploy) — render all pages on-demand
+    return []
+  }
 }

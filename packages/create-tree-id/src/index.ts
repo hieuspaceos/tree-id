@@ -264,7 +264,7 @@ export async function main(): Promise<void> {
       // Fresh spinner instance for migrations (M2)
       // Pass only required env vars — avoid leaking parent shell secrets (M6)
       const sMig = spinner()
-      const migEnv: NodeJS.ProcessEnv = {
+      const migEnv: Record<string, string | undefined> = {
         PATH: process.env.PATH,
         DATABASE_URL: env.DATABASE_URL,
         PAYLOAD_SECRET: env.PAYLOAD_SECRET,

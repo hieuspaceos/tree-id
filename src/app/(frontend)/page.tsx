@@ -21,6 +21,8 @@ interface SeedDoc {
 
 export const revalidate = 3600
 
+export const dynamic = 'force-dynamic'
+
 export default async function HomePage() {
   const [articles, notes] = await Promise.all([
     getPublishedSeeds('articles', 6),

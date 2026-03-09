@@ -12,13 +12,13 @@ function spawnAsync(
   cmd: string,
   args: string[],
   cwd: string,
-  env: NodeJS.ProcessEnv = process.env,
+  env: Record<string, string | undefined> = process.env,
   timeoutMs: number = DEFAULT_TIMEOUT_MS,
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     const child = spawn(cmd, args, {
       cwd,
-      env,
+      env: env as NodeJS.ProcessEnv,
       stdio: 'inherit',
       // Use shell on Windows so npm/npx resolve correctly
       shell: process.platform === 'win32',
@@ -53,7 +53,7 @@ export async function runNpmInstall(targetDir: string): Promise<void> {
 /** Run npx payload migrate in the target directory with the given env */
 export async function runMigrations(
   targetDir: string,
-  env: NodeJS.ProcessEnv,
+  env: Record<string, string | undefined>,
 ): Promise<void> {
   await spawnAsync('npx', ['payload', 'migrate'], targetDir, env, DEFAULT_TIMEOUT_MS)
 }
