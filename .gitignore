@@ -54,6 +54,7 @@ pnpm-lock.yaml
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+src/payload-types.ts
 
 # flutter
 .dart_tool
