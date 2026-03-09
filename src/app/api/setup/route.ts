@@ -4,25 +4,23 @@ import config from '@payload-config'
 
 /**
  * One-time setup endpoint that creates all DB tables.
+ * Calls migrateFresh which drops and recreates the schema.
  * DELETE THIS FILE after setup succeeds.
  */
 export const maxDuration = 60
 
-export async function GET() {
+export async function GET(request: Request) {
+  const url = new URL(request.url)
+  const method = url.searchParams.get('method') || 'fresh'
+
   try {
     const payload = await getPayload({ config })
 
-    // Attempt schema push via drizzle adapter internals
-    const db = payload.db as unknown as Record<string, unknown>
-    const availableMethods = Object.keys(db).filter(
-      (k) => typeof db[k] === 'function',
-    )
-
-    // Try known Payload DB adapter methods for schema creation
-    if (typeof db.push === 'function') {
-      await (db.push as () => Promise<void>)()
-    } else if (typeof db.migrate === 'function') {
-      await (db.migrate as () => Promise<void>)()
+    if (method === 'fresh') {
+      // migrateFresh drops all tables and re-runs migrations
+      await payload.db.migrateFresh({ forceAcceptWarning: true })
+    } else if (method === 'migrate') {
+      await payload.db.migrate()
     }
 
     // Verify tables exist
@@ -30,24 +28,16 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      message: 'Database tables created successfully',
+      message: `Database setup complete via ${method}`,
       usersCount: users.totalDocs,
     })
   } catch (error) {
-    // Return diagnostic info to debug
-    const payload = await getPayload({ config }).catch(() => null)
-    const dbMethods = payload
-      ? Object.keys(payload.db).filter(
-          (k) => typeof (payload.db as unknown as Record<string, unknown>)[k] === 'function',
-        )
-      : []
-
     return NextResponse.json(
       {
         success: false,
-        message: 'Failed to initialize database',
+        method,
         error: error instanceof Error ? error.message : String(error),
-        dbMethods,
+        stack: error instanceof Error ? error.stack?.split('\n').slice(0, 5) : undefined,
       },
       { status: 500 },
     )
