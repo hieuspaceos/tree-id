@@ -124,6 +124,13 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     importMap: { baseDir: path.resolve(dirname) },
+    components: {
+      graphics: {
+        Icon: '/src/components/admin/nav-icon#NavIcon',
+        Logo: '/src/components/admin/login-logo#LoginLogo',
+      },
+      beforeDashboard: ['/src/components/admin/dashboard-header#DashboardHeader'],
+    },
   },
 
   collections: [Users, Articles, Notes, Records, Media],
