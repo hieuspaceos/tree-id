@@ -1,0 +1,43 @@
+---
+import { getTheme, themeToStyleVars } from '@/themes/theme-resolver'
+import { getActiveThemeId } from '@/lib/get-active-theme-id'
+import { siteConfig } from '@/config/site-config'
+import Nav from '@/components/nav.astro'
+import Footer from '@/components/footer.astro'
+import '@/styles/globals.css'
+
+interface Props {
+  title?: string
+  description?: string
+}
+
+const { title = siteConfig.name, description = siteConfig.description } = Astro.props
+
+const themeId = getActiveThemeId()
+const theme = getTheme(themeId)
+const themeVars = themeToStyleVars(theme)
+const styleString = Object.entries(themeVars)
+  .map(([k, v]) => `${k}:${v}`)
+  .join(';')
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <slot name="head" />
+  </head>
+  <body>
+    <div style={`${styleString};font-family:${theme.fontFamily}`}>
+      <Nav />
+      <main class="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+        <slot />
+      </main>
+      <Footer />
+    </div>
+  </body>
+</html>

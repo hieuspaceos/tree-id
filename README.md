@@ -1,90 +1,72 @@
 # Tree Identity
 
-Your digital twin — a personal content engine that turns ideas into articles, notes, and video-ready manifests.
+Your digital twin — a personal content engine. Fork, configure, deploy.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fhieuspaceos%2Ftree-id&env=DATABASE_URL,PAYLOAD_SECRET,NEXT_PUBLIC_SITE_URL&envDescription=Required%20environment%20variables%20for%20Tree%20Identity&envLink=https%3A%2F%2Fgithub.com%2Fhieuspaceos%2Ftree-id%23environment-variables)
-
-## Quick Start — CLI (Recommended)
+## Quick Start
 
 ```bash
-npx create-tree-id my-site
+git clone https://github.com/hieuspaceos/tree-id.git my-site
 cd my-site
-npm run dev
+npm install
+cp .env.example .env.local
+npm run dev     # http://localhost:4321
 ```
 
-The CLI scaffolds a new project, prompts for Supabase + R2 credentials, and writes your `.env.local`.
+Admin panel: http://localhost:4321/keystatic
 
-## Quick Start — Manual
+## Customize (edit ONE file)
+
+Open `src/config/site-config.ts` and set:
+- `name` — your site name
+- `description` — one-line tagline
+- `author` — your name, email, URL
+- `socialLinks` — Twitter, GitHub, LinkedIn URLs
+
+## Add Content
+
+1. Visit http://localhost:4321/keystatic
+2. Create articles (Markdown), notes (short text), or records (structured data)
+3. Content saves as files in `src/content/` — committed to git
+
+Or create files directly:
+- Articles: `src/content/articles/my-post/index.mdoc`
+- Notes: `src/content/notes/my-note.yaml`
+- Records: `src/content/records/my-record.yaml`
+
+## Deploy
 
 ```bash
-git clone https://github.com/hieuspaceos/tree-id.git
-cd tree-id
-cp .env.example .env.local   # fill in your values
-npm install
-npx payload migrate          # run database migrations
-npm run dev                   # http://localhost:3000
+vercel deploy
 ```
 
-Admin panel: `http://localhost:3000/admin` — create your first user on first visit.
+Set one env var on Vercel: `PUBLIC_SITE_URL` = your domain.
 
 ## Environment Variables
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `DATABASE_URL` | Yes | Supabase PostgreSQL connection string (pooler port `6543` for serverless) |
-| `PAYLOAD_SECRET` | Yes | Random secret, min 32 chars. Generate: `openssl rand -base64 32` |
-| `NEXT_PUBLIC_SITE_URL` | Yes | Your deployed URL (e.g. `https://my-site.vercel.app`) |
-| `R2_ACCESS_KEY_ID` | No | Cloudflare R2 S3-compatible access key |
-| `R2_SECRET_ACCESS_KEY` | No | Cloudflare R2 S3-compatible secret key |
-| `R2_ENDPOINT` | No | R2 endpoint: `ACCOUNT_ID.r2.cloudflarestorage.com` (no `https://`) |
-| `R2_BUCKET` | No | R2 bucket name (e.g. `tree-id-media`) |
-| `R2_REGION` | No | R2 region (use `auto`) |
-| `R2_PUBLIC_URL` | No | Public URL for serving media files |
+| `PUBLIC_SITE_URL` | Yes | Your deployed URL |
+| `R2_*` variables | No | Cloudflare R2 for video manifests |
 
-> R2 variables are optional — media uploads and video manifests require them, but the site runs without them.
+See `.env.example` for the full list with descriptions.
 
 ## Tech Stack
 
-- **Next.js 15** — App Router, React 19, server components
-- **Payload CMS 3** — Embedded admin, Lexical rich-text editor
-- **PostgreSQL** — Supabase hosted, pooled connections
-- **Cloudflare R2** — S3-compatible media storage
-- **Tailwind CSS 4** — Utility-first styling with `@tailwindcss/typography`
-- **Vercel** — Deployment target, Edge OG image generation
+- **Astro 5** — zero JS by default, content-first SSG
+- **Keystatic** — git-based CMS, admin UI at /keystatic
+- **Pagefind** — static search index, zero runtime cost
+- **Tailwind CSS 4** — utility-first with glass morphism theme
+- **Vercel** — deployment target
 
-## Project Structure
+## Extend
 
-```
-src/
-├── app/
-│   ├── (frontend)/          # Public pages (home, seeds/[slug], search)
-│   ├── (payload)/           # Payload admin panel
-│   ├── api/manifests/       # Video manifest API
-│   ├── og/                  # OG image generation (Edge)
-│   ├── sitemap.ts
-│   └── robots.ts
-├── collections/             # Payload collection configs + hooks
-├── components/              # React components (nav, seed-card, toc, etc.)
-└── lib/
-    ├── payload-helpers.ts   # DB query helpers
-    ├── r2/                  # R2 upload/read utilities
-    └── seo/                 # Metadata + JSON-LD generators
-```
-
-## Collections
-
-| Collection | Description |
-|------------|-------------|
-| **Articles** | Long-form content with Lexical rich text, ToC, video manifest support |
-| **Notes** | Short-form content with plain textarea |
-| **Records** | Structured data (projects, products, experiments) with JSON field |
-| **Media** | File uploads stored in Cloudflare R2 |
-| **Users** | Authentication for admin panel |
-
-## Documentation
-
-- [Video-Factory Contract](docs/video-factory-contract.md) — Manifest schema and integration guide
-- [Site Config Reference](docs/site-config-reference.md) — All configuration fields
+| Want to... | Do this... |
+|------------|------------|
+| Add a theme | Create `src/themes/my-theme.ts`, register in `theme-resolver.ts` |
+| Add a page | Create `src/pages/about.astro` |
+| Add a collection | Add to `keystatic.config.ts` + `src/content.config.ts` |
+| Add an API route | Create `src/pages/api/my-endpoint.ts` |
+| Import from WordPress | `npx wordpress-export-to-markdown` then copy to `src/content/` |
 
 ## License
 

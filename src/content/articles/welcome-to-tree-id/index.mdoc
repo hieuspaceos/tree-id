@@ -1,0 +1,33 @@
+---
+title: Welcome to Tree Identity
+description: Your digital twin content engine -- fork, configure, deploy
+status: published
+publishedAt: '2026-03-10'
+tags:
+  - welcome
+  - getting-started
+category: general
+---
+
+# Welcome
+
+Tree Identity is your **digital twin** -- a personal content engine that turns ideas into articles, notes, and video-ready manifests.
+
+## Getting Started
+
+1. Edit `src/config/site-config.ts` -- your name, description, social links
+2. Create content in the Keystatic admin at `/keystatic`
+3. Deploy to Vercel with `vercel deploy`
+
+## Content Types
+
+- **Articles** -- long-form Markdown content (like this one)
+- **Notes** -- short thoughts, ideas, quick references
+- **Records** -- structured data (projects, products, experiments)
+
+## Themes
+
+TreeID ships with the **Liquid Glass** theme. To add your own:
+1. Create `src/themes/my-theme.ts`
+2. Register in `src/themes/theme-resolver.ts`
+3. Select in `/keystatic` Site Settings

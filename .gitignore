@@ -13,19 +13,18 @@ node_modules/
 # testing
 /coverage
 
-# next.js
+# astro
+.astro/
+dist/
+
+# next.js (legacy)
 /.next/
 /out/
-dist/
 bin/
 !packages/*/bin/
 
 # production
 /build
-
-# Payload CMS admin bundle build artifacts (generated during next build)
-/src/app/api/payload/
-/src/app/payload/
 
 # misc
 .DS_Store
@@ -87,6 +86,9 @@ ck.md
 .claude/settings.bak.json
 # External repos for study/reference
 external/
+
+# OpenCode
+.opencode/
 
 # Git worktrees (local development only)
 worktrees/

@@ -1,0 +1,11 @@
+title: First Note
+description: A sample note -- edit or delete this
+status: published
+publishedAt: '2026-03-10'
+tags:
+  - sample
+content: >
+  This is a short note. Notes are great for quick thoughts,
+  bookmarks, or ideas that don't need a full article.
+
+  Edit this in /keystatic or directly in the YAML file.

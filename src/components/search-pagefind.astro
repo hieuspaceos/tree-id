@@ -1,0 +1,42 @@
+---
+// Pagefind generates its own CSS + JS at build time in dist/_pagefind/
+// This component provides the mount point and glass morphism style overrides.
+---
+
+<div class="mx-auto max-w-2xl" id="search" data-pagefind-ui></div>
+
+<link href="/_pagefind/pagefind-ui.css" rel="stylesheet" />
+<script src="/_pagefind/pagefind-ui.js" is:inline></script>
+<script is:inline>
+  window.addEventListener('DOMContentLoaded', () => {
+    new PagefindUI({
+      element: '#search',
+      showSubResults: true,
+      showImages: false,
+    })
+  })
+</script>
+
+<style is:global>
+  /* Override Pagefind defaults with glass morphism */
+  .pagefind-ui__search-input {
+    background: rgba(255, 255, 255, 0.6) !important;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    border-radius: 16px !important;
+    padding: 16px 16px 16px 48px !important;
+  }
+  .pagefind-ui__search-input:focus {
+    border-color: color-mix(in srgb, var(--t-accent) 40%, transparent) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--t-accent) 10%, transparent) !important;
+    outline: none !important;
+  }
+  .pagefind-ui__result {
+    background: var(--t-glass-card);
+    backdrop-filter: blur(12px) saturate(1.4);
+    border: 1px solid var(--t-glass-border);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+</style>

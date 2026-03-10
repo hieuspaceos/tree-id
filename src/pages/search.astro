@@ -1,0 +1,16 @@
+---
+import BaseLayout from '@/layouts/base-layout.astro'
+import SearchPagefind from '@/components/search-pagefind.astro'
+import { siteConfig } from '@/config/site-config'
+---
+
+<BaseLayout
+  title={`Search | ${siteConfig.name}`}
+  description="Search across all seeds"
+>
+  <div class="mx-auto max-w-2xl">
+    <h1 class="mb-2 text-2xl font-bold tracking-tight text-slate-900">Search</h1>
+    <p class="mb-6 text-sm text-slate-400">Find articles, notes, and more</p>
+    <SearchPagefind />
+  </div>
+</BaseLayout>

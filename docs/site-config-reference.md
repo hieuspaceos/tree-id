@@ -1,94 +1,183 @@
-# Site Config Reference
+# Site Configuration Reference
 
-Configuration for Tree Identity is managed through environment variables and Payload CMS admin panel.
+Tree Identity configuration is split between two places:
+
+1. **`src/config/site-config.ts`** — Site identity (name, author, theme)
+2. **`keystatic.config.ts`** — Content collection schemas
+3. **`.env.local`** — Secrets (API keys, URLs)
+
+## Site Config (`src/config/site-config.ts`)
+
+Central configuration file that controls site branding and features.
+
+```typescript
+export const siteConfig = {
+  // Your site/brand name (nav, footer, OG images)
+  name: string
+
+  // One-line description (hero, meta tags, JSON-LD)
+  description: string
+
+  // Deployed URL (set via PUBLIC_SITE_URL env var)
+  url: string
+
+  // Author info (JSON-LD, meta tags)
+  author: {
+    name: string       // e.g. 'Jane Doe'
+    email: string      // e.g. 'jane@example.com'
+    url: string        // e.g. 'https://janedoe.com'
+  }
+
+  // Social links (nav bar — empty string to hide)
+  socialLinks: {
+    twitter: string    // Full URL: https://twitter.com/...
+    github: string     // Full URL: https://github.com/...
+    linkedin: string   // Full URL: https://linkedin.com/in/...
+  }
+
+  // Active theme (must match theme-resolver.ts registry)
+  theme: {
+    id: 'liquid-glass'  // Built-in: 'liquid-glass'
+  }
+
+  // Feature toggles
+  features: {
+    videoFactory: boolean  // Requires R2_* env vars
+    search: boolean        // Pagefind search at /search
+  }
+
+  // Cloudflare R2 (optional, for video manifests)
+  r2: {
+    publicUrl: string  // CDN URL for media
+  }
+}
+```
 
 ## Environment Variables
 
-### Database
+All optional except `PUBLIC_SITE_URL`.
 
-| Variable | Type | Default | Description |
-|----------|------|---------|-------------|
-| `DATABASE_URL` | string | — | PostgreSQL connection string. Use Supabase pooler port `6543` for serverless |
+### Core (Required)
 
-### App
+| Variable | Example | Description |
+|----------|---------|-------------|
+| `PUBLIC_SITE_URL` | `https://my-site.vercel.app` | Your deployed domain |
 
-| Variable | Type | Default | Description |
-|----------|------|---------|-------------|
-| `NEXT_PUBLIC_SITE_URL` | string | `http://localhost:3000` | Public-facing site URL. Used for SEO, OG images, sitemap |
-| `PAYLOAD_SECRET` | string | — | Secret key for Payload CMS auth (min 32 chars) |
+### Cloudflare R2 (Optional)
 
-### Cloudflare R2 Storage
+| Variable | Example | Description |
+|----------|---------|-------------|
+| `R2_ACCESS_KEY_ID` | `abc123...` | S3 access key |
+| `R2_SECRET_ACCESS_KEY` | `xyz789...` | S3 secret key |
+| `R2_ENDPOINT` | `12345.r2.cloudflarestorage.com` | Account endpoint (no https://) |
+| `R2_BUCKET` | `tree-id-media` | Bucket name |
+| `R2_REGION` | `auto` | Always `auto` |
+| `R2_PUBLIC_URL` | `https://media.example.com` | Public CDN URL |
 
-| Variable | Type | Default | Description |
-|----------|------|---------|-------------|
-| `R2_ACCESS_KEY_ID` | string | — | S3-compatible access key ID |
-| `R2_SECRET_ACCESS_KEY` | string | — | S3-compatible secret access key |
-| `R2_ENDPOINT` | string | — | Account endpoint: `ACCOUNT_ID.r2.cloudflarestorage.com` (no `https://`) |
-| `R2_BUCKET` | string | — | Bucket name (e.g. `tree-id-media`) |
-| `R2_REGION` | string | `auto` | R2 region, always use `auto` |
-| `R2_PUBLIC_URL` | string | — | Public URL for serving media (custom domain or R2 public URL) |
+Create `.env.local` from `.env.example` and fill in your values.
 
 ## Content Collections
 
-### Shared Fields (All Seeds)
-
-Every content collection (Articles, Notes, Records) shares these base fields:
-
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `title` | text | — | Content title (required) |
-| `description` | textarea | — | Short description (required) |
-| `slug` | text | auto-generated | URL slug, auto-derived from title on create |
-| `status` | select | `draft` | `draft` or `published` |
-| `publishedAt` | date | auto-set | Set automatically when status changes to `published` |
-| `tags` | array | `[]` | Array of tag strings |
-| `category` | text | — | Category label |
-| `seo.seoTitle` | text | — | Custom SEO title override |
-| `seo.ogImage` | text | — | Custom OG image URL |
-| `seo.noindex` | checkbox | `false` | Exclude from search engine indexing |
-| `cover.url` | text | — | Cover image URL |
-| `cover.alt` | text | — | Cover image alt text |
-| `video.enabled` | checkbox | `false` | Enable video manifest generation |
-| `video.style` | select | — | Video style: `cinematic`, `tutorial`, `vlog` |
-| `video.sections` | array | `[]` | Video section definitions |
-| `links.outbound` | array | `[]` | Outbound link slugs (for future Zettelkasten) |
-
 ### Articles
 
-Additional fields beyond shared:
+**Path:** `src/content/articles/{title}/index.mdoc`
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `content` | richText (Lexical) | Long-form content with full Lexical editor |
+Schema fields:
+- `title` (slug) — Auto-generates URL from title
+- `description` (text) — Short description
+- `content` (Markdoc) — Long-form article body
+- `status` (select) — `draft` or `published`
+- `publishedAt` (date) — Publication date
+- `tags` (array) — Tag strings
+- `category` (text) — Category label
+- `cover` (object) — Cover image URL + alt text
+- `seo` (object) — Custom SEO title, OG image, noindex flag
+- `video` (object) — Video factory enabled + style
+- `links` (object) — Outbound link references
 
 ### Notes
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `content` | textarea | Short-form plain text content |
+**Path:** `src/content/notes/{title}.yaml`
+
+Same fields as articles, but:
+- `content` is plain text (not Markdoc)
+- No rich formatting, just quick captures
 
 ### Records
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `recordType` | select | `project`, `product`, or `experiment` |
-| `recordData` | JSON | Freeform structured data |
+**Path:** `src/content/records/{title}.yaml`
+
+Structured data for portfolios/catalogs:
+- `recordType` (select) — `project`, `product`, or `experiment`
+- `recordData` (JSON text) — Freeform structured data
+- All other seed fields apply
+
+### Site Settings (Singleton)
+
+**Path:** `src/content/site-settings/index.yaml`
+
+Global configuration:
+- `themeId` — Active theme ID (e.g., `liquid-glass`)
+
+Editable via Keystatic UI in dev.
 
 ## SEO Configuration
 
-SEO metadata is generated automatically from content fields:
+All metadata generated automatically from content fields:
 
-- **Title:** `seo.seoTitle` if set, otherwise `title`
+- **Page title:** `seo.seoTitle` if set, else `title`
 - **Description:** `description` field
-- **OG Image:** `seo.ogImage` if set, otherwise auto-generated at `/og?title=...&desc=...`
-- **JSON-LD:** Automatically generates `Article` or `CreativeWork` structured data
-- **Sitemap:** Generated at `/sitemap.xml` from all published articles and notes
-- **Robots:** Configured at `/robots.txt`, respects `seo.noindex` per page
+- **OG image:** `seo.ogImage` URL if set, else auto-generated via `/og` endpoint
+- **Robots:** Respects `seo.noindex` flag per page
+- **Sitemap:** Auto-generated at `/sitemap.xml`
+- **JSON-LD:** Article schema for articles, CreativeWork for notes
 
-## ISR (Incremental Static Regeneration)
+Set `seo.noindex: true` to exclude a page from search engine indexing.
 
-All frontend pages use `revalidate = 3600` (1 hour). Content updates appear within 1 hour without redeployment.
+## Theme Configuration
 
-## Video Manifest Integration
+Themes defined in `src/themes/`:
 
-When `video.enabled` is `true` and content is published, a JSON manifest is uploaded to R2 at `manifests/{slug}.json`. See [Video-Factory Contract](video-factory-contract.md) for the full schema.
+- **theme-types.ts** — TypeScript types for theme object
+- **theme-resolver.ts** — Theme registry (maps ID → theme object)
+- **liquid-glass.ts** — Glass morphism theme with CSS variables
+
+### Creating a Custom Theme
+
+1. Create `src/themes/my-theme.ts`:
+```typescript
+export const myTheme = {
+  colors: { ... },
+  tokens: { '--t-primary': '#...', ... }
+}
+```
+
+2. Register in `theme-resolver.ts`:
+```typescript
+export const themeRegistry = {
+  'liquid-glass': liquidGlass,
+  'my-theme': myTheme,  // Add here
+}
+```
+
+3. Set in `site-config.ts`:
+```typescript
+theme: { id: 'my-theme' }
+```
+
+## Keystatic Admin
+
+The Keystatic CMS UI is available at `http://localhost:4321/keystatic` during development.
+
+**In production:** Admin UI is disabled (Keystatic checks environment).
+
+**To enable admin edits:**
+1. Clone repo
+2. `npm install && npm run dev`
+3. Visit `http://localhost:4321/keystatic`
+4. Edit content (saves to `src/content/`)
+5. Commit to git when ready
+
+---
+
+For more details, see [Keystatic Docs](https://keystatic.com/docs/configuration) and [Astro Content Collections](https://docs.astro.build/en/guides/content-collections/).

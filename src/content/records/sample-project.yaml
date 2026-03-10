@@ -1,0 +1,6 @@
+title: Sample Project
+description: A template record entry -- edit or delete this
+status: published
+publishedAt: '2026-03-10'
+recordType: project
+recordData: '{"name": "TreeID", "version": "2.0", "status": "active"}'
