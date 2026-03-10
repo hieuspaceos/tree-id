@@ -1,0 +1,39 @@
+{
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp", "--api-key", "YOUR_API_KEY"]
+    },
+    "human-mcp": {
+      "command": "npx",
+      "args": ["@goonnguyen/human-mcp"],
+      "env": {
+        "GOOGLE_GEMINI_API_KEY": "your_gemini_api_key_here"
+      }
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest"]
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "gsc": {
+      "command": "npx",
+      "args": ["-y", "mcp-server-gsc"],
+      "env": {
+        "GOOGLE_APPLICATION_CREDENTIALS": "~/.config/gcloud/YOUR_SERVICE_ACCOUNT_KEY.json"
+      }
+    },
+    "google-analytics": {
+      "command": "npx",
+      "args": ["-y", "mcp-server-google-analytics"],
+      "env": {
+        "GOOGLE_CLIENT_EMAIL": "your-sa@your-project.iam.gserviceaccount.com",
+        "GOOGLE_PRIVATE_KEY": "-----BEGIN PRIVATE KEY-----\\nYOUR_KEY_HERE\\n-----END PRIVATE KEY-----\\n",
+        "GA_PROPERTY_ID": "123456789"
+      }
+    }
+  }
+}
