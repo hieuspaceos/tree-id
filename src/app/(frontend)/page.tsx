@@ -42,27 +42,57 @@ export default async function HomePage() {
   return (
     <div>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }} />
-      <section className="mb-12">
-        <h1 className="mb-2 text-3xl font-bold text-gray-900">{siteConfig.name}</h1>
-        <p className="text-lg text-gray-600">{siteConfig.description}</p>
+
+      {/* Hero section with glass panel */}
+      <section className="glass-panel mb-10 rounded-2xl px-8 py-10">
+        <div className="flex items-start gap-4">
+          {/* Tree icon */}
+          <div className="hidden shrink-0 rounded-2xl bg-green-500/10 p-3 sm:block">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-green-600">
+              <path d="M12 22V12" />
+              <path d="M12 12L8 8" />
+              <path d="M12 12L16 8" />
+              <path d="M12 8L9 5" />
+              <path d="M12 8L15 5" />
+              <path d="M12 5L10 3" />
+              <path d="M12 5L14 3" />
+            </svg>
+          </div>
+          <div>
+            <h1 className="mb-2 text-3xl font-bold tracking-tight text-slate-900">
+              {siteConfig.name}
+            </h1>
+            <p className="text-lg leading-relaxed text-slate-500">
+              {siteConfig.description}
+            </p>
+          </div>
+        </div>
       </section>
 
+      {/* Seeds grid */}
       {seeds.length === 0 ? (
-        <p className="text-gray-500">No published seeds yet.</p>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {seeds.map((seed) => (
-            <SeedCard
-              key={seed.slug}
-              title={seed.title}
-              description={seed.description}
-              slug={seed.slug}
-              publishedAt={seed.publishedAt ?? null}
-              tags={(seed.tags as { tag: string }[] | null) ?? []}
-              collection={seed.collection}
-            />
-          ))}
+        <div className="glass-panel rounded-2xl px-8 py-12 text-center">
+          <p className="text-slate-400">No published seeds yet.</p>
         </div>
+      ) : (
+        <section>
+          <h2 className="mb-5 text-sm font-semibold uppercase tracking-wider text-slate-400">
+            Recent Seeds
+          </h2>
+          <div className="grid gap-5 sm:grid-cols-2">
+            {seeds.map((seed) => (
+              <SeedCard
+                key={seed.slug}
+                title={seed.title}
+                description={seed.description}
+                slug={seed.slug}
+                publishedAt={seed.publishedAt ?? null}
+                tags={(seed.tags as { tag: string }[] | null) ?? []}
+                collection={seed.collection}
+              />
+            ))}
+          </div>
+        </section>
       )}
     </div>
   )

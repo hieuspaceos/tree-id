@@ -1,2 +1,120 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
+
+/* ── Liquid Glass Design System ── */
+
+@theme {
+  --color-glass-white: rgba(255, 255, 255, 0.12);
+  --color-glass-border: rgba(255, 255, 255, 0.18);
+  --color-glass-bg: rgba(255, 255, 255, 0.72);
+  --color-glass-card: rgba(255, 255, 255, 0.55);
+  --color-accent: #3b82f6;
+  --color-accent-soft: rgba(59, 130, 246, 0.08);
+  --color-leaf: #22c55e;
+  --color-leaf-soft: rgba(34, 197, 94, 0.10);
+}
+
+/* Animated mesh gradient background for body */
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(34, 197, 94, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 40% 80%, rgba(34, 197, 94, 0.05) 0%, transparent 50%),
+    #f8fafb;
+  background-attachment: fixed;
+}
+
+/* Reusable glass panel */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(16px) saturate(1.6);
+  -webkit-backdrop-filter: blur(16px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 8px 24px rgba(0, 0, 0, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* Glass card with hover lift */
+.glass-card {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(12px) saturate(1.4);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 16px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 4px 16px rgba(0, 0, 0, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.glass-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.05),
+    0 12px 32px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* Glass nav bar */
+.glass-nav {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.03);
+}
+
+/* Glass input field */
+.glass-input {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.04),
+    0 1px 0 rgba(255, 255, 255, 0.6);
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+.glass-input:focus {
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.04),
+    0 0 0 3px rgba(59, 130, 246, 0.1);
+  outline: none;
+}
+
+/* Tag pill with glass effect */
+.glass-tag {
+  background: rgba(59, 130, 246, 0.07);
+  border: 1px solid rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  padding: 2px 10px;
+  font-weight: 500;
+  transition: background 200ms ease;
+}
+.glass-tag:hover {
+  background: rgba(59, 130, 246, 0.12);
+}
+
+/* Smooth scroll for anchor links */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .glass-card:hover {
+    transform: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}

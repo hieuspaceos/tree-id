@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { TocHeading } from '@/components/lexical-renderer'
 
-/** Table of Contents with IntersectionObserver scroll-spy */
+/** Glass-styled Table of Contents with scroll-spy */
 export function Toc({ headings }: { headings: TocHeading[] }) {
   const [activeId, setActiveId] = useState<string>('')
   const observerRef = useRef<IntersectionObserver | null>(null)
@@ -36,17 +36,19 @@ export function Toc({ headings }: { headings: TocHeading[] }) {
   if (headings.length === 0) return null
 
   return (
-    <nav aria-label="Table of contents" className="text-sm">
-      <h4 className="mb-3 font-semibold text-gray-900">On this page</h4>
-      <ul className="space-y-1">
+    <nav aria-label="Table of contents" className="glass-panel rounded-2xl p-5 text-sm">
+      <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+        On this page
+      </h4>
+      <ul className="space-y-0.5">
         {headings.map((heading) => (
           <li key={heading.id} style={{ paddingLeft: `${Math.max(0, heading.level - 2) * 12}px` }}>
             <a
               href={`#${heading.id}`}
-              className={`block py-1 transition-colors ${
+              className={`block rounded-lg px-2.5 py-1.5 transition-all duration-200 cursor-pointer ${
                 activeId === heading.id
-                  ? 'font-medium text-blue-600'
-                  : 'text-gray-500 hover:text-gray-900'
+                  ? 'bg-blue-500/8 font-medium text-blue-600'
+                  : 'text-slate-500 hover:bg-black/[0.03] hover:text-slate-800'
               }`}
             >
               {heading.text}
