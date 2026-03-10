@@ -1,7 +1,7 @@
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { buildConfig } from 'payload'
-import type { Field, CollectionConfig } from 'payload'
+import type { Field, CollectionConfig, GlobalConfig } from 'payload'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { s3Storage } from '@payloadcms/storage-s3'
@@ -117,6 +117,24 @@ const Media = {
   fields: [{ name: 'alt', type: 'text' as const, required: true }],
 } satisfies CollectionConfig
 
+const SiteSettings: GlobalConfig = {
+  slug: 'site-settings',
+  label: 'Site Settings',
+  access: { read: publicRead, update: authOnly },
+  fields: [
+    {
+      name: 'themeId',
+      type: 'select',
+      label: 'Frontend Theme',
+      defaultValue: 'liquid-glass',
+      options: [
+        { label: 'Liquid Glass', value: 'liquid-glass' },
+      ],
+      admin: { description: 'Theme applied to the public frontend. Admin dashboard is not affected.' },
+    },
+  ],
+}
+
 export default buildConfig({
   serverURL: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
   secret: process.env.PAYLOAD_SECRET || '',
@@ -134,6 +152,7 @@ export default buildConfig({
   },
 
   collections: [Users, Articles, Notes, Records, Media],
+  globals: [SiteSettings],
 
   editor: lexicalEditor(),
 

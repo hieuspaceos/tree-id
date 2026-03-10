@@ -27,6 +27,17 @@ export async function getPublishedSeeds(
   }
 }
 
+/** Get the active theme id from site-settings global (falls back to site-config) */
+export async function getActiveThemeId(): Promise<string> {
+  try {
+    const payload = await getPayloadClient()
+    const settings = await payload.findGlobal({ slug: 'site-settings' as 'site-settings' })
+    return (settings as { themeId?: string }).themeId || 'liquid-glass'
+  } catch {
+    return 'liquid-glass'
+  }
+}
+
 /** Find a single seed by slug, returns null if not found */
 export async function getSeedBySlug(
   collection: 'articles' | 'notes',

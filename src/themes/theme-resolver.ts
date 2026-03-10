@@ -6,6 +6,11 @@ const themes: Record<string, ThemeDefinition> = {
   'liquid-glass': liquidGlass,
 }
 
+/** List all registered theme ids + names (for admin select options) */
+export function getAvailableThemes(): { value: string; label: string }[] {
+  return Object.values(themes).map((t) => ({ value: t.id, label: t.name }))
+}
+
 /** Resolve a theme by id (falls back to liquid-glass) */
 export function getTheme(id: string): ThemeDefinition {
   return themes[id] ?? liquidGlass

@@ -1,11 +1,15 @@
 import { Nav } from '@/components/nav'
 import { siteConfig } from '@/config/site-config'
 import { getTheme, themeToStyleVars } from '@/themes/theme-resolver'
+import { getActiveThemeId } from '@/lib/payload-helpers'
 
-const theme = getTheme(siteConfig.theme.id)
-const themeVars = themeToStyleVars(theme)
+export const revalidate = 3600
 
-export default function FrontendLayout({ children }: { children: React.ReactNode }) {
+export default async function FrontendLayout({ children }: { children: React.ReactNode }) {
+  const themeId = await getActiveThemeId()
+  const theme = getTheme(themeId)
+  const themeVars = themeToStyleVars(theme)
+
   return (
     <div
       style={{
