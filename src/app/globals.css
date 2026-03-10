@@ -1,36 +1,37 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-/* ── Liquid Glass Design System ── */
+/* ── Theme-aware Design Tokens ──
+   Values injected via --t-* CSS variables from src/themes/ */
 
 @theme {
   --color-glass-white: rgba(255, 255, 255, 0.12);
-  --color-glass-border: rgba(255, 255, 255, 0.18);
-  --color-glass-bg: rgba(255, 255, 255, 0.72);
-  --color-glass-card: rgba(255, 255, 255, 0.55);
-  --color-accent: #3b82f6;
-  --color-accent-soft: rgba(59, 130, 246, 0.08);
-  --color-leaf: #22c55e;
-  --color-leaf-soft: rgba(34, 197, 94, 0.10);
+  --color-glass-border: var(--t-glass-border);
+  --color-glass-bg: var(--t-glass-bg);
+  --color-glass-card: var(--t-glass-card);
+  --color-accent: var(--t-accent);
+  --color-accent-soft: var(--t-accent-soft);
+  --color-leaf: var(--t-secondary);
+  --color-leaf-soft: var(--t-secondary-soft);
 }
 
 /* Animated mesh gradient background for body */
 body {
   min-height: 100vh;
   background:
-    radial-gradient(ellipse at 20% 0%, rgba(34, 197, 94, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 40% 80%, rgba(34, 197, 94, 0.05) 0%, transparent 50%),
-    #f8fafb;
+    radial-gradient(ellipse at 20% 0%, var(--t-secondary-soft) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, var(--t-accent-soft) 0%, transparent 50%),
+    radial-gradient(ellipse at 40% 80%, var(--t-secondary-soft) 0%, transparent 50%),
+    var(--t-bg-base);
   background-attachment: fixed;
 }
 
 /* Reusable glass panel */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(16px) saturate(1.6);
-  -webkit-backdrop-filter: blur(16px) saturate(1.6);
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: var(--t-glass-bg);
+  backdrop-filter: blur(var(--t-glass-blur)) saturate(1.6);
+  -webkit-backdrop-filter: blur(var(--t-glass-blur)) saturate(1.6);
+  border: 1px solid var(--t-glass-border);
   box-shadow:
     0 1px 3px rgba(0, 0, 0, 0.04),
     0 8px 24px rgba(0, 0, 0, 0.03),
@@ -39,10 +40,10 @@ body {
 
 /* Glass card with hover lift */
 .glass-card {
-  background: rgba(255, 255, 255, 0.55);
+  background: var(--t-glass-card);
   backdrop-filter: blur(12px) saturate(1.4);
   -webkit-backdrop-filter: blur(12px) saturate(1.4);
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  border: 1px solid var(--t-glass-border);
   border-radius: 16px;
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.04),
@@ -82,18 +83,18 @@ body {
   transition: border-color 200ms ease, box-shadow 200ms ease;
 }
 .glass-input:focus {
-  border-color: rgba(59, 130, 246, 0.4);
+  border-color: color-mix(in srgb, var(--t-accent) 40%, transparent);
   box-shadow:
     inset 0 1px 3px rgba(0, 0, 0, 0.04),
-    0 0 0 3px rgba(59, 130, 246, 0.1);
+    0 0 0 3px color-mix(in srgb, var(--t-accent) 10%, transparent);
   outline: none;
 }
 
 /* Tag pill with glass effect */
 .glass-tag {
-  background: rgba(59, 130, 246, 0.07);
-  border: 1px solid rgba(59, 130, 246, 0.12);
-  color: #3b82f6;
+  background: var(--t-accent-soft);
+  border: 1px solid color-mix(in srgb, var(--t-accent) 12%, transparent);
+  color: var(--t-accent);
   border-radius: 9999px;
   font-size: 0.75rem;
   padding: 2px 10px;
@@ -101,7 +102,7 @@ body {
   transition: background 200ms ease;
 }
 .glass-tag:hover {
-  background: rgba(59, 130, 246, 0.12);
+  background: color-mix(in srgb, var(--t-accent) 12%, transparent);
 }
 
 /* Smooth scroll for anchor links */

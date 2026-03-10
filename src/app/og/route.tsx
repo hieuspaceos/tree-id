@@ -1,9 +1,11 @@
 import { ImageResponse } from '@vercel/og'
 import { siteConfig } from '@/config/site-config'
+import { getTheme } from '@/themes/theme-resolver'
 
 export const runtime = 'edge'
 
 export async function GET(request: Request) {
+  const theme = getTheme(siteConfig.theme.id)
   const { searchParams } = new URL(request.url)
   const title = searchParams.get('title')?.slice(0, 100) || siteConfig.name
   const desc = searchParams.get('desc')?.slice(0, 200) || siteConfig.description
@@ -18,7 +20,7 @@ export async function GET(request: Request) {
           width: '100%',
           height: '100%',
           padding: '48px',
-          background: siteConfig.theme.primaryColor,
+          background: theme.accent,
           color: 'white',
           fontFamily: 'sans-serif',
         }}

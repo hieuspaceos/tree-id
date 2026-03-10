@@ -1,13 +1,16 @@
 import { Nav } from '@/components/nav'
 import { siteConfig } from '@/config/site-config'
+import { getTheme, themeToStyleVars } from '@/themes/theme-resolver'
+
+const theme = getTheme(siteConfig.theme.id)
+const themeVars = themeToStyleVars(theme)
 
 export default function FrontendLayout({ children }: { children: React.ReactNode }) {
   return (
     <div
       style={{
-        '--color-primary': siteConfig.theme.primaryColor,
-        '--color-accent': siteConfig.theme.accentColor,
-        fontFamily: siteConfig.theme.fontFamily,
+        ...themeVars,
+        fontFamily: theme.fontFamily,
       } as React.CSSProperties}
     >
       <Nav />

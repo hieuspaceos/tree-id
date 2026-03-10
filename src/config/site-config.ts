@@ -13,9 +13,8 @@ export const siteConfig = {
     linkedin: '',
   },
   theme: {
-    primaryColor: '#0f172a',
-    accentColor: '#3b82f6',
-    fontFamily: 'Inter, sans-serif',
+    /** Theme id — matches a key in src/themes/theme-resolver.ts */
+    id: 'liquid-glass' as string,
   },
   features: {
     videoFactory: false,
