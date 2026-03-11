@@ -1,32 +1,50 @@
 /**
- * Markdoc content field — placeholder textarea (replaced by Milkdown in Phase 05)
+ * Markdoc content field — lazy loads Milkdown WYSIWYG editor
+ * Falls back to textarea while editor loads
  */
+import { lazy, Suspense } from 'react'
 import type { FieldProps } from './field-props'
 
-export function MarkdocField({ name, label, value, onChange, disabled }: FieldProps) {
+const MarkdocEditor = lazy(() => import('./markdoc-editor'))
+
+export function MarkdocField({ name, label, value, onChange, error, disabled }: FieldProps) {
+  if (disabled) {
+    return (
+      <div style={{ marginBottom: '1rem' }}>
+        <label htmlFor={name} className="admin-field-label">{label}</label>
+        <textarea
+          id={name}
+          value={(value as string) || ''}
+          className="glass-input admin-field-input"
+          rows={12}
+          disabled
+          style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8125rem', resize: 'vertical' }}
+        />
+      </div>
+    )
+  }
+
   return (
     <div style={{ marginBottom: '1rem' }}>
-      <label htmlFor={name} className="admin-field-label">
+      <label className="admin-field-label">
         {label}
-        <span style={{ color: '#94a3b8', fontWeight: 400, marginLeft: '0.5rem' }}>
-          (Markdown)
-        </span>
+        <span style={{ color: '#94a3b8', fontWeight: 400, marginLeft: '0.5rem' }}>(Markdown)</span>
       </label>
-      <textarea
-        id={name}
-        value={(value as string) || ''}
-        onChange={(e) => onChange(e.target.value)}
-        className="glass-input admin-field-input"
-        rows={16}
-        disabled={disabled}
-        style={{
-          resize: 'vertical',
-          minHeight: '200px',
-          fontFamily: 'ui-monospace, "Cascadia Code", "Fira Code", monospace',
-          fontSize: '0.8125rem',
-          lineHeight: 1.6,
-        }}
-      />
+      <Suspense
+        fallback={
+          <textarea
+            value={(value as string) || ''}
+            onChange={(e) => onChange(e.target.value)}
+            className="glass-input admin-field-input"
+            rows={12}
+            placeholder="Loading editor..."
+            style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8125rem', resize: 'vertical', minHeight: '200px' }}
+          />
+        }
+      >
+        <MarkdocEditor value={(value as string) || ''} onChange={(v) => onChange(v)} />
+      </Suspense>
+      {error && <p className="admin-field-error">{error}</p>}
     </div>
   )
 }
