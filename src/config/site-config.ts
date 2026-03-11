@@ -49,6 +49,14 @@ export const siteConfig = {
     search: true,
   },
 
+  /** Admin dashboard config — customizes the admin SPA at /admin */
+  admin: {
+    /** Title shown in sidebar header */
+    title: 'Admin',
+    /** Accent color override for admin UI (optional) */
+    brandColor: '',
+  },
+
   /** Cloudflare R2 — optional, only needed for video manifests / media storage
    *  Set R2_* env vars in .env.local and Vercel dashboard */
   r2: {

@@ -55,6 +55,20 @@ export interface ListResponse {
   total: number
 }
 
+export interface MediaItem {
+  key: string
+  url: string
+  size: number
+  lastModified: string | null
+}
+
+export interface MediaListResponse {
+  items: MediaItem[]
+  configured: boolean
+  hasMore?: boolean
+  nextCursor?: string | null
+}
+
 export const api = {
   auth: {
     login: (password: string) =>
@@ -107,5 +121,17 @@ export const api = {
       // Do NOT set Content-Type — browser sets multipart boundary
     })
     return res.json() as Promise<ApiResponse<{ url: string; key: string }>>
+  },
+
+  media: {
+    list: (cursor?: string) => {
+      const qs = cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''
+      return adminFetch<MediaListResponse>(`/api/admin/media${qs}`)
+    },
+    remove: (key: string) =>
+      adminFetch('/api/admin/media', {
+        method: 'DELETE',
+        body: JSON.stringify({ key }),
+      }),
   },
 }

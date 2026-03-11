@@ -147,6 +147,8 @@ Detail Page (/seeds/[slug])
 | `/rss.xml` | Prerendered | RSS feed (Bing/ChatGPT freshness) |
 | `/llms.txt` | Prerendered | AI/LLM site overview (speculative) |
 | `/llms-full.txt` | Prerendered | Extended AI context with metadata |
+| `/admin/[...path]` | SSR (hybrid) | Custom admin dashboard (auth protected) |
+| `/api/admin/*` | API Route | Admin CRUD: content, auth, media operations |
 
 ### Client-Side Islands
 
@@ -287,6 +289,181 @@ Themes are **CSS variable tokens** injected at build time.
 - Analytics + logs built-in
 - Free tier supports TreeID
 
+## Admin Dashboard Architecture
+
+**Custom admin at `/admin`** — Premium React SPA replacing Keystatic's default UI. Fully config-driven, exportable as npm package.
+
+### Admin Stack
+- **Frontend:** React islands in Astro (client-side routing)
+- **Editor:** Milkdown (ProseMirror-based, Markdown-native, ~80KB bundle)
+- **UI:** Radix UI headless + Tailwind CSS 4 glass-panel styling
+- **Auth:** Env-var password + 7-day session cookies via Astro middleware
+
+### Admin Architecture
+```
+POST /admin/[...path]
+  ↓
+Astro SSR shell (prerender: false)
+  ├─ Auth check via middleware (admin cookie)
+  └─ Render React AdminApp island
+        ├─ AdminSidebar (nav: Dashboard, Articles, Notes, Records, Media)
+        ├─ AdminTopbar (breadcrumbs, session indicator)
+        └─ Content area (dynamic per route)
+              ├─ ContentList (table + pagination)
+              ├─ ContentEditor (form + Milkdown editor + preview)
+              └─ MediaBrowser (grid + upload zone)
+
+POST /api/admin/* (API Routes)
+  ├─ /api/admin/login (username + password → session cookie)
+  ├─ /api/admin/content (GET list, POST create, PUT update, DELETE)
+  ├─ /api/admin/media (GET list, DELETE file)
+  ├─ /api/admin/upload (multipart: file → R2)
+  └─ All routes protected by auth middleware
+```
+
+### Admin Features
+- **Content CRUD:** Create, read, update, delete articles/notes/records
+- **Rich text:** Milkdown editor with Markdoc output (bold, italic, code blocks, lists, etc.)
+- **Media browser:** Drag-drop upload to R2, thumbnails, search, delete
+- **Media integration:** "Browse" buttons in cover/OG image fields, image insertion in editor
+- **Preview:** Opens seed detail page in new tab with draft content
+- **Keyboard shortcuts:** ? = help, Ctrl+S = save, Escape = close dialogs
+- **Error recovery:** Error boundary catches React crashes with recovery UI
+- **Loading states:** Skeleton components for async operations
+
+### Admin Configuration
+**File:** `src/config/site-config.ts`
+```typescript
+admin: {
+  title: 'Admin',         // shown in sidebar
+  brandColor: '#3b82f6',  // accent color (optional)
+}
+```
+
+### Admin Styling
+**File:** `src/styles/admin.css` (all admin-specific styles)
+- Glass-panel backgrounds with backdrop blur
+- Responsive grid layouts (media grid, form layouts)
+- Dialog/modal overlays
+- Loading skeletons (pulsing glass cards)
+- Upload zone drag-over states
+- Focus rings and keyboard navigation
+
+---
+
+## Media Management Architecture
+
+**Media storage & browser for admin dashboard.** Files upload to Cloudflare R2 with browser UI for selection/deletion.
+
+### Media Flow
+```
+User drag-drops file
+  ↓
+MediaUploadZone component
+  ├─ Client-side validation (type, size < 10MB)
+  └─ POST to /api/admin/upload (FormData: file + path)
+        ↓
+    Astro API route (SSR)
+      ├─ Validate file (MIME type, extension, size)
+      ├─ Sanitize filename (lowercase, hyphens)
+      └─ PutObjectCommand to R2 at media/{path}/{timestamp}-{filename}
+            ↓
+        Return { url, key }
+            ↓
+    MediaBrowser updates grid (optimistic UI)
+      ├─ Show thumbnail preview
+      └─ Enable copy/delete buttons
+```
+
+### Media API Routes
+- **GET /api/admin/media** — `ListObjectsV2` R2 objects with prefix `media/`
+  - Returns: `{ items: MediaItem[], hasMore, configured }`
+  - Query: `?prefix=media/shared/` (optional filter)
+  - Pagination: 1000 items per request, `ContinuationToken` for next page
+
+- **POST /api/admin/upload** — Multipart file upload
+  - Field: `file` (binary), `path` (form field, e.g., "shared" or "articles")
+  - Validation: type, size, extension on server
+  - Returns: `{ url, key }`
+
+- **DELETE /api/admin/media** — Remove file
+  - Body: `{ key: string }`
+  - Returns: `{ ok: true }`
+
+### Media Components
+- **MediaBrowser** (`src/components/admin/media-browser.tsx`)
+  - Modes: page (`/admin/media`) or dialog (from form fields)
+  - Top: search bar + upload zone
+  - Main: thumbnail grid (lazy-loaded)
+  - Selected: detail panel + actions
+
+- **MediaUploadZone** (`src/components/admin/media-upload-zone.tsx`)
+  - Drag-drop area with dashed border
+  - File input fallback
+  - Progress indicator (XHR progress event)
+  - Multiple file upload support
+  - Client-side validation feedback
+
+- **MediaGrid** (`src/components/admin/media-grid.tsx`)
+  - Responsive CSS grid (2 cols mobile, 4 cols desktop)
+  - MediaCard for each item
+  - Intersection observer for lazy thumbnail loading
+  - Empty state when no media
+
+- **MediaCard** (`src/components/admin/media-card.tsx`)
+  - Thumbnail (images) or icon (non-images)
+  - Filename + size
+  - Hover overlay: "Select" (dialog) or "Copy URL" (page) + "Delete"
+  - Glass-card styling
+
+### Media Integration Points
+1. **Cover image field** — ObjectField in content editor
+   - Browse Media button opens MediaBrowser dialog
+   - On select: sets `cover.url` to selected media URL
+
+2. **OG image field** — `seo.ogImage` text field
+   - Same integration as cover image
+
+3. **Editor image insertion** — Milkdown editor
+   - Image button opens MediaBrowser dialog
+   - On select: inserts `![alt](url)` Markdoc syntax
+
+### Media R2 Setup
+**Environment variables:** (optional, set to enable media)
+```
+R2_ACCESS_KEY_ID=xxx
+R2_SECRET_ACCESS_KEY=xxx
+R2_ENDPOINT=https://xxx.r2.cloudflarestorage.com
+R2_BUCKET=my-bucket
+R2_PUBLIC_URL=https://r2.example.com
+```
+
+**R2 bucket structure:**
+```
+media/
+  ├── shared/
+  │   ├── logo.png
+  │   └── hero-bg.jpg
+  ├── articles/
+  │   ├── my-article/
+  │   │   ├── cover.jpg
+  │   │   └── diagram.png
+  │   └── another-article/
+  └── notes/
+      └── trading-journal-001/
+```
+
+**Key naming:** `media/{collection}/{slug}/{timestamp}-{filename}`
+- Timestamp prevents collisions
+- Prefix-based: `GET /api/admin/media?prefix=media/articles/my-article/` lists only that article's media
+
+### Graceful Degradation
+- If R2 not configured (env vars missing): media UI hidden, text fields remain functional
+- Users can paste external URLs directly (Unsplash, Imgur, etc.)
+- No breaking changes to content editor workflow
+
+---
+
 ## Extension Points
 
 ### Add a New Page
@@ -301,7 +478,8 @@ Themes are **CSS variable tokens** injected at build time.
 1. **Keystatic:** Add collection to `keystatic.config.ts`
 2. **Astro:** Add collection to `src/content.config.ts`
 3. **Pages:** Create `src/pages/my-collection/[slug].astro`
-4. **Rebuild:** `npm run build`
+4. **Admin:** Media browser integrations auto-available via `schema-registry.ts`
+5. **Rebuild:** `npm run build`
 
 ### Add Custom CSS
 
@@ -323,6 +501,13 @@ export async function GET(context) {
 }
 ```
 
+### Customize Admin
+
+1. **Branding:** Update `site-config.ts` → `admin.title`, `admin.brandColor`
+2. **Theme:** Modify `src/themes/liquid-glass.ts`, CSS vars auto-apply
+3. **Components:** Edit React components in `src/components/admin/`
+4. **Export:** Components are tree-shakeable, exportable as npm package
+
 ---
 
 **Design Philosophy:**
@@ -333,7 +518,8 @@ TreeID prioritizes **simplicity, speed, and maintainability** over feature richn
 - **Minimal JS** → Fast interaction, no bloat
 - **Git-based CMS** → No lock-in, full control
 - **Type-safe content** → Catch errors at build time
+- **Admin as product** → Config-driven, exportable, white-label ready
 
 ---
 
-**Last updated:** 2026-03-10
+**Last updated:** 2026-03-11

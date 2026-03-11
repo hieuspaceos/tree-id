@@ -2,11 +2,13 @@
  * Admin SPA root — handles auth state, renders login or layout
  * Mounted via client:only="react" in Astro page
  */
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Router } from 'wouter'
 import { AdminToastProvider, useToast } from './admin-toast'
 import { AdminLogin } from './admin-login'
 import { AdminLayout } from './admin-layout'
+import { AdminErrorBoundary } from './admin-error-boundary'
+import { KeyboardShortcuts } from './keyboard-shortcuts'
 import { api } from '@/lib/admin/api-client'
 
 interface Props {
@@ -15,6 +17,7 @@ interface Props {
 
 function AdminAppInner({ siteName }: Props) {
   const [authed, setAuthed] = useState<boolean | null>(null) // null = checking
+  const [showShortcuts, setShowShortcuts] = useState(false)
   const toast = useToast()
 
   // Check session on mount
@@ -30,6 +33,35 @@ function AdminAppInner({ siteName }: Props) {
     const loader = document.getElementById('admin-loader')
     if (loader) loader.remove()
   }, [authed])
+
+  // Global keyboard shortcuts
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    // Skip when typing in input/textarea
+    const tag = (e.target as HTMLElement).tagName
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
+      // Only handle Ctrl+S inside form fields
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault()
+        // Trigger closest form submit
+        const form = (e.target as HTMLElement).closest('form')
+        if (form) form.requestSubmit()
+      }
+      return
+    }
+
+    if (e.key === '?' && !e.ctrlKey && !e.metaKey) {
+      e.preventDefault()
+      setShowShortcuts((s) => !s)
+    }
+    if (e.key === 'Escape') {
+      setShowShortcuts(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [handleKeyDown])
 
   async function handleLogout() {
     await api.auth.logout()
@@ -51,17 +83,20 @@ function AdminAppInner({ siteName }: Props) {
   return (
     <div className="admin-root">
       <AdminLayout siteName={siteName} onLogout={handleLogout} />
+      {showShortcuts && <KeyboardShortcuts onClose={() => setShowShortcuts(false)} />}
     </div>
   )
 }
 
-/** Root component mounted by Astro — wraps with Router + Toast providers */
+/** Root component mounted by Astro — wraps with Router + Toast + ErrorBoundary */
 export default function AdminApp({ siteName }: Props) {
   return (
     <Router base="/admin">
-      <AdminToastProvider>
-        <AdminAppInner siteName={siteName} />
-      </AdminToastProvider>
+      <AdminErrorBoundary>
+        <AdminToastProvider>
+          <AdminAppInner siteName={siteName} />
+        </AdminToastProvider>
+      </AdminErrorBoundary>
     </Router>
   )
 }

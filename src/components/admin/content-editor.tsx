@@ -163,6 +163,18 @@ export function ContentEditor({ collection, slug }: Props) {
             <button type="button" className="admin-btn admin-btn-ghost" onClick={() => navigate(`/${collection}`)}>
               Cancel
             </button>
+            {!isCreate && (
+              <button
+                type="button"
+                className="admin-btn admin-btn-ghost"
+                onClick={() => {
+                  const previewSlug = slug || (form.values.title as string || '').toLowerCase().replace(/\s+/g, '-')
+                  if (previewSlug) window.open(`/seeds/${previewSlug}`, '_blank')
+                }}
+              >
+                Preview
+              </button>
+            )}
             <button type="submit" className="admin-btn admin-btn-primary">
               {isCreate ? 'Create' : 'Save'}
             </button>

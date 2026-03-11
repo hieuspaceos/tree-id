@@ -12,4 +12,5 @@ export interface FieldProps {
   required?: boolean
   disabled?: boolean
   options?: FieldOption[]
+  mediaBrowse?: boolean
 }

@@ -3,7 +3,8 @@
  * No external WYSIWYG dependency (Milkdown caused Vite compatibility issues)
  * Provides markdown shortcuts via toolbar buttons and keyboard shortcuts
  */
-import { useRef, useCallback } from 'react'
+import { useState, useRef, useCallback } from 'react'
+import { MediaBrowser } from '../media-browser'
 import '@/styles/admin-editor.css'
 
 interface Props {
@@ -48,6 +49,7 @@ function insertAt(textarea: HTMLTextAreaElement, text: string, onChange: (v: str
 
 export default function MarkdocEditor({ value, onChange }: Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const [showMedia, setShowMedia] = useState(false)
 
   const fmt = useCallback(
     (prefix: string, suffix: string) => {
@@ -91,7 +93,7 @@ export default function MarkdocEditor({ value, onChange }: Props) {
         <button type="button" title="Blockquote" onClick={() => ins('\n> ')}>❝</button>
         <div className="toolbar-divider" />
         <button type="button" title="Link (Ctrl+K)" onClick={() => fmt('[', '](url)')}>🔗</button>
-        <button type="button" title="Image" onClick={() => ins('\n![alt](url)\n')}>🖼</button>
+        <button type="button" title="Insert image from media" onClick={() => setShowMedia(true)}>🖼</button>
         <button type="button" title="Code block" onClick={() => fmt('\n```\n', '\n```\n')}>{'{}'}</button>
         <button type="button" title="Horizontal rule" onClick={() => ins('\n---\n')}>—</button>
       </div>
@@ -104,6 +106,14 @@ export default function MarkdocEditor({ value, onChange }: Props) {
         spellCheck={false}
         style={{ minHeight: '350px' }}
       />
+
+      {showMedia && (
+        <MediaBrowser
+          mode="dialog"
+          onSelect={(url) => ins(`\n![](${url})\n`)}
+          onClose={() => setShowMedia(false)}
+        />
+      )}
     </div>
   )
 }

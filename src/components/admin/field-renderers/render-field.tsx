@@ -29,6 +29,7 @@ export function renderField(
     error,
     required: schema.required,
     disabled,
+    mediaBrowse: schema.mediaBrowse,
   }
 
   switch (schema.type) {

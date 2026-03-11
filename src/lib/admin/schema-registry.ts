@@ -16,6 +16,7 @@ export interface FieldSchema {
   options?: FieldOption[]
   fields?: FieldSchema[] // for object type
   defaultValue?: unknown
+  mediaBrowse?: boolean // show "Browse Media" button for URL fields
 }
 
 /** Shared seed fields (mirrors baseSeedFields in keystatic.config.ts) */
@@ -41,7 +42,7 @@ const baseSeedFields: FieldSchema[] = [
     label: 'SEO',
     fields: [
       { name: 'seoTitle', type: 'text', label: 'SEO Title' },
-      { name: 'ogImage', type: 'text', label: 'OG Image URL' },
+      { name: 'ogImage', type: 'text', label: 'OG Image URL', mediaBrowse: true },
       { name: 'noindex', type: 'checkbox', label: 'No Index' },
     ],
   },
@@ -50,7 +51,7 @@ const baseSeedFields: FieldSchema[] = [
     type: 'object',
     label: 'Cover Image',
     fields: [
-      { name: 'url', type: 'text', label: 'Cover URL' },
+      { name: 'url', type: 'text', label: 'Cover URL', mediaBrowse: true },
       { name: 'alt', type: 'text', label: 'Cover Alt Text' },
     ],
   },

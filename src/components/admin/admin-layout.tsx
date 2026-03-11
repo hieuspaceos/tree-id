@@ -10,6 +10,7 @@ import { AdminDashboard } from './admin-dashboard'
 import { ContentList } from './content-list'
 import { ContentEditor } from './content-editor'
 import { SettingsEditor } from './settings-editor'
+import { MediaBrowser } from './media-browser'
 
 interface Props {
   siteName: string
@@ -65,6 +66,11 @@ export function AdminLayout({ siteName, onLogout }: Props) {
           </Route>
           <Route path="/records/:slug">
             {(params) => <ContentEditor collection="records" slug={params.slug} />}
+          </Route>
+
+          {/* Media */}
+          <Route path="/media">
+            <MediaBrowser mode="page" />
           </Route>
 
           {/* Settings */}
