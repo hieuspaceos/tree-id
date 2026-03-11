@@ -125,6 +125,20 @@ export const api = {
 
   distribution: {
     stats: () => adminFetch<unknown>('/api/admin/distribution'),
+    generate: (collection: string, slug: string, language: 'auto' | 'vi' | 'en' = 'auto') =>
+      adminFetch<{ posts: Array<{ platform: string; content: string }> }>(
+        '/api/admin/distribution/generate',
+        { method: 'POST', body: JSON.stringify({ collection, slug, language }) },
+      ),
+    connectedPlatforms: () =>
+      adminFetch<{ platforms: string[]; integrationMap: Record<string, string>; configured: boolean }>(
+        '/api/admin/distribution/platforms',
+      ),
+    schedule: (platform: string, content: string, integrationId: string, scheduledAt?: string) =>
+      adminFetch<{ postId: string; integration: string }>(
+        '/api/admin/distribution/schedule',
+        { method: 'POST', body: JSON.stringify({ platform, content, integrationId, scheduledAt }) },
+      ),
   },
 
   media: {
