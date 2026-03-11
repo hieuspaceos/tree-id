@@ -11,6 +11,7 @@ import { ContentList } from './content-list'
 import { ContentEditor } from './content-editor'
 import { SettingsEditor } from './settings-editor'
 import { MediaBrowser } from './media-browser'
+import { MarketingDashboard } from './marketing-dashboard'
 
 interface Props {
   siteName: string
@@ -71,6 +72,11 @@ export function AdminLayout({ siteName, onLogout }: Props) {
           {/* Media */}
           <Route path="/media">
             <MediaBrowser mode="page" />
+          </Route>
+
+          {/* Marketing */}
+          <Route path="/marketing">
+            <MarketingDashboard />
           </Route>
 
           {/* Settings */}

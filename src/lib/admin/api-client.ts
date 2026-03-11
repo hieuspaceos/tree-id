@@ -123,6 +123,10 @@ export const api = {
     return res.json() as Promise<ApiResponse<{ url: string; key: string }>>
   },
 
+  distribution: {
+    stats: () => adminFetch<unknown>('/api/admin/distribution'),
+  },
+
   media: {
     list: (cursor?: string) => {
       const qs = cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''
