@@ -69,6 +69,7 @@ plans/**/*
 screenshots/*
 docs/screenshots/*
 logs.txt
+logs/distribution-log.csv
 test-ck
 __pycache__
 
