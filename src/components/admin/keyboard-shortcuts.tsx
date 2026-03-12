@@ -15,6 +15,17 @@ const shortcuts = [
   { key: 'Ctrl+B', desc: 'Bold (in editor)' },
   { key: 'Ctrl+I', desc: 'Italic (in editor)' },
   { key: 'Ctrl+K', desc: 'Insert link (in editor)' },
+  { key: 'Ctrl+Shift+I', desc: 'Insert image from media browser' },
+  { key: 'Enter', desc: 'Continue list/blockquote markup' },
+  { key: 'Tab', desc: 'Indent list item (in editor)' },
+  { key: 'Shift+Tab', desc: 'Dedent list item (in editor)' },
+  { key: 'Ctrl+Z', desc: 'Undo' },
+  { key: 'Ctrl+Shift+Z', desc: 'Redo' },
+  { key: 'Ctrl+F', desc: 'Find in editor' },
+  { key: 'Ctrl+H', desc: 'Find and replace' },
+  { key: 'Alt+Click', desc: 'Add cursor at click position' },
+  { key: 'Ctrl+D', desc: 'Select next occurrence' },
+  { key: 'Drag & Drop', desc: 'Drop images to upload and insert' },
 ]
 
 export function KeyboardShortcuts({ onClose }: Props) {
