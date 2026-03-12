@@ -1,19 +1,29 @@
 /**
- * Content editor — create/edit form for any collection
- * Renders fields from schema registry, handles save + validation
+ * Content editor — coordinator for two-column editor layout
+ * Handles load/save logic, wraps EditorMainPanel + EditorSidebarPanel
  */
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation } from 'wouter'
 import { api } from '@/lib/admin/api-client'
-import { getSchemaForCollection } from '@/lib/admin/schema-registry'
+import { getSchemaForCollection, type FieldSchema } from '@/lib/admin/schema-registry'
 import { useFormState } from '@/lib/admin/form-reducer'
-import { renderField } from './field-renderers/render-field'
+import { EditorMainPanel } from './editor-main-panel'
+import { EditorSidebarPanel } from './editor-sidebar-panel'
 import { useToast } from './admin-toast'
 
 interface Props {
   collection: string
-  slug?: string // undefined = create mode
+  slug?: string
 }
+
+/** Fields shown in main panel vs sidebar — main panel gets title, content, and collection-specific fields */
+const SIDEBAR_FIELDS = new Set([
+  'title', 'description', 'summary', 'status', 'publishedAt',
+  'tags', 'category', 'seo', 'cover', 'video', 'links',
+])
+
+/** Fields that are content areas (shown in main panel below slug) */
+const CONTENT_FIELDS = new Set(['content'])
 
 export function ContentEditor({ collection, slug }: Props) {
   const [, navigate] = useLocation()
@@ -22,13 +32,24 @@ export function ContentEditor({ collection, slug }: Props) {
   const form = useFormState({})
   const saving = useRef(false)
   const isCreate = !slug
+  const [editedSlug, setEditedSlug] = useState(slug || '')
+
+  // Categorize fields into main panel extras (not title/content/sidebar)
+  const contentField = schema.find((f) => CONTENT_FIELDS.has(f.name) && f.type === 'markdoc')
+  const extraFields: FieldSchema[] = schema.filter(
+    (f) => !SIDEBAR_FIELDS.has(f.name) && !CONTENT_FIELDS.has(f.name) && f.name !== 'title',
+  )
 
   // Load entry in edit mode
   useEffect(() => {
     if (!slug) return
     api.collections.read(collection, slug).then((res) => {
-      if (res.ok && res.data) form.reset(res.data as Record<string, unknown>)
-      else toast.error('Failed to load entry')
+      if (res.ok && res.data) {
+        form.reset(res.data as Record<string, unknown>)
+        setEditedSlug(slug)
+      } else {
+        toast.error('Failed to load entry')
+      }
     })
   }, [collection, slug])
 
@@ -81,8 +102,13 @@ export function ContentEditor({ collection, slug }: Props) {
     }
 
     try {
+      const slugChanged = !isCreate && editedSlug && editedSlug !== slug
+
       if (isCreate) {
-        const res = await api.collections.create(collection, form.values)
+        // For create, include slug if user typed one
+        const data = { ...form.values }
+        if (editedSlug) (data as Record<string, unknown>).slug = editedSlug
+        const res = await api.collections.create(collection, data)
         if (res.ok) {
           localStorage.removeItem(`admin-draft-${collection}-new`)
           toast.success('Created successfully')
@@ -90,11 +116,22 @@ export function ContentEditor({ collection, slug }: Props) {
         } else {
           toast.error(res.error || 'Create failed')
         }
+      } else if (slugChanged) {
+        // Slug changed — create new entry, delete old one
+        const data = { ...form.values, slug: editedSlug }
+        const createRes = await api.collections.create(collection, data)
+        if (createRes.ok) {
+          await api.collections.delete(collection, slug!)
+          toast.success('Saved (slug renamed)')
+          navigate(`/${collection}/${editedSlug}`)
+        } else {
+          toast.error(createRes.error || 'Rename failed')
+        }
       } else {
-        const res = await api.collections.update(collection, slug, form.values)
+        const res = await api.collections.update(collection, slug!, form.values)
         if (res.ok) {
           toast.success('Saved')
-          form.reset(form.values) // clear dirty flag
+          form.reset(form.values)
         } else {
           toast.error(res.error || 'Save failed')
         }
@@ -105,82 +142,60 @@ export function ContentEditor({ collection, slug }: Props) {
     saving.current = false
   }
 
+  function handleObjectChange(parentName: string, childName: string, value: unknown) {
+    const parent = (form.values[parentName] as Record<string, unknown>) || {}
+    form.setField(parentName, { ...parent, [childName]: value })
+  }
+
   const label = collection.charAt(0).toUpperCase() + collection.slice(1)
 
   return (
     <div>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-        <div>
-          <button
-            className="admin-btn admin-btn-ghost"
-            onClick={() => navigate(`/${collection}`)}
-            style={{ marginBottom: '0.5rem', padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}
-          >
-            ← Back to {label}
-          </button>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1e293b' }}>
-            {isCreate ? `New ${label.slice(0, -1)}` : form.values.title as string || 'Edit'}
-          </h1>
-        </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <button
+          className="admin-btn admin-btn-ghost"
+          onClick={() => navigate(`/${collection}`)}
+          style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}
+        >
+          ← Back to {label}
+        </button>
       </div>
 
-      {/* Form */}
-      <div className="glass-panel" style={{ padding: '1.5rem', borderRadius: '14px' }}>
-        <form onSubmit={(e) => { e.preventDefault(); handleSave() }}>
-          {schema.map((field) =>
-            renderField(
-              field,
-              field.type === 'object'
-                ? form.values[field.name]
-                : form.values[field.name],
-              (v) => form.setField(field.name, v),
-              false,
-              form.errors[field.name],
-            ),
-          )}
+      {/* Two-column layout */}
+      <form onSubmit={(e) => { e.preventDefault(); handleSave() }}>
+        <div className="editor-two-col">
+          <EditorMainPanel
+            collection={collection}
+            values={form.values}
+            errors={form.errors}
+            slug={slug}
+            editedSlug={editedSlug}
+            onSlugChange={setEditedSlug}
+            onFieldChange={form.setField}
+            contentField={contentField}
+            extraFields={extraFields}
+          />
 
-          {/* Sticky save bar */}
-          <div
-            style={{
-              position: 'sticky',
-              bottom: 0,
-              background: 'rgba(255,255,255,0.9)',
-              backdropFilter: 'blur(8px)',
-              padding: '1rem 0',
-              marginTop: '1rem',
-              borderTop: '1px solid var(--t-glass-border)',
-              display: 'flex',
-              gap: '0.75rem',
-              justifyContent: 'flex-end',
+          <EditorSidebarPanel
+            collection={collection}
+            values={form.values}
+            errors={form.errors}
+            dirty={form.dirty}
+            isCreate={isCreate}
+            slug={slug}
+            onFieldChange={form.setField}
+            onObjectChange={handleObjectChange}
+            onSave={handleSave}
+            onCancel={() => navigate(`/${collection}`)}
+            onPreview={() => {
+              const previewSlug = slug || editedSlug || (form.values.title as string || '').toLowerCase().replace(/\s+/g, '-')
+              const basePath = collection === 'articles' ? 'seeds' : collection
+              if (previewSlug) window.open(`/${basePath}/${previewSlug}`, '_blank')
             }}
-          >
-            {form.dirty && (
-              <span style={{ fontSize: '0.8rem', color: '#f59e0b', alignSelf: 'center', marginRight: 'auto' }}>
-                Unsaved changes
-              </span>
-            )}
-            <button type="button" className="admin-btn admin-btn-ghost" onClick={() => navigate(`/${collection}`)}>
-              Cancel
-            </button>
-            {!isCreate && (
-              <button
-                type="button"
-                className="admin-btn admin-btn-ghost"
-                onClick={() => {
-                  const previewSlug = slug || (form.values.title as string || '').toLowerCase().replace(/\s+/g, '-')
-                  if (previewSlug) window.open(`/seeds/${previewSlug}`, '_blank')
-                }}
-              >
-                Preview
-              </button>
-            )}
-            <button type="submit" className="admin-btn admin-btn-primary">
-              {isCreate ? 'Create' : 'Save'}
-            </button>
-          </div>
-        </form>
-      </div>
+          />
+        </div>
+      </form>
     </div>
   )
 }

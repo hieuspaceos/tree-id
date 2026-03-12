@@ -2,7 +2,7 @@
  * Admin layout — sidebar + topbar + content area with client-side routing
  * Routes are relative to wouter Router base="/admin"
  */
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Route, Switch } from 'wouter'
 import { AdminSidebar } from './admin-sidebar'
 import { AdminTopbar } from './admin-topbar'
@@ -12,22 +12,35 @@ import { ContentEditor } from './content-editor'
 import { SettingsEditor } from './settings-editor'
 import { MediaBrowser } from './media-browser'
 import { MarketingDashboard } from './marketing-dashboard'
+import { CategoriesList } from './categories-list'
+import { CategoryEditor } from './category-editor'
 
 interface Props {
   siteName: string
   onLogout: () => void
 }
 
+const SIDEBAR_KEY = 'admin-sidebar-collapsed'
+
 export function AdminLayout({ siteName, onLogout }: Props) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try { return localStorage.getItem(SIDEBAR_KEY) === 'true' } catch { return false }
+  })
+
+  useEffect(() => {
+    try { localStorage.setItem(SIDEBAR_KEY, String(sidebarCollapsed)) } catch {}
+  }, [sidebarCollapsed])
 
   return (
-    <div>
+    <div className={sidebarCollapsed ? 'admin-wrapper sidebar-collapsed' : 'admin-wrapper'}>
       <AdminSidebar
         siteName={siteName}
         open={sidebarOpen}
+        collapsed={sidebarCollapsed}
         onClose={() => setSidebarOpen(false)}
         onLogout={onLogout}
+        onToggleCollapse={() => setSidebarCollapsed((c) => !c)}
       />
 
       <main className="admin-main">
@@ -67,6 +80,17 @@ export function AdminLayout({ siteName, onLogout }: Props) {
           </Route>
           <Route path="/records/:slug">
             {(params) => <ContentEditor collection="records" slug={params.slug} />}
+          </Route>
+
+          {/* Categories */}
+          <Route path="/categories">
+            <CategoriesList />
+          </Route>
+          <Route path="/categories/new">
+            <CategoryEditor />
+          </Route>
+          <Route path="/categories/:slug">
+            {(params) => <CategoryEditor slug={params.slug} />}
           </Route>
 
           {/* Media */}

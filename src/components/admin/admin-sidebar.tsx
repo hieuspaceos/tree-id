@@ -1,6 +1,6 @@
 /**
  * Admin sidebar navigation — fixed left panel with nav links
- * Collapsible on mobile via hamburger toggle
+ * Collapsible on desktop (icon-only mode), mobile overlay via hamburger
  * Routes are relative — wouter Router base="/admin" handles the prefix
  */
 import { useLocation, Link } from 'wouter'
@@ -32,6 +32,11 @@ const icons = {
       <ellipse cx="12" cy="5" rx="9" ry="3" />
       <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
       <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+    </svg>
+  ),
+  folder: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
     </svg>
   ),
   image: (
@@ -67,18 +72,29 @@ const icons = {
       <line x1="21" y1="12" x2="9" y2="12" />
     </svg>
   ),
+  chevronLeft: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="15 18 9 12 15 6" />
+    </svg>
+  ),
+  chevronRight: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="9 18 15 12 9 6" />
+    </svg>
+  ),
 }
 
 interface Props {
   siteName: string
   open: boolean
+  collapsed: boolean
   onClose: () => void
   onLogout: () => void
+  onToggleCollapse: () => void
 }
 
-function NavItem({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
+function NavItem({ href, icon, label, collapsed }: { href: string; icon: React.ReactNode; label: string; collapsed: boolean }) {
   const [location] = useLocation()
-  // wouter base="/admin" gives us relative locations
   const isActive = href === '/'
     ? location === '/' || location === ''
     : location.startsWith(href)
@@ -87,51 +103,66 @@ function NavItem({ href, icon, label }: { href: string; icon: React.ReactNode; l
     <Link
       href={href}
       className={`admin-nav-item ${isActive ? 'active' : ''}`}
+      title={collapsed ? label : undefined}
     >
       {icon}
-      {label}
+      {!collapsed && label}
     </Link>
   )
 }
 
-export function AdminSidebar({ siteName, open, onClose, onLogout }: Props) {
+export function AdminSidebar({ siteName, open, collapsed, onClose, onLogout, onToggleCollapse }: Props) {
   return (
     <>
       {open && <div className="admin-sidebar-backdrop" onClick={onClose} />}
 
-      <aside className={`admin-sidebar ${open ? 'open' : ''}`}>
-        <div style={{ padding: '0 1.5rem 1rem', fontWeight: 700, fontSize: '1.1rem', color: '#1e293b' }}>
-          {siteName}
+      <aside className={`admin-sidebar ${open ? 'open' : ''} ${collapsed ? 'collapsed' : ''}`}>
+        <div className="admin-sidebar-header">
+          {!collapsed && (
+            <span className="admin-sidebar-title">{siteName}</span>
+          )}
+          <button
+            className="admin-sidebar-toggle"
+            onClick={onToggleCollapse}
+            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {collapsed ? icons.chevronRight : icons.chevronLeft}
+          </button>
         </div>
 
         <div className="admin-nav-divider" />
 
-        <NavItem href="/" icon={icons.home} label="Dashboard" />
+        <NavItem href="/" icon={icons.home} label="Dashboard" collapsed={collapsed} />
 
-        <div className="admin-nav-section">Content</div>
-        <NavItem href="/articles" icon={icons.fileText} label="Articles" />
-        <NavItem href="/notes" icon={icons.stickyNote} label="Notes" />
-        <NavItem href="/records" icon={icons.database} label="Records" />
+        {!collapsed && <div className="admin-nav-section">Content</div>}
+        {collapsed && <div className="admin-nav-divider" style={{ margin: '0.25rem 0.5rem' }} />}
+        <NavItem href="/articles" icon={icons.fileText} label="Articles" collapsed={collapsed} />
+        <NavItem href="/notes" icon={icons.stickyNote} label="Notes" collapsed={collapsed} />
+        <NavItem href="/records" icon={icons.database} label="Records" collapsed={collapsed} />
+        <NavItem href="/categories" icon={icons.folder} label="Categories" collapsed={collapsed} />
 
-        <div className="admin-nav-section">Assets</div>
-        <NavItem href="/media" icon={icons.image} label="Media" />
+        {!collapsed && <div className="admin-nav-section">Assets</div>}
+        {collapsed && <div className="admin-nav-divider" style={{ margin: '0.25rem 0.5rem' }} />}
+        <NavItem href="/media" icon={icons.image} label="Media" collapsed={collapsed} />
 
-        <div className="admin-nav-section">Marketing</div>
-        <NavItem href="/marketing" icon={icons.megaphone} label="Distribution" />
+        {!collapsed && <div className="admin-nav-section">Marketing</div>}
+        {collapsed && <div className="admin-nav-divider" style={{ margin: '0.25rem 0.5rem' }} />}
+        <NavItem href="/marketing" icon={icons.megaphone} label="Distribution" collapsed={collapsed} />
 
-        <div className="admin-nav-section">System</div>
-        <NavItem href="/settings" icon={icons.settings} label="Settings" />
+        {!collapsed && <div className="admin-nav-section">System</div>}
+        {collapsed && <div className="admin-nav-divider" style={{ margin: '0.25rem 0.5rem' }} />}
+        <NavItem href="/settings" icon={icons.settings} label="Settings" collapsed={collapsed} />
 
         <div style={{ flex: 1 }} />
         <div className="admin-nav-divider" />
 
-        <a href="/" target="_blank" rel="noopener noreferrer" className="admin-nav-item">
+        <a href="/" target="_blank" rel="noopener noreferrer" className="admin-nav-item" title={collapsed ? 'Back to site' : undefined}>
           {icons.externalLink}
-          Back to site
+          {!collapsed && 'Back to site'}
         </a>
-        <button onClick={onLogout} className="admin-nav-item">
+        <button onClick={onLogout} className="admin-nav-item" title={collapsed ? 'Logout' : undefined}>
           {icons.logOut}
-          Logout
+          {!collapsed && 'Logout'}
         </button>
       </aside>
     </>
