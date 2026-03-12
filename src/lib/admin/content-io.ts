@@ -17,6 +17,7 @@ export interface EntryMeta {
   publishedAt?: string | null
   tags?: string[]
   category?: string | null
+  seoScore?: number | null
 }
 
 export interface EntryData extends EntryMeta {
@@ -100,6 +101,7 @@ export class LocalContentIO implements ContentIO {
               publishedAt: data.publishedAt as string | undefined,
               tags: data.tags as string[] | undefined,
               category: data.category as string | undefined,
+              seoScore: (data.seoScore as number) ?? null,
             })
           }
         } catch {
@@ -360,6 +362,7 @@ function pickMeta(entry: EntryData): EntryMeta {
     publishedAt: entry.publishedAt as string | undefined,
     tags: entry.tags as string[] | undefined,
     category: entry.category as string | undefined,
+    seoScore: (entry.seoScore as number) ?? null,
   }
 }
 

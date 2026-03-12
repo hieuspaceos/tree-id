@@ -15,12 +15,14 @@ const baseSeedSchema = z.object({
   category: z.string().optional().nullable(),
   seo: z
     .object({
+      focusKeyword: z.string().optional().nullable(),
       seoTitle: z.string().optional().nullable(),
       ogImage: z.string().optional().nullable(),
       noindex: z.boolean().default(false),
     })
     .optional()
     .nullable(),
+  seoScore: z.number().optional().nullable(),
   cover: z
     .object({
       url: z.string().optional().nullable(),

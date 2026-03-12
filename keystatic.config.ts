@@ -32,6 +32,7 @@ const baseSeedFields = {
   category: fields.text({ label: 'Category' }),
   seo: fields.object(
     {
+      focusKeyword: fields.text({ label: 'Focus Keyword' }),
       seoTitle: fields.text({ label: 'SEO Title' }),
       ogImage: fields.text({ label: 'OG Image URL' }),
       noindex: fields.checkbox({ label: 'No Index', defaultValue: false }),
@@ -104,6 +105,7 @@ export default config({
           name: { label: 'Title', validation: { isRequired: true } },
         }),
         ...baseSeedFields,
+        seoScore: fields.integer({ label: 'SEO Score', validation: { isRequired: false } }),
         content: fields.markdoc({ label: 'Content' }),
       },
     }),

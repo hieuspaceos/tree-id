@@ -48,6 +48,7 @@ export interface EntryMeta {
   publishedAt?: string | null
   tags?: string[]
   category?: string | null
+  seoScore?: number | null
 }
 
 export interface ListResponse {

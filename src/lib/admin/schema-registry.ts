@@ -47,6 +47,7 @@ const baseSeedFields: FieldSchema[] = [
     type: 'object',
     label: 'SEO',
     fields: [
+      { name: 'focusKeyword', type: 'text', label: 'Focus Keyword' },
       { name: 'seoTitle', type: 'text', label: 'SEO Title' },
       { name: 'ogImage', type: 'text', label: 'OG Image URL', mediaBrowse: true },
       { name: 'noindex', type: 'checkbox', label: 'No Index' },

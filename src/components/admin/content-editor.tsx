@@ -5,6 +5,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation } from 'wouter'
 import { api } from '@/lib/admin/api-client'
+import { analyzeSeo } from '@/lib/admin/seo-analyzer'
 import { getSchemaForCollection, type FieldSchema } from '@/lib/admin/schema-registry'
 import { useFormState } from '@/lib/admin/form-reducer'
 import { EditorMainPanel } from './editor-main-panel'
@@ -16,11 +17,8 @@ interface Props {
   slug?: string
 }
 
-/** Fields shown in main panel vs sidebar — main panel gets title, content, and collection-specific fields */
-const SIDEBAR_FIELDS = new Set([
-  'title', 'description', 'summary', 'status', 'publishedAt',
-  'tags', 'category', 'seo', 'cover', 'video', 'links',
-])
+/** Fields kept in sticky sidebar (Publish + SEO only) */
+const SIDEBAR_FIELDS = new Set(['title', 'status', 'publishedAt', 'seo', 'seoScore'])
 
 /** Fields that are content areas (shown in main panel below slug) */
 const CONTENT_FIELDS = new Set(['content'])
@@ -102,11 +100,29 @@ export function ContentEditor({ collection, slug }: Props) {
     }
 
     try {
+      // Compute SEO score for articles before saving
+      const saveValues = { ...form.values }
+      if (collection === 'articles') {
+        const seo = (saveValues.seo as Record<string, string>) || {}
+        const cover = (saveValues.cover as Record<string, string>) || {}
+        const links = (saveValues.links as Record<string, unknown>) || {}
+        const result = analyzeSeo({
+          title: (saveValues.title as string) || '',
+          description: (saveValues.description as string) || '',
+          slug: editedSlug || slug || '',
+          content: (saveValues.content as string) || '',
+          seo, cover,
+          tags: (saveValues.tags as string[]) || [],
+          links: { outbound: (links.outbound as string[]) || [] },
+        })
+        saveValues.seoScore = result.score
+      }
+
       const slugChanged = !isCreate && editedSlug && editedSlug !== slug
 
       if (isCreate) {
         // For create, include slug if user typed one
-        const data = { ...form.values }
+        const data = { ...saveValues }
         if (editedSlug) (data as Record<string, unknown>).slug = editedSlug
         const res = await api.collections.create(collection, data)
         if (res.ok) {
@@ -118,7 +134,7 @@ export function ContentEditor({ collection, slug }: Props) {
         }
       } else if (slugChanged) {
         // Slug changed — create new entry, delete old one
-        const data = { ...form.values, slug: editedSlug }
+        const data = { ...saveValues, slug: editedSlug }
         const createRes = await api.collections.create(collection, data)
         if (createRes.ok) {
           await api.collections.delete(collection, slug!)
@@ -128,10 +144,10 @@ export function ContentEditor({ collection, slug }: Props) {
           toast.error(createRes.error || 'Rename failed')
         }
       } else {
-        const res = await api.collections.update(collection, slug!, form.values)
+        const res = await api.collections.update(collection, slug!, saveValues)
         if (res.ok) {
           toast.success('Saved')
-          form.reset(form.values)
+          form.reset(saveValues)
         } else {
           toast.error(res.error || 'Save failed')
         }
@@ -173,6 +189,7 @@ export function ContentEditor({ collection, slug }: Props) {
             editedSlug={editedSlug}
             onSlugChange={setEditedSlug}
             onFieldChange={form.setField}
+            onObjectChange={handleObjectChange}
             contentField={contentField}
             extraFields={extraFields}
           />

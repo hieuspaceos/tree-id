@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation } from 'wouter'
 import { api, type EntryMeta } from '@/lib/admin/api-client'
+import { SeoScoreBadge } from './seo-score-badge'
 import { useToast } from './admin-toast'
 import { DeleteDialog } from './delete-dialog'
 
@@ -115,6 +116,7 @@ export function ContentList({ collection }: Props) {
                   Title {sortBy === 'title' && (sortDir === 'asc' ? '↑' : '↓')}
                 </th>
                 <th>Status</th>
+                {collection === 'articles' && <th style={{ width: '60px' }}>SEO</th>}
                 <th style={{ cursor: 'pointer' }} onClick={() => toggleSort('publishedAt')}>
                   Published {sortBy === 'publishedAt' && (sortDir === 'asc' ? '↑' : '↓')}
                 </th>
@@ -128,6 +130,11 @@ export function ContentList({ collection }: Props) {
                   <td>
                     <span className={`admin-badge admin-badge-${entry.status}`}>{entry.status}</span>
                   </td>
+                  {collection === 'articles' && (
+                    <td style={{ textAlign: 'center' }}>
+                      {entry.seoScore != null ? <SeoScoreBadge score={entry.seoScore} size={28} /> : <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}>—</span>}
+                    </td>
+                  )}
                   <td style={{ color: '#94a3b8', fontSize: '0.8125rem' }}>{entry.publishedAt || '—'}</td>
                   <td>
                     <button

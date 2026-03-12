@@ -3,6 +3,7 @@
  */
 import type { APIRoute } from 'astro'
 import { getContentIO } from '@/lib/admin/content-io'
+import { analyzeSeo } from '@/lib/admin/seo-analyzer'
 import { isValidCollection } from '@/lib/admin/validation'
 import { validateEntry } from '@/lib/admin/validation'
 import { slugify, uniqueSlug } from '@/lib/admin/slug'
@@ -18,6 +19,32 @@ export const GET: APIRoute = async ({ params, url }) => {
 
   const io = getContentIO()
   const entries = await io.listCollection(collection)
+
+  // Compute SEO scores on-the-fly for articles missing scores
+  if (collection === 'articles') {
+    for (const entry of entries) {
+      if (entry.seoScore == null) {
+        try {
+          const full = await io.readEntry(collection, entry.slug)
+          if (full) {
+            const seo = (full.seo as Record<string, string>) || {}
+            const cover = (full.cover as Record<string, string>) || {}
+            const links = (full.links as Record<string, unknown>) || {}
+            const result = analyzeSeo({
+              title: full.title || '',
+              description: full.description || '',
+              slug: entry.slug,
+              content: (full.content as string) || '',
+              seo, cover,
+              tags: (full.tags as string[]) || [],
+              links: { outbound: (links.outbound as string[]) || [] },
+            })
+            entry.seoScore = result.score
+          }
+        } catch { /* skip on error */ }
+      }
+    }
+  }
 
   // Apply query filters
   const status = url.searchParams.get('status')
