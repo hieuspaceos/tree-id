@@ -4,7 +4,7 @@
  */
 
 /** Allowed collection names (prevents path traversal) */
-export const ALLOWED_COLLECTIONS = ['articles', 'notes', 'records'] as const
+export const ALLOWED_COLLECTIONS = ['articles', 'notes', 'records', 'categories'] as const
 export type CollectionName = (typeof ALLOWED_COLLECTIONS)[number]
 
 /** Allowed singleton names */
@@ -35,7 +35,15 @@ interface ValidationResult {
 export function validateEntry(collection: string, data: Record<string, unknown>): ValidationResult {
   const errors: string[] = []
 
-  // Common required fields
+  // Categories have different required fields
+  if (collection === 'categories') {
+    if (!data.name || typeof data.name !== 'string' || !data.name.trim()) {
+      errors.push('name is required')
+    }
+    return { valid: errors.length === 0, errors }
+  }
+
+  // Common required fields for content collections
   if (!data.title || typeof data.title !== 'string' || !data.title.trim()) {
     errors.push('title is required')
   }

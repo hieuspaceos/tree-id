@@ -1,6 +1,6 @@
 // Content collection query helpers — replaces payload-helpers.ts
 // Uses Astro's getCollection API (astro:content) for type-safe, filter-aware queries
-import { getCollection } from 'astro:content'
+import { getCollection, getEntry } from 'astro:content'
 
 /** Get all published entries from a single collection, sorted by publishedAt desc */
 export async function getPublishedSeeds(collectionName: 'articles' | 'notes') {
@@ -31,4 +31,20 @@ export async function getAllPublishedSeeds() {
     const dateB = b.data.publishedAt ? new Date(b.data.publishedAt).getTime() : 0
     return dateB - dateA
   })
+}
+
+/** Get all categories */
+export async function getAllCategories() {
+  return getCollection('categories')
+}
+
+/** Get a single category by slug */
+export async function getCategoryBySlug(slug: string) {
+  return getEntry('categories', slug)
+}
+
+/** Get all published seeds filtered by category slug */
+export async function getSeedsByCategory(categorySlug: string) {
+  const seeds = await getAllPublishedSeeds()
+  return seeds.filter((s) => s.data.category === categorySlug)
 }

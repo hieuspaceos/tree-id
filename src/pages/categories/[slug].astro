@@ -1,0 +1,54 @@
+---
+import BaseLayout from '@/layouts/base-layout.astro'
+import SeedCard from '@/components/seed-card.astro'
+import { getAllCategories, getSeedsByCategory } from '@/lib/content-helpers'
+
+export async function getStaticPaths() {
+  const categories = await getAllCategories()
+  return categories.map((cat) => ({
+    params: { slug: cat.id },
+    props: { category: cat },
+  }))
+}
+
+const { category } = Astro.props
+const seeds = await getSeedsByCategory(category.id)
+---
+
+<BaseLayout title={category.data.name} description={category.data.description || `Seeds in ${category.data.name}`}>
+  <section class="mb-8">
+    <div class="mb-6 flex items-center gap-3">
+      <span
+        class="inline-block h-4 w-4 rounded-full"
+        style={`background-color: ${category.data.color || '#6366f1'}`}
+      />
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900">{category.data.name}</h1>
+    </div>
+    {category.data.description && (
+      <p class="mb-6 text-slate-500">{category.data.description}</p>
+    )}
+
+    {seeds.length === 0 ? (
+      <div class="glass-panel rounded-2xl px-8 py-12 text-center">
+        <p class="text-slate-400">No published seeds in this category yet.</p>
+      </div>
+    ) : (
+      <div class="grid gap-5 sm:grid-cols-2">
+        {seeds.map((seed) => (
+          <SeedCard
+            title={seed.data.title}
+            description={seed.data.description}
+            slug={seed.id}
+            publishedAt={seed.data.publishedAt ?? null}
+            tags={seed.data.tags ?? []}
+            collection={seed.collection}
+          />
+        ))}
+      </div>
+    )}
+
+    <div class="mt-6">
+      <a href="/categories" class="text-sm text-slate-400 hover:text-slate-600">← All categories</a>
+    </div>
+  </section>
+</BaseLayout>

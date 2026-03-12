@@ -79,6 +79,20 @@ export default config({
     ? { kind: 'github', repo: 'hieuspaceos/tree-id' }
     : { kind: 'local' },
   collections: {
+    // Categories: taxonomy for organizing content
+    categories: collection({
+      label: 'Categories',
+      slugField: 'name',
+      path: 'src/content/categories/*',
+      format: { data: 'yaml' },
+      schema: {
+        name: fields.slug({
+          name: { label: 'Name', validation: { isRequired: true } },
+        }),
+        description: fields.text({ label: 'Description', multiline: true }),
+        color: fields.text({ label: 'Color (hex)', validation: { isRequired: false } }),
+      },
+    }),
     // Articles: long-form Markdoc content (replaces Payload Lexical richText)
     articles: collection({
       label: 'Articles',

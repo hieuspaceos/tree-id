@@ -66,7 +66,8 @@ export const POST: APIRoute = async ({ params, request }) => {
 
     const io = getContentIO()
     const existing = await io.listSlugs(collection)
-    const baseSlug = slugify(body.title as string)
+    const slugSource = (body.title || body.name) as string
+    const baseSlug = slugify(slugSource)
     const slug = uniqueSlug(baseSlug, existing)
 
     // Set defaults

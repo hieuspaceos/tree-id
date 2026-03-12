@@ -10,13 +10,14 @@ export interface FieldOption {
 
 export interface FieldSchema {
   name: string
-  type: 'text' | 'textarea' | 'select' | 'checkbox' | 'date' | 'array' | 'object' | 'markdoc'
+  type: 'text' | 'textarea' | 'select' | 'checkbox' | 'date' | 'array' | 'object' | 'markdoc' | 'dynamic-select' | 'color'
   label: string
   required?: boolean
   options?: FieldOption[]
   fields?: FieldSchema[] // for object type
   defaultValue?: unknown
   mediaBrowse?: boolean // show "Browse Media" button for URL fields
+  apiEndpoint?: string // for dynamic-select: fetch options from this API
 }
 
 /** Shared seed fields (mirrors baseSeedFields in keystatic.config.ts) */
@@ -35,7 +36,12 @@ const baseSeedFields: FieldSchema[] = [
   },
   { name: 'publishedAt', type: 'date', label: 'Published At' },
   { name: 'tags', type: 'array', label: 'Tags' },
-  { name: 'category', type: 'text', label: 'Category' },
+  {
+    name: 'category',
+    type: 'dynamic-select',
+    label: 'Category',
+    apiEndpoint: '/api/admin/collections/categories',
+  },
   {
     name: 'seo',
     type: 'object',
@@ -109,6 +115,11 @@ export const collectionSchemas: Record<string, FieldSchema[]> = {
       defaultValue: 'project',
     },
     { name: 'recordData', type: 'textarea', label: 'Record Data (JSON)' },
+  ],
+  categories: [
+    { name: 'name', type: 'text', label: 'Name', required: true },
+    { name: 'description', type: 'textarea', label: 'Description' },
+    { name: 'color', type: 'color', label: 'Color' },
   ],
 }
 

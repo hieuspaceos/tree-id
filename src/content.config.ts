@@ -66,4 +66,14 @@ const records = defineCollection({
   }),
 })
 
-export const collections = { articles, notes, records }
+// Categories: taxonomy for organizing content in src/content/categories/*.yaml
+const categories = defineCollection({
+  loader: glob({ pattern: '**/*.yaml', base: './src/content/categories' }),
+  schema: z.object({
+    name: z.string(),
+    description: z.string().optional().nullable(),
+    color: z.string().optional().nullable(),
+  }),
+})
+
+export const collections = { articles, notes, records, categories }

@@ -6,9 +6,11 @@ interface Props {
   publishedAt: string | null
   tags: string[]
   collection: 'articles' | 'notes'
+  categoryName?: string
+  categoryColor?: string
 }
 
-const { title, description, slug, publishedAt, tags, collection } = Astro.props
+const { title, description, slug, publishedAt, tags, collection, categoryName, categoryColor } = Astro.props
 
 const date = publishedAt
   ? new Date(publishedAt).toLocaleDateString('en-US', {
@@ -42,6 +44,11 @@ const isArticle = collection === 'articles'
       )}
       <span class="capitalize">{collection}</span>
     </span>
+    {categoryName && (
+      <span class="category-badge" style={`background: ${categoryColor || '#6366f1'}20; color: ${categoryColor || '#6366f1'}`}>
+        {categoryName}
+      </span>
+    )}
     {date && <time datetime={publishedAt!} class="text-slate-400">{date}</time>}
   </div>
 

@@ -11,6 +11,8 @@ import { DateField } from './date-field'
 import { ArrayField } from './array-field'
 import { ObjectField } from './object-field'
 import { MarkdocField } from './markdoc-field'
+import { DynamicSelectField } from './dynamic-select-field'
+import { ColorField } from './color-field'
 
 /** Render a single field from its schema definition */
 export function renderField(
@@ -47,6 +49,10 @@ export function renderField(
       return <ArrayField key={key} {...baseProps} />
     case 'markdoc':
       return <MarkdocField key={key} {...baseProps} />
+    case 'dynamic-select':
+      return <DynamicSelectField key={key} {...baseProps} apiEndpoint={schema.apiEndpoint} />
+    case 'color':
+      return <ColorField key={key} {...baseProps} />
     case 'object':
       return (
         <ObjectField
