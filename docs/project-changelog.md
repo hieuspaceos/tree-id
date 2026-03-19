@@ -4,6 +4,39 @@ All notable changes to Tree Identity are documented here.
 
 ## Releases
 
+### v2.1.0 — MVP Feature Bundle + Consolidation (2026-03-12 → 2026-03-19)
+
+**Status:** Complete
+
+Extended the admin dashboard with major features and stabilized the codebase.
+
+#### MVP Feature Bundle (2026-03-12)
+- Multi-user auth: `ADMIN_USERS` env var (JSON array), username+password, roles (admin/editor)
+- About page: `/about` with hero, bio, skills, projects grid from Records collection
+- 404 page polish: glass-themed, tree metaphor, Pagefind search integration
+- Email capture: Resend API + git-tracked YAML subscribers, subscribe/unsubscribe/broadcast APIs
+- GA4 analytics: gtag.js conditional on `GA_MEASUREMENT_ID`, admin analytics page
+- Integration status panel in admin settings
+- New env vars: `ADMIN_USERS`, `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `GA_MEASUREMENT_ID`
+
+#### CodeMirror 6 Editor (2026-03-12)
+- Replaced textarea with Obsidian-like CM6 editor (11 modules in `codemirror/`)
+- Live Preview, smart lists, auto-pairs, heading fold, image preview widget
+- Callout blocks, typewriter mode, vim mode (lazy-loaded), drag-drop upload
+- Glass morphism theme matching admin CSS vars
+
+#### SEO Score Panel (2026-03-12)
+- RankMath-style real-time SEO analysis with 18 checks
+- Score badge in content list, detail panel in editor sidebar
+
+#### Testing & Consolidation (2026-03-19)
+- Vitest setup with 88 tests across 6 test files
+- Tests cover: auth (JWT, password hashing, multi-user), content I/O (CRUD round-trips), SEO analyzer, subscriber I/O, validation, schema registry
+- Modularized `content-io.ts` (379 LOC → 4 files, each <200 LOC)
+- Updated README, changelog, roadmap, version alignment (v2.0.0)
+
+---
+
 ### v2.0.0 — Custom Admin Dashboard (2026-03-11)
 
 **Status:** Complete
@@ -162,4 +195,4 @@ Complete rebuild from Next.js 15 + Payload CMS + PostgreSQL to Astro 5 + Keystat
 
 ---
 
-**Last updated:** 2026-03-11
+**Last updated:** 2026-03-19

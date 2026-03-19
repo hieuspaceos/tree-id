@@ -7,7 +7,13 @@ import { readFileSync, writeFileSync, unlinkSync, readdirSync, existsSync, mkdir
 import { join } from 'node:path'
 import { createHash } from 'node:crypto'
 
-const SUBSCRIBERS_DIR = join(process.cwd(), 'src/content/subscribers')
+/** Default subscribers directory — override via setSubscribersDir() for testing */
+let SUBSCRIBERS_DIR = join(process.cwd(), 'src/content/subscribers')
+
+/** Override subscribers directory (used in tests) */
+export function setSubscribersDir(dir: string): void {
+  SUBSCRIBERS_DIR = dir
+}
 
 export interface Subscriber {
   email: string

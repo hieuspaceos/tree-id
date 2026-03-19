@@ -12,7 +12,22 @@ cp .env.example .env.local
 npm run dev     # http://localhost:4321
 ```
 
-Admin panel: http://localhost:4321/keystatic
+Admin panel: http://localhost:4321/admin
+
+## Features
+
+- **Custom admin dashboard** — React SPA with glass morphism theme, CodeMirror 6 editor
+- **Content types** — Articles (Markdoc), Notes (YAML), Records (YAML)
+- **Media management** — Cloudflare R2 integration with drag-drop upload
+- **SEO score panel** — RankMath-style real-time analysis
+- **Email capture** — Resend API with git-tracked YAML subscribers
+- **Multi-user auth** — JSON-based roles (admin/editor) via env var
+- **GA4 analytics** — Conditional on env var, admin analytics page
+- **Content distribution** — Gemini Flash social post generation for 10 platforms
+- **AI/LLM optimized** — JSON-LD, llms.txt, RSS, per-agent robots.txt
+- **Static search** — Pagefind with zero runtime cost
+
+All features are **opt-in via env vars**. No env var = feature hidden.
 
 ## Customize (edit ONE file)
 
@@ -24,7 +39,7 @@ Open `src/config/site-config.ts` and set:
 
 ## Add Content
 
-1. Visit http://localhost:4321/keystatic
+1. Visit http://localhost:4321/admin
 2. Create articles (Markdown), notes (short text), or records (structured data)
 3. Content saves as files in `src/content/` — committed to git
 
@@ -39,23 +54,35 @@ Or create files directly:
 vercel deploy
 ```
 
-Set one env var on Vercel: `PUBLIC_SITE_URL` = your domain.
+Set env vars on Vercel — only `PUBLIC_SITE_URL` is required.
 
 ## Environment Variables
 
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `PUBLIC_SITE_URL` | Yes | Your deployed URL |
-| `R2_*` variables | No | Cloudflare R2 for video manifests |
+| `ADMIN_PASSWORD` | No | Admin login password |
+| `ADMIN_SECRET` | No | JWT signing key (min 32 chars) |
+| `ADMIN_USERS` | No | Multi-user JSON array |
+| `GITHUB_TOKEN` | No | GitHub API for production content writes |
+| `RESEND_API_KEY` | No | Email newsletter via Resend |
+| `RESEND_FROM_EMAIL` | No | Verified sender email |
+| `GA_MEASUREMENT_ID` | No | Google Analytics 4 |
+| `R2_*` variables | No | Cloudflare R2 for media storage |
+| `GEMINI_API_KEY` | No | Content distribution AI generation |
+| `POSTIZ_API_KEY` | No | Social media scheduling |
 
 See `.env.example` for the full list with descriptions.
 
 ## Tech Stack
 
 - **Astro 5** — zero JS by default, content-first SSG
-- **Keystatic** — git-based CMS, admin UI at /keystatic
+- **Keystatic** — git-based CMS (schema + GitHub storage mode)
+- **React 19** — admin dashboard islands
+- **CodeMirror 6** — Obsidian-like Markdown editor
 - **Pagefind** — static search index, zero runtime cost
 - **Tailwind CSS 4** — utility-first with glass morphism theme
+- **Vitest** — unit testing
 - **Vercel** — deployment target
 
 ## Extend

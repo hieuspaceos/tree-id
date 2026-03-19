@@ -295,7 +295,7 @@ Themes are **CSS variable tokens** injected at build time.
 
 ### Admin Stack
 - **Frontend:** React islands in Astro (client-side routing)
-- **Editor:** Enhanced Markdown textarea with formatting toolbar
+- **Editor:** CodeMirror 6 with Live Preview, vim mode, typewriter mode (11 modules)
 - **UI:** Radix UI headless + Tailwind CSS 4 glass-panel styling
 - **Auth:** Env-var password + 7-day session cookies via Astro middleware
 
@@ -323,7 +323,7 @@ POST /api/admin/* (API Routes)
 
 ### Admin Features
 - **Content CRUD:** Create, read, update, delete articles/notes/records
-- **Rich text:** Enhanced Markdown textarea with toolbar — Markdoc output (bold, italic, code blocks, lists, etc.)
+- **Rich text:** CodeMirror 6 editor — Markdoc output, Live Preview, vim mode, image widgets, callout blocks
 - **Media browser:** Drag-drop upload to R2, thumbnails, search, delete
 - **Media integration:** "Browse" buttons in cover/OG image fields, image insertion in editor
 - **Preview:** Opens seed detail page in new tab with draft content
@@ -522,4 +522,4 @@ TreeID prioritizes **simplicity, speed, and maintainability** over feature richn
 
 ---
 
-**Last updated:** 2026-03-11
+**Last updated:** 2026-03-19

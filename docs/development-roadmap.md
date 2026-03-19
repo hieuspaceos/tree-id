@@ -2,10 +2,10 @@
 
 Strategic roadmap for Tree Identity. Tracks active work, completed milestones, and future directions.
 
-## Current Status (2026-03-12)
+## Current Status (2026-03-19)
 
-**Phase:** Post-launch iteration — categories, editor refactoring, admin polish
-**Completion:** 95% (core complete, categories feature in progress)
+**Phase:** Consolidation complete — test coverage, modularization, docs sync
+**Completion:** Phase 1-4 complete. Consolidation done. Phase 5 backlog items remain.
 **Active Team:** Solo (HieuSpace)
 
 ---
@@ -100,6 +100,26 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 - Can generate 10 platform variants from 1 article in <5 seconds
 - Posts follow brand voice: thoughtful, concise, no hype
 - CSV logging enables ROI tracking
+
+---
+
+## Phase 4.5 — Consolidation ✓ COMPLETE
+
+**Timeline:** 2026-03-19
+**Status:** Complete
+**Effort:** 4 hours
+
+### Deliverables
+- [x] Test coverage: 88 tests across 6 files (auth, content-io, seo-analyzer, subscriber-io, validation, schema-registry)
+- [x] Modularized `content-io.ts`: 379 LOC → 4 files (types 72, local 158, github 169, barrel 24)
+- [x] README updated: admin URL, features, env vars, tech stack
+- [x] Version alignment: package.json → v2.0.0, changelog updated
+- [x] Roadmap synced with actual progress
+
+**Key Decisions:**
+- `LocalContentIO` accepts optional `basePath` for testability
+- `subscriber-io` has `setSubscribersDir()` for test isolation
+- Tests use temp directories, cleaned up in `afterAll`
 
 ---
 
@@ -290,5 +310,5 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-**Last updated:** 2026-03-12
+**Last updated:** 2026-03-19
 **Next review:** 2026-04-01

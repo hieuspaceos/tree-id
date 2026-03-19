@@ -66,7 +66,9 @@ export async function verifyPassword(plain: string, stored: string): Promise<boo
   const [saltHex, expectedHash] = stored.split(':')
   if (!saltHex || !expectedHash) return false
 
-  const salt = new Uint8Array(saltHex.match(/.{2}/g)!.map((h) => parseInt(h, 16)))
+  const hexPairs = saltHex.match(/.{2}/g)
+  if (!hexPairs) return false
+  const salt = new Uint8Array(hexPairs.map((h) => parseInt(h, 16)))
   const key = await crypto.subtle.importKey(
     'raw',
     new TextEncoder().encode(plain),
