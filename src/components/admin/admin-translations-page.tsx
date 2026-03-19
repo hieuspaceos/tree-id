@@ -39,6 +39,7 @@ export function AdminTranslationsPage() {
   const [original, setOriginal] = useState<Record<string, string>>({})
   const [saving, setSaving] = useState(false)
   const [search, setSearch] = useState('')
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
 
   // Load translations for selected locale
   useEffect(() => {
@@ -135,10 +136,27 @@ export function AdminTranslationsPage() {
 
         return (
           <div key={section} className="glass-panel" style={{ padding: '1rem', borderRadius: '14px', marginBottom: '1rem' }}>
-            <h2 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#6366f1', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              {sectionNames[section] || section}
-            </h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+            <button
+              type="button"
+              onClick={() => setCollapsed((prev) => ({ ...prev, [section]: !prev[section] }))}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%',
+                background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: collapsed[section] ? 0 : '0.75rem',
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                style={{ transform: collapsed[section] ? 'rotate(-90deg)' : 'rotate(0deg)', transition: 'transform 0.15s ease' }}
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+              <h2 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
+                {sectionNames[section] || section}
+              </h2>
+              <span style={{ fontSize: '0.7rem', color: '#94a3b8', marginLeft: 'auto' }}>
+                {filteredEntries.length} keys
+              </span>
+            </button>
+            {!collapsed[section] && <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
               {filteredEntries.map(([key, value]) => {
                 const isChanged = value !== original[key]
                 const isMeta = key.includes('._')
@@ -183,7 +201,7 @@ export function AdminTranslationsPage() {
                   </div>
                 )
               })}
-            </div>
+            </div>}
           </div>
         )
       })}
