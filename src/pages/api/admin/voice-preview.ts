@@ -52,11 +52,11 @@ async function generatePreview(
   const avoid = Array.isArray(voice.avoid) ? voice.avoid.slice(0, 5).join(', ') : ''
 
   // Very concise prompt — minimal tokens
-  const prompt = `Write 2 short paragraphs (80-120 words total) opening an article titled "${title}"${description ? ` (about: ${description.slice(0, 100)})` : ''}.
+  const prompt = `Write 3-4 paragraphs (180-250 words total) as the opening of an article titled "${title}"${description ? ` (about: ${description.slice(0, 100)})` : ''}.
 
 Voice: ${tone} tone, for ${audience}, in ${language}, using "${pronoun}" as first person.${sampleRef}${avoid ? `\nNever use: ${avoid}` : ''}
 
-Write ONLY the 2 paragraphs. No title, no markdown, no meta text.`
+Start with a strong hook. Make the reader want to continue. Write ONLY the paragraphs. No title, no markdown headers, no meta text.`
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`
   const res = await fetch(url, {
@@ -64,7 +64,7 @@ Write ONLY the 2 paragraphs. No title, no markdown, no meta text.`
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.8, maxOutputTokens: 512 },
+      generationConfig: { temperature: 0.8, maxOutputTokens: 1024 },
     }),
   })
 
