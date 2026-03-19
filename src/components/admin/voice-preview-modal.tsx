@@ -84,9 +84,11 @@ export function VoicePreviewModal({ values, onClose }: Props) {
             <div style={{
               padding: '1rem', borderRadius: 10,
               background: 'rgba(0,0,0,0.02)', borderLeft: '3px solid var(--t-accent, #6366f1)',
-              fontSize: '0.85rem', color: '#1e293b', lineHeight: 1.8, whiteSpace: 'pre-wrap',
+              fontSize: '0.85rem', color: '#1e293b', lineHeight: 1.8,
             }}>
-              {preview}
+              {preview.split(/\n\n+/).map((para, i) => (
+                <p key={i} style={{ margin: i === 0 ? 0 : '0.75rem 0 0' }}>{para}</p>
+              ))}
             </div>
             <div style={{ fontSize: '0.6rem', color: '#94a3b8', marginTop: '0.35rem', fontStyle: 'italic' }}>
               This is AI-generated preview only — not saved anywhere
