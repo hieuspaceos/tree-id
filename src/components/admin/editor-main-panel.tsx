@@ -55,13 +55,13 @@ export function EditorMainPanel({
 
   return (
     <div className="editor-main-panel">
-      {/* Title */}
+      {/* Title — voices use "name" instead of "title" */}
       <input
         type="text"
         className="editor-title-input"
-        placeholder="Enter title..."
-        value={(values.title as string) || ''}
-        onChange={(e) => onFieldChange('title', e.target.value)}
+        placeholder={collection === 'voices' ? 'Voice name...' : 'Enter title...'}
+        value={(values[collection === 'voices' ? 'name' : 'title'] as string) || ''}
+        onChange={(e) => onFieldChange(collection === 'voices' ? 'name' : 'title', e.target.value)}
       />
       {errors.title && <p className="admin-field-error">{errors.title}</p>}
 

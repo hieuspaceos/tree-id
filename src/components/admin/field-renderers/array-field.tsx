@@ -5,8 +5,19 @@ import { useState } from 'react'
 import type { FieldProps } from './field-props'
 
 export function ArrayField({ name, label, value, onChange, disabled }: FieldProps) {
-  const items = (value as string[]) || []
+  const items = (value as unknown[]) || []
   const [draft, setDraft] = useState('')
+
+  /** Display an item — stringify objects, show strings as-is */
+  function displayItem(item: unknown): string {
+    if (typeof item === 'string') return item
+    if (typeof item === 'object' && item !== null) {
+      // For {context, text} style objects, show "context: text" summary
+      const obj = item as Record<string, unknown>
+      return Object.values(obj).filter(Boolean).map(String).join(': ')
+    }
+    return String(item)
+  }
 
   function addItem() {
     if (!draft.trim()) return
@@ -28,7 +39,7 @@ export function ArrayField({ name, label, value, onChange, disabled }: FieldProp
             className="glass-tag"
             style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
           >
-            {item}
+            {displayItem(item)}
             {!disabled && (
               <button
                 type="button"

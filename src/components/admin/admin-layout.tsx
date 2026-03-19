@@ -98,6 +98,17 @@ export function AdminLayout({ siteName, onLogout, user }: Props) {
             {(params) => <CategoryEditor slug={params.slug} />}
           </Route>
 
+          {/* Voices */}
+          <Route path="/voices">
+            <ContentList collection="voices" />
+          </Route>
+          <Route path="/voices/new">
+            <ContentEditor collection="voices" />
+          </Route>
+          <Route path="/voices/:slug">
+            {(params) => <ContentEditor collection="voices" slug={params.slug} />}
+          </Route>
+
           {/* Media */}
           <Route path="/media">
             <MediaBrowser mode="page" />

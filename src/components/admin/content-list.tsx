@@ -67,6 +67,8 @@ export function ContentList({ collection }: Props) {
   }
 
   const label = collection.charAt(0).toUpperCase() + collection.slice(1)
+  // Config-type collections don't have status/publishedAt
+  const hasStatus = collection !== 'voices' && collection !== 'categories'
 
   return (
     <div>
@@ -88,16 +90,18 @@ export function ContentList({ collection }: Props) {
           className="glass-input"
           style={{ flex: 1, minWidth: '200px', padding: '0.5rem 0.75rem', borderRadius: '8px', fontSize: '0.875rem' }}
         />
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="glass-input"
-          style={{ padding: '0.5rem 0.75rem', borderRadius: '8px', fontSize: '0.875rem' }}
-        >
-          <option value="all">All Status</option>
-          <option value="published">Published</option>
-          <option value="draft">Draft</option>
-        </select>
+        {hasStatus && (
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="glass-input"
+            style={{ padding: '0.5rem 0.75rem', borderRadius: '8px', fontSize: '0.875rem' }}
+          >
+            <option value="all">All Status</option>
+            <option value="published">Published</option>
+            <option value="draft">Draft</option>
+          </select>
+        )}
       </div>
 
       {/* Table */}
@@ -115,11 +119,13 @@ export function ContentList({ collection }: Props) {
                 <th style={{ cursor: 'pointer' }} onClick={() => toggleSort('title')}>
                   Title {sortBy === 'title' && (sortDir === 'asc' ? '↑' : '↓')}
                 </th>
-                <th>Status</th>
+                {hasStatus && <th>Status</th>}
                 {collection === 'articles' && <th style={{ width: '60px' }}>SEO</th>}
-                <th style={{ cursor: 'pointer' }} onClick={() => toggleSort('publishedAt')}>
-                  Published {sortBy === 'publishedAt' && (sortDir === 'asc' ? '↑' : '↓')}
-                </th>
+                {hasStatus && (
+                  <th style={{ cursor: 'pointer' }} onClick={() => toggleSort('publishedAt')}>
+                    Published {sortBy === 'publishedAt' && (sortDir === 'asc' ? '↑' : '↓')}
+                  </th>
+                )}
                 <th style={{ width: '80px' }}>Actions</th>
               </tr>
             </thead>
@@ -127,15 +133,17 @@ export function ContentList({ collection }: Props) {
               {filtered.map((entry) => (
                 <tr key={entry.slug} style={{ cursor: 'pointer' }} onClick={() => navigate(`/${collection}/${entry.slug}`)}>
                   <td style={{ fontWeight: 500, color: '#1e293b' }}>{entry.title}</td>
-                  <td>
-                    <span className={`admin-badge admin-badge-${entry.status}`}>{entry.status}</span>
-                  </td>
+                  {hasStatus && (
+                    <td>
+                      <span className={`admin-badge admin-badge-${entry.status}`}>{entry.status}</span>
+                    </td>
+                  )}
                   {collection === 'articles' && (
                     <td style={{ textAlign: 'center' }}>
                       {entry.seoScore != null ? <SeoScoreBadge score={entry.seoScore} size={28} /> : <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}>—</span>}
                     </td>
                   )}
-                  <td style={{ color: '#94a3b8', fontSize: '0.8125rem' }}>{entry.publishedAt || '—'}</td>
+                  {hasStatus && <td style={{ color: '#94a3b8', fontSize: '0.8125rem' }}>{entry.publishedAt || '—'}</td>}
                   <td>
                     <button
                       className="admin-btn admin-btn-danger"

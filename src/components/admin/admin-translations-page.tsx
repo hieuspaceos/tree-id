@@ -20,15 +20,116 @@ function flatten(obj: Record<string, unknown>, prefix = ''): Record<string, stri
   return result
 }
 
-/** Group flat keys by top-level section */
-function groupBySection(flat: Record<string, string>): Record<string, Record<string, string>> {
-  const groups: Record<string, Record<string, string>> = {}
+/** Subgroup within a section */
+interface SubGroup {
+  label: string
+  entries: [string, string][] // [flatKey, value]
+}
+
+/** Section with optional subgroups */
+interface Section {
+  name: string
+  subgroups: SubGroup[]
+  directEntries: [string, string][] // keys without a subgroup (2-part keys)
+}
+
+/** Humanize a key segment: "junior-dev" → "Junior Dev" */
+function humanize(s: string): string {
+  return s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
+/** Build hierarchical sections from flat key-value map */
+function buildSections(flat: Record<string, string>): Record<string, Section> {
+  const sections: Record<string, Section> = {}
+
   for (const [key, value] of Object.entries(flat)) {
-    const section = key.split('.')[0]
-    if (!groups[section]) groups[section] = {}
-    groups[section][key] = value
+    const parts = key.split('.')
+    const sectionKey = parts[0]
+
+    // Initialize section
+    if (!sections[sectionKey]) {
+      sections[sectionKey] = { name: sectionKey, subgroups: [], directEntries: [] }
+    }
+    const section = sections[sectionKey]
+
+    // _section key → section display name
+    if (parts.length === 2 && parts[1] === '_section') {
+      section.name = value
+      continue
+    }
+
+    // 2-part key (e.g. settings.theme) → direct entry
+    if (parts.length === 2) {
+      section.directEntries.push([key, value])
+      continue
+    }
+
+    // 3-part key (e.g. voice.tone.casual) → subgroup
+    if (parts.length >= 3) {
+      const subKey = parts[1]
+      // Skip _label keys (used as subgroup headers below)
+      if (parts[2] === '_label') {
+        // Find or create subgroup, set its label
+        let sg = section.subgroups.find((g) => g.label === subKey)
+        if (!sg) { sg = { label: subKey, entries: [] }; section.subgroups.push(sg) }
+        sg.label = value // overwrite with human label
+        continue
+      }
+      let sg = section.subgroups.find((g) => g.label === subKey || g.label === humanize(subKey))
+      if (!sg) {
+        // _label not yet seen — use humanized key as label, will be overwritten if _label exists
+        sg = { label: subKey, entries: [] }
+        section.subgroups.push(sg)
+      }
+      sg.entries.push([key, value])
+    }
   }
-  return groups
+
+  // Humanize subgroup labels that weren't set by _label
+  for (const section of Object.values(sections)) {
+    for (const sg of section.subgroups) {
+      // If label is still a raw key (no spaces, no uppercase), humanize it
+      if (sg.label === sg.label.toLowerCase() && !sg.label.includes(' ')) {
+        sg.label = humanize(sg.label)
+      }
+    }
+  }
+
+  return sections
+}
+
+
+/** Single translation row — shows EN reference on left, editable value on right */
+function TranslationRow({ flatKey, value, enRef, isChanged, onChange }: {
+  flatKey: string; value: string; enRef?: string; isChanged: boolean
+  onChange: (key: string, value: string) => void
+}) {
+  // Show EN reference value if available, otherwise humanized key
+  const label = enRef ?? humanize(flatKey.split('.').pop()!)
+  return (
+    <div style={{
+      display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', alignItems: 'center',
+      padding: '0.4rem 0.6rem', borderRadius: '8px',
+      background: isChanged ? 'rgba(99,102,241,0.04)' : 'transparent',
+      border: isChanged ? '1px solid rgba(99,102,241,0.15)' : '1px solid transparent',
+    }}>
+      <div>
+        <span style={{ fontSize: '0.8rem', color: '#1e293b', fontWeight: 500, display: 'block' }}>
+          {label}
+        </span>
+        <span style={{ fontSize: '0.6rem', color: '#94a3b8', fontFamily: 'monospace', display: 'block' }}>
+          {flatKey}
+        </span>
+      </div>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(flatKey, e.target.value)}
+        className="glass-input"
+        style={{ fontSize: '0.8rem', padding: '0.3rem 0.5rem', borderRadius: '6px', border: '1px solid rgba(148,163,184,0.15)', background: 'rgba(255,255,255,0.04)' }}
+      />
+    </div>
+  )
 }
 
 export function AdminTranslationsPage() {
@@ -41,24 +142,25 @@ export function AdminTranslationsPage() {
   const [search, setSearch] = useState('')
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
 
-  // Load translations for selected locale
+  // EN reference for showing original English text when editing other locales
+  const [enRef, setEnRef] = useState<Record<string, string>>({})
+
+  // Load translations for selected locale + EN reference
   useEffect(() => {
     const dict = getDictionary(activeLocale)
     const flat = flatten(dict)
     setTranslations({ ...flat })
     setOriginal({ ...flat })
+    // Load EN as reference when editing non-EN locale
+    if (activeLocale !== 'en') {
+      setEnRef(flatten(getDictionary('en')))
+    } else {
+      setEnRef({})
+    }
   }, [activeLocale])
 
-  const grouped = groupBySection(translations)
-
-  // Section display names from _section keys
-  const sectionNames: Record<string, string> = {}
-  for (const key of Object.keys(translations)) {
-    if (key.endsWith('._section')) {
-      const section = key.split('.')[0]
-      sectionNames[section] = translations[key]
-    }
-  }
+  const sections = buildSections(translations)
+  const isTranslating = activeLocale !== 'en'
 
   function handleChange(key: string, value: string) {
     setTranslations((prev) => ({ ...prev, [key]: value }))
@@ -129,75 +231,76 @@ export function AdminTranslationsPage() {
         )}
       </div>
 
+      {/* Column headers */}
+      {isTranslating && (
+        <div style={{
+          display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem',
+          padding: '0.4rem 0.6rem', marginBottom: '0.5rem',
+        }}>
+          <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            English
+          </span>
+          <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            {activeLocale === 'vi' ? 'Tiếng Việt' : String(activeLocale).toUpperCase()}
+          </span>
+        </div>
+      )}
+
       {/* Sections */}
-      {Object.entries(grouped).map(([section, entries]) => {
-        const filteredEntries = Object.entries(entries).filter(([k, v]) => matchesSearch(k, v))
-        if (filteredEntries.length === 0) return null
+      {Object.entries(sections).map(([sectionKey, section]) => {
+        // Count total visible entries for this section
+        const allEntries = [
+          ...section.directEntries,
+          ...section.subgroups.flatMap((sg) => sg.entries),
+        ].filter(([k, v]) => matchesSearch(k, v))
+        if (allEntries.length === 0) return null
 
         return (
-          <div key={section} className="glass-panel" style={{ padding: '1rem', borderRadius: '14px', marginBottom: '1rem' }}>
+          <div key={sectionKey} className="glass-panel" style={{ padding: '1rem', borderRadius: '14px', marginBottom: '1rem' }}>
+            {/* Section header */}
             <button
               type="button"
-              onClick={() => setCollapsed((prev) => ({ ...prev, [section]: !prev[section] }))}
+              onClick={() => setCollapsed((prev) => ({ ...prev, [sectionKey]: !prev[sectionKey] }))}
               style={{
                 display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%',
-                background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: collapsed[section] ? 0 : '0.75rem',
+                background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: collapsed[sectionKey] ? 0 : '0.75rem',
               }}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                style={{ transform: collapsed[section] ? 'rotate(-90deg)' : 'rotate(0deg)', transition: 'transform 0.15s ease' }}
+                style={{ transform: collapsed[sectionKey] ? 'rotate(-90deg)' : 'rotate(0deg)', transition: 'transform 0.15s ease' }}
               >
                 <polyline points="6 9 12 15 18 9" />
               </svg>
               <h2 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
-                {sectionNames[section] || section}
+                {section.name}
               </h2>
               <span style={{ fontSize: '0.7rem', color: '#94a3b8', marginLeft: 'auto' }}>
-                {filteredEntries.length} keys
+                {allEntries.length}
               </span>
             </button>
-            {!collapsed[section] && <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
-              {filteredEntries.map(([key, value]) => {
-                const isChanged = value !== original[key]
-                const isMeta = key.includes('._')
+            {!collapsed[sectionKey] && <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {/* Direct entries (no subgroup) */}
+              {section.directEntries.filter(([k, v]) => matchesSearch(k, v)).length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+                  {section.directEntries.filter(([k, v]) => matchesSearch(k, v)).map(([key, value]) => (
+                    <TranslationRow key={key} flatKey={key} value={value} enRef={isTranslating ? enRef[key] : undefined} isChanged={value !== original[key]} onChange={handleChange} />
+                  ))}
+                </div>
+              )}
+              {/* Subgroups */}
+              {section.subgroups.map((sg) => {
+                const filtered = sg.entries.filter(([k, v]) => matchesSearch(k, v))
+                if (filtered.length === 0) return null
                 return (
-                  <div
-                    key={key}
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: '1fr 1fr',
-                      gap: '0.5rem',
-                      alignItems: 'center',
-                      padding: '0.4rem 0.6rem',
-                      borderRadius: '8px',
-                      background: isChanged ? 'rgba(99,102,241,0.04)' : 'transparent',
-                      border: isChanged ? '1px solid rgba(99,102,241,0.15)' : '1px solid transparent',
-                    }}
-                  >
-                    <span style={{
-                      fontSize: '0.75rem',
-                      color: isMeta ? '#6366f1' : '#64748b',
-                      fontFamily: 'monospace',
-                      fontWeight: isMeta ? 600 : 400,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}>
-                      {key}
-                    </span>
-                    <input
-                      type="text"
-                      value={value}
-                      onChange={(e) => handleChange(key, e.target.value)}
-                      className="glass-input"
-                      style={{
-                        fontSize: '0.8rem',
-                        padding: '0.3rem 0.5rem',
-                        borderRadius: '6px',
-                        border: '1px solid rgba(148,163,184,0.15)',
-                        background: 'rgba(255,255,255,0.04)',
-                      }}
-                    />
+                  <div key={sg.label} style={{ marginTop: '0.25rem' }}>
+                    <h3 style={{ fontSize: '0.75rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em', margin: '0 0 0.375rem 0.25rem' }}>
+                      {sg.label}
+                    </h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+                      {filtered.map(([key, value]) => (
+                        <TranslationRow key={key} flatKey={key} value={value} enRef={isTranslating ? enRef[key] : undefined} isChanged={value !== original[key]} onChange={handleChange} />
+                      ))}
+                    </div>
                   </div>
                 )
               })}

@@ -61,7 +61,7 @@ export function isArticle(collection: CollectionName): boolean {
 export function pickMeta(entry: EntryData): EntryMeta {
   return {
     slug: entry.slug,
-    title: entry.title,
+    title: entry.title || (entry.name as string) || entry.slug,
     status: entry.status || 'draft',
     description: entry.description || '',
     publishedAt: entry.publishedAt as string | undefined,

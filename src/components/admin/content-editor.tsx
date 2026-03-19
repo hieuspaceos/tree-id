@@ -34,8 +34,10 @@ export function ContentEditor({ collection, slug }: Props) {
 
   // Categorize fields into main panel extras (not title/content/sidebar)
   const contentField = schema.find((f) => CONTENT_FIELDS.has(f.name) && f.type === 'markdoc')
+  // Filter out fields shown in sidebar and title area
+  const titleField = collection === 'voices' ? 'name' : 'title'
   const extraFields: FieldSchema[] = schema.filter(
-    (f) => !SIDEBAR_FIELDS.has(f.name) && !CONTENT_FIELDS.has(f.name) && f.name !== 'title',
+    (f) => !SIDEBAR_FIELDS.has(f.name) && !CONTENT_FIELDS.has(f.name) && f.name !== titleField,
   )
 
   // Load entry in edit mode
