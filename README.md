@@ -16,8 +16,10 @@ Admin panel: http://localhost:4321/admin
 
 ## Features
 
-- **Custom admin dashboard** — React SPA with glass morphism theme, CodeMirror 6 editor
-- **Content types** — Articles (Markdoc), Notes (YAML), Records (YAML)
+- **Custom admin dashboard** — React SPA with glass morphism theme, CodeMirror 6 editor, modularized CSS
+- **Voice profiles** — AI-powered voice management with effectiveness scoring & preview generator (Gemini)
+- **i18n system** — Translations editor (EN/VI) with dynamic key creation, drives chip-select defaults
+- **Content types** — Articles (Markdoc), Notes (YAML), Records (YAML), Voices (YAML)
 - **Media management** — Cloudflare R2 integration with drag-drop upload
 - **SEO score panel** — RankMath-style real-time analysis
 - **Email capture** — Resend API with git-tracked YAML subscribers
@@ -69,7 +71,7 @@ Set env vars on Vercel — only `PUBLIC_SITE_URL` is required.
 | `RESEND_FROM_EMAIL` | No | Verified sender email |
 | `GA_MEASUREMENT_ID` | No | Google Analytics 4 |
 | `R2_*` variables | No | Cloudflare R2 for media storage |
-| `GEMINI_API_KEY` | No | Content distribution AI generation |
+| `GEMINI_API_KEY` | No | AI features (voice analysis, preview, content distribution) |
 | `POSTIZ_API_KEY` | No | Social media scheduling |
 
 See `.env.example` for the full list with descriptions.

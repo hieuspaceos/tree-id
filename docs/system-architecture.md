@@ -148,7 +148,9 @@ Detail Page (/seeds/[slug])
 | `/llms.txt` | Prerendered | AI/LLM site overview (speculative) |
 | `/llms-full.txt` | Prerendered | Extended AI context with metadata |
 | `/admin/[...path]` | SSR (hybrid) | Custom admin dashboard (auth protected) |
-| `/api/admin/*` | API Route | Admin CRUD: content, auth, media operations |
+| `/api/admin/*` | API Route | Admin CRUD: content, auth, media, voice operations |
+| `/api/admin/voice-analyze` | API Route | Gemini-powered voice effectiveness scoring (2026-03-19) |
+| `/api/admin/voice-preview` | API Route | AI-generated voice sample paragraphs (2026-03-19) |
 
 ### Client-Side Islands
 
@@ -340,14 +342,22 @@ admin: {
 }
 ```
 
-### Admin Styling
-**File:** `src/styles/admin.css` (all admin-specific styles)
-- Glass-panel backgrounds with backdrop blur
-- Responsive grid layouts (media grid, form layouts)
-- Dialog/modal overlays
-- Loading skeletons (pulsing glass cards)
-- Upload zone drag-over states
-- Focus rings and keyboard navigation
+### Admin Styling (Modularized 2026-03-19)
+**Base file:** `src/styles/admin.css` imports 7 modular partials:
+- `admin/tokens.css` — CSS variable definitions (glass layers, colors, spacing)
+- `admin/layout.css` — Shell structure (sidebar, topbar, main area, footer)
+- `admin/components.css` — UI components (buttons, forms, panels, modals, badges, status icons)
+- `admin/editor.css` — CodeMirror 6 editor theme and integration
+- `admin/table.css` — Content list tables (pagination, filters, sorting, status badges)
+- `admin/media.css` — Media browser grid (upload zone, thumbnails, cards, deletion feedback)
+- `admin/responsive.css` — Mobile breakpoints (<768px sidebar collapse, stacked layouts, touch-friendly)
+
+**Design System (2026-03-19):**
+- Typography: Fira Sans (UI), Fira Code (monospace)
+- Glass morphism: 3 layers (primary bg, secondary overlay, tertiary cards)
+- Colors: semantic tokens (`--admin-success`, `--admin-error`, `--admin-warning`)
+- Animations: smooth transitions on panels, fade-in lists, pulse on loading
+- Accessibility: focus rings, keyboard navigation, high contrast checked
 
 ---
 
@@ -519,6 +529,102 @@ TreeID prioritizes **simplicity, speed, and maintainability** over feature richn
 - **Git-based CMS** → No lock-in, full control
 - **Type-safe content** → Catch errors at build time
 - **Admin as product** → Config-driven, exportable, white-label ready
+
+---
+
+## Voice Management System (2026-03-19)
+
+### Voice Profiles Collection
+
+**Purpose:** Store writing voice profiles for AI-powered content generation and analysis.
+
+**Fields:**
+- `id`: Unique identifier (slug)
+- `name`: Display name (e.g., "Tech Casual VI")
+- `tone`: select (casual, professional, technical, storytelling, persuasive, academic)
+- `industry`: select (technology, business, travel, lifestyle, finance, health, education, food, general)
+- `audience`: select (junior-dev, senior-dev, non-tech, students, business, general)
+- `pronoun`: First-person word (e.g., "I", "tôi")
+- `language`: EN or VI
+- `samples[]`: Array of `{context, text}` — example paragraphs to mimic style
+- `avoid[]`: Array of phrases to never use
+- `status`: published or draft
+
+**Admin UI:** `/admin/voices`
+- Full CRUD (create, list, edit, delete)
+- Live effectiveness scoring (6 dimensions)
+- AI analysis button → modal with suggestions
+- Voice preview button → generates sample opening paragraphs
+
+### Voice Effectiveness Scoring (2026-03-19)
+
+**Endpoint:** POST `/api/admin/voice-analyze`
+
+**Dimensions (heuristic + Gemini feedback):**
+1. **Emotional Resonance** — Does voice connect with audience emotionally?
+2. **Clarity** — Is message clear and jargon-appropriate?
+3. **Audience Alignment** — Does voice match target audience?
+4. **Tone Consistency** — Does voice maintain consistent tone throughout?
+5. **Engagement Level** — Does voice keep reader engaged?
+6. **Authenticity** — Does voice feel genuine and unique?
+
+**Return value:**
+```json
+{
+  "score": 0-100,
+  "dimensions": {
+    "emotionalResonance": { "score": 0-100, "feedback": "..." },
+    "clarity": { "score": 0-100, "feedback": "..." }
+    // ... 6 total
+  },
+  "suggestions": ["Use more...", "Avoid...", "Consider..."],
+  "overallFeedback": "..."
+}
+```
+
+### Voice Preview Generator (2026-03-19)
+
+**Endpoint:** POST `/api/admin/voice-preview`
+
+**Purpose:** Generate sample opening paragraphs in a voice style to test before applying to articles.
+
+**Input:**
+```json
+{
+  "articleSlug": "my-article",
+  "voiceProfile": { "name": "...", "tone": "...", ... }
+}
+```
+
+**Output:**
+```json
+{
+  "preview": "Paragraph 1...\n\nParagraph 2...",
+  "wordCount": 220,
+  "language": "en"
+}
+```
+
+**System Instruction:** Gemini generates 200+ word opening paragraphs that:
+- Match voice profile (tone, industry, audience, pronoun, language)
+- Include samples as style references
+- Avoid listed phrases
+- Are suitable for article openings
+- Are split into 2-3 paragraphs for readability
+
+### i18n Module (2026-03-19)
+
+**Purpose:** Centralized translations for admin UI and chip-select defaults.
+
+**Collections:**
+- `src/content/translations/` — YAML files per language/section
+- Schema: `{ [key]: { [language]: string } }`
+
+**Admin UI:** `/admin/settings/translations`
+- Edit translations by language (EN/VI tabs)
+- Add new keys dynamically
+- Used for voice tone/industry/audience dropdown defaults
+- Extensible for future i18n features
 
 ---
 

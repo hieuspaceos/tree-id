@@ -4,11 +4,32 @@ All notable changes to Tree Identity are documented here.
 
 ## Releases
 
-### v2.1.0 — MVP Feature Bundle + Consolidation (2026-03-12 → 2026-03-19)
+### v2.1.0 — Voice Profiles + i18n System + Admin UI Redesign (2026-03-12 → 2026-03-19)
 
 **Status:** Complete
 
-Extended the admin dashboard with major features and stabilized the codebase.
+Major admin enhancements: voice profile management, translations editor, AI-powered voice analysis, and comprehensive UI redesign with modularized CSS.
+
+#### Voice System & i18n (2026-03-19)
+- **Voice profiles collection:** Create/edit/delete voice profiles in admin UI (`/admin/voices`)
+- **i18n module:** Multi-language translations with sub-sections, EN/VI support, add new keys dynamically
+- **Translations editor:** `/admin/settings/translations` — edit keys, values, language tabs
+- **Voice effectiveness scoring:** 6-dimension heuristic evaluation (emotional resonance, clarity, audience alignment, tone consistency, engagement level, authenticity) with visual score badge
+- **AI voice analysis:** Gemini-powered evaluation with bilingual feedback (EN/VI)
+- **Voice preview generator:** Pick article → AI generates opening paragraphs in voice style (200-word samples)
+- **Chip-select integration:** Voice options for tone/industry/audience default to i18n translations system
+- **ArrayField enhancement:** Fixed to handle object items with nested properties (e.g., `{context, text}` samples)
+- **Content list UX:** Hidden status/published fields for config collections (voices, categories)
+- **pickMeta fallback:** Title field falls back to `name` for voices collection
+
+#### Admin UI Redesign (2026-03-19)
+- **Design system refresh:** Fira Sans for UI, Fira Code for monospace — Figma-approved typography
+- **CSS variable tokens:** New `--admin-*` theme tokens (glass layers, accent, semantic colors)
+- **3-tier glass morphism:** Primary (glass bg), secondary (glass overlay), tertiary (glass cards)
+- **Modularized CSS:** Split `admin.css` into 7 focused partials: `tokens.css`, `layout.css`, `components.css`, `editor.css`, `table.css`, `media.css`, `responsive.css` (total ~1K LOC, modular for future scaling)
+- **Animations:** Smooth transitions on glass panels, fade-in for list items, pulse for loading states
+- **Mobile responsive:** Sidebar collapse on <768px, stacked layouts, touch-friendly
+- **Color consistency:** Unified palette across all admin pages (sidebar, topbar, editors, modals)
 
 #### MVP Feature Bundle (2026-03-12)
 - Multi-user auth: `ADMIN_USERS` env var (JSON array), username+password, roles (admin/editor)
@@ -192,6 +213,42 @@ Complete rebuild from Next.js 15 + Payload CMS + PostgreSQL to Astro 5 + Keystat
 - **Status:** Proposed | In Progress | Complete | Archived
 - **Phases:** Breaking down large features into sequential, dependency-ordered tasks
 - **Breaking Changes:** Highlighted for migration guide updates
+
+---
+
+---
+
+## Architecture Changes (2026-03-19)
+
+### New Collections
+- **Voices:** Custom profiles for AI voice generation + writing style management
+  - Fields: `name`, `tone`, `industry`, `audience`, `pronoun`, `language`, `samples[]`, `avoid[]`
+  - Admin UI at `/admin/voices` with full CRUD
+
+### New API Endpoints
+- **POST `/api/admin/voice-analyze`** — Gemini-powered voice effectiveness evaluation
+  - Body: `{ content: string, voiceProfile: VoiceProfile }`
+  - Returns: `{ score: number, dimensions: {}, suggestions: {} }`
+
+- **POST `/api/admin/voice-preview`** — Generate article opening in voice style
+  - Body: `{ articleSlug: string, voiceProfile: VoiceProfile }`
+  - Returns: `{ preview: string, wordCount: number }`
+
+### New Components
+- `voice-preview-modal.tsx` — Modal for previewing AI-generated voice samples
+- `voice-score-panel.tsx` — Visual score badge + dimension breakdown + AI suggestions
+
+### Styling Modularization
+Split `src/styles/admin.css` (1247 LOC) into 7 modules for maintainability:
+- `tokens.css` — CSS variable definitions (glass layers, colors, spacing)
+- `layout.css` — Admin shell layout (sidebar, topbar, main content area)
+- `components.css` — Reusable UI components (buttons, forms, modals, glass panels)
+- `editor.css` — Content editor specific (CodeMirror, preview, toolbar)
+- `table.css` — Content list tables (pagination, filters, status badges)
+- `media.css` — Media browser grid (upload zone, thumbnails, modal)
+- `responsive.css` — Mobile breakpoints and responsive behaviors
+
+All partials imported in `admin.css` for single stylesheet generation.
 
 ---
 

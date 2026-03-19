@@ -1,7 +1,7 @@
 # Tree Identity — Codebase Summary
 
-**Status:** Complete (Migrated to Astro 5 + Keystatic)
-**Last Updated:** 2026-03-10
+**Status:** v2.1.0 — Voice Profiles + i18n + Admin UI Redesign
+**Last Updated:** 2026-03-19
 **Stack:** Astro 5 + Keystatic + Pagefind + Cloudflare R2 (optional)
 **Deployment:** Vercel
 
@@ -112,6 +112,27 @@ tree-id/
 ## Content Collections
 
 Defined in `keystatic.config.ts` + `src/content.config.ts`. All inherit base fields from `baseSeedFields`.
+
+### Voices (New — 2026-03-19)
+
+**Path:** `src/content/voices/{id}.yaml`
+**Purpose:** Voice profiles for AI-powered writing style generation and content analysis
+
+**Fields:**
+| Field | Type | Purpose |
+|-------|------|---------|
+| `id` | slug | Unique voice identifier |
+| `name` | text | Display name (e.g., "Tech Casual") |
+| `tone` | select | casual, professional, technical, storytelling, persuasive, academic |
+| `industry` | select | technology, business, travel, lifestyle, finance, health, education, food, general |
+| `audience` | select | junior-dev, senior-dev, non-tech, students, business, general |
+| `pronoun` | text | First-person word ("I", "we", "tôi") |
+| `language` | select | vi, en |
+| `samples[]` | array | `[{context: string, text: string}]` — example paragraphs to mimic |
+| `avoid[]` | array | Phrases never to use in this voice |
+| `status` | select | draft, published |
+
+**Admin UI:** `/admin/voices` — Create/read/update/delete with live effectiveness scoring
 
 ### Shared Fields (All Seed Types)
 
@@ -238,7 +259,31 @@ Keystatic doesn't support afterChange hooks. Video manifest generation is manual
 - **`/api/manifests/[slug]`** — Video manifest HTTP endpoint (return JSON)
 - **`/robots.txt`** — Per-agent AI crawler policy (allow search bots, block training bots)
 
-## Components
+## Admin Components (2026-03-19)
+
+### Voice Management
+| Component | Type | Purpose |
+|-----------|------|---------|
+| `voice-score-panel.tsx` | React | 6-dimension effectiveness score (emotional, clarity, audience, tone, engagement, authenticity) with AI suggestions |
+| `voice-preview-modal.tsx` | React | AI-generated sample paragraphs in voice style (200+ words, language-aware) |
+
+### Architecture
+- Voice analysis via `/api/admin/voice-analyze` (Gemini API)
+- Voice preview via `/api/admin/voice-preview` (Gemini with system instructions)
+- ArrayField enhanced to handle nested objects (`{context, text}` samples)
+- i18n module for translations (languages, sub-sections, dynamic key creation)
+
+### Styling (Modularized)
+Split `src/styles/admin.css` (1247 LOC → 7 modules):
+- `tokens.css` — CSS variables (glass layers, semantic colors)
+- `layout.css` — Shell layout (sidebar, topbar, main area)
+- `components.css` — UI components (buttons, forms, panels, modals)
+- `editor.css` — CodeMirror editor styles
+- `table.css` — Content list tables
+- `media.css` — Media browser
+- `responsive.css` — Mobile breakpoints
+
+## Public Components
 
 | Component | Type | Purpose |
 |-----------|------|---------|
@@ -349,14 +394,24 @@ When `video.enabled = true`:
 
 **Schema:** See [Video-Factory Contract](./video-factory-contract.md)
 
+## Environment Variables (Updated 2026-03-19)
+
+### New in v2.1.0
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `GEMINI_API_KEY` | No | Google Gemini API for voice analysis + preview generation |
+
+Voice analysis and preview features disabled if not set (graceful degradation).
+
 ## Code Standards
 
 - **Astro components:** Default, zero JS
-- **React islands:** Only for interactive ToC + search
+- **React islands:** Only for interactive ToC + search + admin
 - **Error handling:** Try-catch with graceful fallbacks
-- **File size:** Keep under 200 LOC
+- **File size:** Keep under 200 LOC (modularized CSS as example)
 - **Comments:** For complex logic only
+- **Styling:** Modular CSS partials, CSS variables for theming
 
 ---
 
-**Last updated:** 2026-03-10
+**Last updated:** 2026-03-19

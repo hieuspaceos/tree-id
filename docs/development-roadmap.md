@@ -4,9 +4,10 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ## Current Status (2026-03-19)
 
-**Phase:** Consolidation complete — test coverage, modularization, docs sync
-**Completion:** Phase 1-4 complete. Consolidation done. Phase 5 backlog items remain.
+**Phase:** v2.1.0 complete — Voice profiles, i18n system, admin UI redesign
+**Completion:** Phase 1-4 complete. Voice management complete. Consolidation stable.
 **Active Team:** Solo (HieuSpace)
+**Key Features Added:** Voice profiles + effectiveness scoring, i18n module, CSS modularization, AI voice analysis/preview
 
 ---
 
@@ -103,29 +104,49 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-## Phase 4.5 — Consolidation ✓ COMPLETE
+## Phase 4.5 — Voice Management System ✓ COMPLETE
 
 **Timeline:** 2026-03-19
 **Status:** Complete
-**Effort:** 4 hours
+**Effort:** 8 hours
 
 ### Deliverables
-- [x] Test coverage: 88 tests across 6 files (auth, content-io, seo-analyzer, subscriber-io, validation, schema-registry)
-- [x] Modularized `content-io.ts`: 379 LOC → 4 files (types 72, local 158, github 169, barrel 24)
-- [x] README updated: admin URL, features, env vars, tech stack
-- [x] Version alignment: package.json → v2.0.0, changelog updated
-- [x] Roadmap synced with actual progress
+- [x] Voice profiles collection: create/edit/delete in admin UI (`/admin/voices`)
+- [x] i18n module: translations editor with EN/VI support, dynamic key creation
+- [x] Voice effectiveness scoring: 6-dimension heuristic evaluation with visual score badge
+- [x] AI voice analysis: Gemini-powered evaluation with bilingual feedback (EN/VI)
+- [x] Voice preview generator: AI-generated opening paragraphs in voice style (200+ words)
+- [x] Chip-select defaults: wired to i18n translations system for voice options
+- [x] ArrayField enhancement: fixed to handle nested objects (`{context, text}` samples)
+- [x] Content list UX: hidden status/published for config collections (voices, categories)
+- [x] CSS modularization: split admin.css (1247 LOC) → 7 focused modules (<200 LOC each)
+- [x] Admin UI redesign: Fira Sans/Code fonts, 3-tier glass morphism, animations, mobile responsive
+- [x] New API endpoints: `/api/admin/voice-analyze`, `/api/admin/voice-preview`
+- [x] New components: `voice-score-panel.tsx`, `voice-preview-modal.tsx`
 
-**Key Decisions:**
-- `LocalContentIO` accepts optional `basePath` for testability
-- `subscriber-io` has `setSubscribersDir()` for test isolation
-- Tests use temp directories, cleaned up in `afterAll`
+**Architecture:**
+- Voice profiles: separate collection with language/tone/audience metadata
+- i18n system: centralized translations for UI + voice option defaults
+- Gemini integration: system prompts for voice analysis + preview generation
+- CSS: modularized into semantic layers (tokens, layout, components, editor, table, media, responsive)
+
+**Key Insights:**
+- Voice samples collection as `array` of objects (not string items) works with enhanced ArrayField
+- CSS modularization enables ~70% reuse for potential white-label themes
+- i18n module extensible for future language support (currently EN/VI)
 
 ---
 
-## Phase 5 — Future Enhancements (Backlog)
+## Phase 5 — Consolidation (Backlog from 2026-03-19)
 
-### 5A — Analytics Dashboard (Proposed)
+**Status:** Pending (Phase 4.5 voice management now complete)
+**Previous Deliverables:** 88 tests, modularized content-io, docs sync
+
+---
+
+## Phase 6 — Future Enhancements (Backlog)
+
+### 6A — Analytics Dashboard (Proposed)
 **Effort:** 12 hours
 **Priority:** P2
 
@@ -141,7 +162,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 5B — Advanced Media Features (Proposed)
+### 6B — Advanced Media Features (Proposed)
 **Effort:** 8 hours
 **Priority:** P3
 
@@ -157,7 +178,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 5C — Collaborative Editing (Proposed)
+### 6C — Collaborative Editing (Proposed)
 **Effort:** 20 hours
 **Priority:** P4
 
@@ -172,7 +193,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 5D — Content Versioning & History (Proposed)
+### 6D — Content Versioning & History (Proposed)
 **Effort:** 6 hours
 **Priority:** P2
 
@@ -187,14 +208,16 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 5E — Internationalization (i18n) (Proposed)
-**Effort:** 10 hours
-**Priority:** P4
+### 6E — Internationalization (i18n) Extended (Proposed)
+**Effort:** 8 hours
+**Priority:** P3
+
+*Note: i18n module foundation completed in Phase 4.5*
 
 - Multi-language content: `/en/*`, `/vi/*` URL structure
 - Content collections per language
 - Language selector in header
-- Admin UI translation (EN + VI initially)
+- Runtime language switching (not just UI)
 
 **Dependencies:**
 - Astro i18n integration
@@ -202,7 +225,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 5F — Plugin System (Proposed)
+### 6F — Plugin System (Proposed)
 **Effort:** 16 hours
 **Priority:** P5
 
@@ -217,7 +240,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 5G — Monetization Features (Proposed)
+### 6G — Monetization Features (Proposed)
 **Effort:** 12 hours
 **Priority:** P4
 
@@ -233,7 +256,7 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-### 5H — Search Enhancements (Proposed)
+### 6H — Search Enhancements (Proposed)
 **Effort:** 6 hours
 **Priority:** P3
 
@@ -291,12 +314,12 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ## Release Schedule
 
-| Release | Version | Target Date | Focus |
-|---------|---------|-------------|-------|
-| Stable | v2.0.0 | 2026-03-11 | Admin Dashboard Launch |
-| Planned | v2.1.0 | 2026-Q2 | Analytics + Media Features |
-| Planned | v2.2.0 | 2026-Q3 | Versioning + Advanced Search |
-| Planned | v3.0.0 | 2026-Q4 | i18n + Plugin System |
+| Release | Version | Target Date | Focus | Status |
+|---------|---------|-------------|-------|--------|
+| Current | v2.1.0 | 2026-03-19 | Voice Profiles + i18n + Admin UI Redesign | Complete |
+| Planned | v2.2.0 | 2026-Q2 | Analytics + Media Features | Backlog |
+| Planned | v2.3.0 | 2026-Q2 | Versioning + Search Enhancements | Backlog |
+| Planned | v3.0.0 | 2026-Q3 | Extended i18n + Plugin System | Backlog |
 
 ---
 
