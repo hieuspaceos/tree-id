@@ -38,11 +38,11 @@ export function AdminTopbar({ onToggleSidebar, user }: Props) {
   return (
     <div className="admin-topbar">
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-        {/* Mobile hamburger */}
+        {/* Mobile hamburger — hidden via CSS, shown at <=768px via admin.css */}
         <button
           onClick={onToggleSidebar}
-          className="admin-btn admin-btn-ghost"
-          style={{ display: 'none', padding: '0.4rem' }}
+          className="admin-btn admin-btn-ghost admin-topbar-hamburger"
+          style={{ padding: '0.4rem' }}
           aria-label="Toggle sidebar"
         >
           {hamburgerIcon}
@@ -99,14 +99,6 @@ export function AdminTopbar({ onToggleSidebar, user }: Props) {
         </div>
       )}
 
-      {/* Show hamburger on mobile via inline responsive style */}
-      <style>{`
-        @media (max-width: 768px) {
-          .admin-topbar button[aria-label="Toggle sidebar"] {
-            display: flex !important;
-          }
-        }
-      `}</style>
     </div>
   )
 }

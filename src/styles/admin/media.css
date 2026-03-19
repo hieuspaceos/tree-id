@@ -1,0 +1,176 @@
+/*
+ * Media browser — upload zone, grid, cards, card actions,
+ * skeleton shimmer, dialog overlay
+ */
+
+/* ── Media browser ── */
+.media-upload-zone {
+  border: 2px dashed var(--t-glass-border);
+  border-radius: var(--admin-radius-lg);
+  padding: 1.5rem;
+  text-align: center;
+  transition: border-color var(--admin-transition-fast), background var(--admin-transition-fast);
+}
+
+.media-upload-zone:hover,
+.media-upload-zone.dragging {
+  border-color: var(--t-accent);
+  background: var(--t-accent-soft);
+}
+
+.media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.media-card {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  background: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  /* Phase 4 — lift + action reveal */
+  transition: border-color var(--admin-transition-fast),
+              box-shadow var(--admin-transition-fast),
+              transform var(--admin-transition-fast);
+}
+
+.media-card:hover {
+  border-color: var(--t-glass-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
+}
+
+.media-card.selected {
+  border-color: var(--t-accent);
+  box-shadow: 0 0 0 2px var(--t-accent-soft);
+}
+
+/* Phase 4 — refined skeleton shimmer */
+.media-card.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(241, 245, 249, 0.6) 25%,
+    rgba(226, 232, 240, 0.8) 50%,
+    rgba(241, 245, 249, 0.6) 75%
+  );
+  background-size: 200% 100%;
+  animation: admin-shimmer 2s ease-in-out infinite;
+  border-radius: 10px;
+}
+
+@keyframes admin-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.media-card-preview {
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  overflow: hidden;
+}
+
+.media-card-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.media-card-icon {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--admin-text-faint);
+  text-transform: uppercase;
+}
+
+.media-card-info {
+  padding: 0.375rem 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.media-card-name {
+  font-size: 0.7rem;
+  color: var(--admin-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.media-card-size {
+  font-size: 0.65rem;
+  color: var(--admin-text-faint);
+  white-space: nowrap;
+}
+
+.media-card-actions {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  gap: 3px;
+  opacity: 0;
+  /* Phase 4 — slide-in from above */
+  transition: opacity var(--admin-transition-fast), transform var(--admin-transition-fast);
+  transform: translateY(-4px);
+}
+
+.media-card:hover .media-card-actions {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.media-card-actions button {
+  padding: 2px 8px;
+  border: none;
+  border-radius: var(--admin-radius-sm);
+  font-size: 0.65rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--admin-text-secondary);
+  backdrop-filter: blur(4px);
+}
+
+.media-card-actions button:hover {
+  background: #fff;
+}
+
+.media-card-actions button.danger {
+  color: var(--admin-danger-text);
+}
+
+/* Media dialog overlay */
+.media-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+/* Phase 2 — modal to Surface tier glass */
+.media-dialog {
+  width: 100%;
+  max-width: 800px;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 1.5rem;
+  border-radius: 16px;
+  background: var(--admin-glass-surface-bg);
+  backdrop-filter: var(--admin-glass-surface-blur);
+  -webkit-backdrop-filter: var(--admin-glass-surface-blur);
+  box-shadow: var(--admin-shadow-lg);
+}

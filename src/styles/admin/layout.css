@@ -1,0 +1,259 @@
+/*
+ * Admin layout — sidebar, main content area, topbar, nav items, login page
+ * Loading spinner and fade-in animation for React hydration
+ */
+
+/* Admin loading spinner (shown before React hydrates) */
+.admin-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--admin-text-faint, #94a3b8);
+  font-size: var(--admin-font-size-base, 0.875rem);
+  font-family: 'Fira Sans', system-ui, -apple-system, sans-serif;
+}
+
+.admin-loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e2e8f0;
+  border-top-color: var(--t-accent, #6366f1);
+  border-radius: 50%;
+  animation: admin-spin 0.6s linear infinite;
+  margin-right: 0.75rem;
+}
+
+@keyframes admin-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Fade in when React mounts */
+.admin-root {
+  animation: admin-fade-in 200ms ease-out;
+}
+
+@keyframes admin-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ── Admin layout ── */
+.admin-sidebar {
+  width: 200px;
+  min-height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 0;
+  /* Phase 2 — Surface tier glass */
+  background: var(--admin-glass-surface-bg);
+  backdrop-filter: var(--admin-glass-surface-blur);
+  -webkit-backdrop-filter: var(--admin-glass-surface-blur);
+  border-right: 1px solid var(--t-glass-border);
+  box-shadow: var(--admin-shadow-md);
+  transition: width var(--admin-transition-base);
+}
+
+/* Phase 2 — subtle gradient overlay on sidebar */
+.admin-sidebar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    transparent 40%,
+    transparent 100%
+  );
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.admin-sidebar.collapsed {
+  width: 60px;
+}
+
+.admin-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.75rem 0.75rem;
+  min-height: 32px;
+}
+
+.admin-sidebar-title {
+  font-weight: 700;
+  font-size: var(--admin-font-size-lg);
+  color: var(--admin-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 0.5rem;
+}
+
+.admin-sidebar-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--t-glass-border);
+  border-radius: var(--admin-radius-sm);
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--admin-text-muted);
+  cursor: pointer;
+  transition: background var(--admin-transition-fast), color var(--admin-transition-fast);
+  flex-shrink: 0;
+}
+
+.admin-sidebar-toggle:hover {
+  background: var(--admin-surface-active);
+  color: var(--admin-text-primary);
+}
+
+.admin-sidebar.collapsed .admin-sidebar-header {
+  justify-content: center;
+  padding: 0 0 0.75rem;
+}
+
+.admin-main {
+  margin-left: 200px;
+  min-height: 100vh;
+  padding: 1.5rem 2rem;
+  transition: margin-left var(--admin-transition-base);
+}
+
+.admin-wrapper.sidebar-collapsed .admin-main {
+  margin-left: 60px;
+}
+
+.admin-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--t-glass-border);
+}
+
+/* Hamburger button — hidden on desktop, shown on mobile via media query */
+.admin-topbar .admin-topbar-hamburger {
+  display: none;
+}
+
+/* Sidebar nav items */
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  color: var(--admin-text-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  /* Phase 4 — position for ::before indicator */
+  position: relative;
+  transition: background var(--admin-transition-fast),
+              color var(--admin-transition-fast);
+}
+
+/* Phase 4 — Left accent bar indicator */
+.admin-nav-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%) scaleY(0);
+  width: 3px;
+  height: 60%;
+  border-radius: 0 3px 3px 0;
+  background: var(--t-accent);
+  transition: transform var(--admin-transition-base);
+}
+
+.admin-nav-item.active::before {
+  transform: translateY(-50%) scaleY(1);
+}
+
+.admin-sidebar.collapsed .admin-nav-item {
+  justify-content: center;
+  padding: 0.5rem;
+  gap: 0;
+}
+
+.admin-nav-item:hover {
+  background: var(--admin-surface-hover);
+  color: var(--admin-text-primary);
+}
+
+/* Phase 4 — icon hover scale */
+.admin-nav-item:hover svg {
+  transform: scale(1.08);
+  transition: transform var(--admin-transition-fast);
+}
+
+.admin-nav-item.active {
+  background: var(--t-accent-soft);
+  color: var(--t-accent);
+  font-weight: 600;
+}
+
+.admin-nav-section {
+  padding: 0.4rem 1rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--admin-text-faint);
+  margin-top: 0.5rem;
+}
+
+.admin-nav-divider {
+  height: 1px;
+  background: var(--t-glass-border);
+  margin: 0.5rem 0.75rem;
+}
+
+/* Login page */
+.admin-login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-login-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 2.5rem;
+  border-radius: 20px;
+  /* Phase 2 — login card shadow */
+  box-shadow: var(--admin-shadow-lg);
+}
+
+/* Phase 4 — Page content entrance animation */
+.admin-main > *:first-child ~ * {
+  animation: admin-content-enter 250ms ease-out;
+}
+
+@keyframes admin-content-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
