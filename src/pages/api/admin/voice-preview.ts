@@ -52,11 +52,25 @@ async function generatePreview(
   const avoid = Array.isArray(voice.avoid) ? voice.avoid.slice(0, 5).join(', ') : ''
 
   // Very concise prompt — minimal tokens
-  const prompt = `Write 3-4 paragraphs (180-250 words total) as the opening of an article titled "${title}"${description ? ` (about: ${description.slice(0, 100)})` : ''}.
+  const prompt = `You are a content writer. Write the opening section of a blog article.
 
-Voice: ${tone} tone, for ${audience}, in ${language}, using "${pronoun}" as first person.${sampleRef}${avoid ? `\nNever use: ${avoid}` : ''}
+Article title: "${title}"${description ? `\nTopic: ${description.slice(0, 100)}` : ''}
 
-Start with a strong hook. Make the reader want to continue. Write ONLY the paragraphs. No title, no markdown headers, no meta text.`
+Voice settings:
+- Tone: ${tone}
+- Audience: ${audience}
+- Language: ${language}
+- First person pronoun: "${pronoun}"${sampleRef}${avoid ? `\n- Never use these phrases: ${avoid}` : ''}
+
+Requirements:
+- Write EXACTLY 4 paragraphs
+- Total length: 200-300 words (this is important — do not write less)
+- Paragraph 1: Strong hook — a personal story, surprising fact, or bold statement
+- Paragraph 2: Set up the problem or context
+- Paragraph 3: Hint at what the reader will learn
+- Paragraph 4: Transition into the main content
+- Write ONLY the 4 paragraphs, nothing else
+- No title, no headings, no markdown, no meta commentary`
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`
   const res = await fetch(url, {
