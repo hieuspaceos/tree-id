@@ -1,0 +1,106 @@
+{
+  "voice": {
+    "_section": "Writing Voice",
+    "tone": {
+      "_label": "Tone",
+      "casual": "Casual",
+      "professional": "Professional",
+      "technical": "Technical",
+      "storytelling": "Storytelling",
+      "persuasive": "Persuasive",
+      "academic": "Academic"
+    },
+    "industry": {
+      "_label": "Industry / Topic",
+      "technology": "Technology",
+      "business": "Business",
+      "travel": "Travel",
+      "lifestyle": "Lifestyle",
+      "finance": "Finance",
+      "health": "Health",
+      "education": "Education",
+      "food": "Food",
+      "general": "General"
+    },
+    "audience": {
+      "_label": "Target Audience",
+      "junior-dev": "Junior Developer",
+      "senior-dev": "Senior Developer",
+      "non-tech": "Non-technical",
+      "students": "Students",
+      "business": "Business / Management",
+      "general": "General Public"
+    },
+    "language": {
+      "_label": "Primary Language",
+      "vi": "Vietnamese",
+      "en": "English"
+    },
+    "fields": {
+      "name": "Voice Name",
+      "description": "Description",
+      "targetReader": "Target Reader",
+      "pronoun": "First Person Pronoun",
+      "samples": "Sample Paragraphs",
+      "avoid": "Phrases to Avoid"
+    }
+  },
+  "admin": {
+    "_section": "Admin Dashboard",
+    "nav": {
+      "dashboard": "Dashboard",
+      "articles": "Articles",
+      "notes": "Notes",
+      "records": "Records",
+      "categories": "Categories",
+      "voices": "Voices",
+      "media": "Media",
+      "distribution": "Distribution",
+      "subscribers": "Subscribers",
+      "settings": "Settings",
+      "translations": "Translations"
+    },
+    "actions": {
+      "save": "Save",
+      "delete": "Delete",
+      "create": "Create New",
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "search": "Search...",
+      "loading": "Loading...",
+      "unsavedChanges": "Unsaved changes"
+    },
+    "status": {
+      "draft": "Draft",
+      "published": "Published"
+    }
+  },
+  "content": {
+    "_section": "Content",
+    "fields": {
+      "title": "Title",
+      "description": "Description",
+      "summary": "AI Summary",
+      "status": "Status",
+      "publishedAt": "Published At",
+      "tags": "Tags",
+      "category": "Category",
+      "cover": "Cover Image",
+      "content": "Content"
+    },
+    "seo": {
+      "_label": "SEO",
+      "focusKeyword": "Focus Keyword",
+      "seoTitle": "SEO Title",
+      "ogImage": "OG Image URL",
+      "noindex": "No Index"
+    }
+  },
+  "settings": {
+    "_section": "Settings",
+    "theme": "Frontend Theme",
+    "activeVoice": "Active Writing Voice",
+    "adminLanguage": "Admin Language",
+    "integrations": "Integrations"
+  }
+}

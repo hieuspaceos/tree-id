@@ -85,6 +85,13 @@ const icons = {
       <line x1="21" y1="12" x2="9" y2="12" />
     </svg>
   ),
+  globe: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="2" y1="12" x2="22" y2="12" />
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    </svg>
+  ),
   chevronLeft: (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="15 18 9 12 15 6" />
@@ -154,6 +161,7 @@ export function AdminSidebar({ siteName, open, collapsed, onClose, onLogout, onT
         <NavItem href="/records" icon={icons.database} label="Records" collapsed={collapsed} />
         <NavItem href="/categories" icon={icons.folder} label="Categories" collapsed={collapsed} />
         <NavItem href="/voices" icon={icons.edit} label="Voices" collapsed={collapsed} />
+        <NavItem href="/translations" icon={icons.globe} label="Translations" collapsed={collapsed} />
 
         {!collapsed && <div className="admin-nav-section">Assets</div>}
         {collapsed && <div className="admin-nav-divider" style={{ margin: '0.25rem 0.5rem' }} />}

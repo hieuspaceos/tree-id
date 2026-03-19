@@ -1,0 +1,106 @@
+{
+  "voice": {
+    "_section": "Giọng Văn",
+    "tone": {
+      "_label": "Giọng điệu",
+      "casual": "Thân mật",
+      "professional": "Chuyên nghiệp",
+      "technical": "Kỹ thuật",
+      "storytelling": "Kể chuyện",
+      "persuasive": "Thuyết phục",
+      "academic": "Học thuật"
+    },
+    "industry": {
+      "_label": "Ngành / Chủ đề",
+      "technology": "Công nghệ",
+      "business": "Kinh doanh",
+      "travel": "Du lịch",
+      "lifestyle": "Phong cách sống",
+      "finance": "Tài chính",
+      "health": "Sức khỏe",
+      "education": "Giáo dục",
+      "food": "Ẩm thực",
+      "general": "Tổng hợp"
+    },
+    "audience": {
+      "_label": "Đối tượng",
+      "junior-dev": "Lập trình viên mới",
+      "senior-dev": "Lập trình viên cao cấp",
+      "non-tech": "Không chuyên kỹ thuật",
+      "students": "Sinh viên",
+      "business": "Quản lý / Doanh nhân",
+      "general": "Công chúng"
+    },
+    "language": {
+      "_label": "Ngôn ngữ chính",
+      "vi": "Tiếng Việt",
+      "en": "Tiếng Anh"
+    },
+    "fields": {
+      "name": "Tên giọng văn",
+      "description": "Mô tả",
+      "targetReader": "Đối tượng đọc",
+      "pronoun": "Đại từ nhân xưng",
+      "samples": "Đoạn văn mẫu",
+      "avoid": "Cụm từ cần tránh"
+    }
+  },
+  "admin": {
+    "_section": "Bảng điều khiển",
+    "nav": {
+      "dashboard": "Tổng quan",
+      "articles": "Bài viết",
+      "notes": "Ghi chú",
+      "records": "Hồ sơ",
+      "categories": "Danh mục",
+      "voices": "Giọng văn",
+      "media": "Media",
+      "distribution": "Phân phối",
+      "subscribers": "Người đăng ký",
+      "settings": "Cài đặt",
+      "translations": "Ngôn ngữ"
+    },
+    "actions": {
+      "save": "Lưu",
+      "delete": "Xoá",
+      "create": "Tạo mới",
+      "cancel": "Huỷ",
+      "edit": "Sửa",
+      "search": "Tìm kiếm...",
+      "loading": "Đang tải...",
+      "unsavedChanges": "Chưa lưu thay đổi"
+    },
+    "status": {
+      "draft": "Bản nháp",
+      "published": "Đã xuất bản"
+    }
+  },
+  "content": {
+    "_section": "Nội dung",
+    "fields": {
+      "title": "Tiêu đề",
+      "description": "Mô tả",
+      "summary": "Tóm tắt AI",
+      "status": "Trạng thái",
+      "publishedAt": "Ngày xuất bản",
+      "tags": "Thẻ",
+      "category": "Danh mục",
+      "cover": "Ảnh bìa",
+      "content": "Nội dung"
+    },
+    "seo": {
+      "_label": "SEO",
+      "focusKeyword": "Từ khoá chính",
+      "seoTitle": "Tiêu đề SEO",
+      "ogImage": "Ảnh OG",
+      "noindex": "Không index"
+    }
+  },
+  "settings": {
+    "_section": "Cài đặt",
+    "theme": "Giao diện",
+    "activeVoice": "Giọng văn đang dùng",
+    "adminLanguage": "Ngôn ngữ admin",
+    "integrations": "Tích hợp"
+  }
+}

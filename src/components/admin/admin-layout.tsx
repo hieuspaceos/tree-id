@@ -17,6 +17,7 @@ import { CategoriesList } from './categories-list'
 import { CategoryEditor } from './category-editor'
 import { AdminSubscribersPage } from './admin-subscribers-page'
 import { AdminAnalyticsPage } from './admin-analytics-page'
+import { AdminTranslationsPage } from './admin-translations-page'
 
 interface Props {
   siteName: string
@@ -115,6 +116,11 @@ export function AdminLayout({ siteName, onLogout, user }: Props) {
           {/* Analytics */}
           <Route path="/analytics">
             <AdminAnalyticsPage />
+          </Route>
+
+          {/* Translations */}
+          <Route path="/translations">
+            <AdminTranslationsPage />
           </Route>
 
           {/* Settings */}
