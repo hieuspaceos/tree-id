@@ -376,14 +376,37 @@ No prefix (server-only):
 
 ```bash
 R2_SECRET_ACCESS_KEY=xxx
+GOCLAW_API_KEY=xxx
 ```
 
 ```typescript
 // Server-side only (pages, API routes)
 const secret = import.meta.env.R2_SECRET_ACCESS_KEY
+const apiKey = import.meta.env.GOCLAW_API_KEY
 ```
 
 **Never expose secrets in client code.**
+
+## GoClaw API Authentication Pattern
+
+For external AI agent integrations, use Bearer token auth in `src/pages/api/goclaw/*` endpoints:
+
+```typescript
+import { verifyGoclawApiKey } from '@/lib/goclaw/api-auth'
+
+export const POST: APIRoute = async ({ request }) => {
+  const auth = verifyGoclawApiKey(request)
+  if (!auth.ok) return auth.response  // 401 or 503
+
+  // Process authenticated request
+}
+```
+
+**Key patterns:**
+- Returns 503 if `GOCLAW_API_KEY` env var not configured (graceful degradation)
+- Returns 401 if token invalid
+- All writes force `status: draft` (human approval required)
+- Use `GOCLAW_WEBHOOK_SECRET` for HMAC-SHA256 signature verification on incoming webhooks
 
 ## Git Workflow
 

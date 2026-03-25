@@ -28,6 +28,7 @@ Admin panel: http://localhost:4321/admin
 - **Content distribution** — Gemini Flash social post generation for 10 platforms
 - **AI/LLM optimized** — JSON-LD, llms.txt, RSS, per-agent robots.txt
 - **Static search** — Pagefind with zero runtime cost
+- **GoClaw API adapter** — External AI agents integrate via `/api/goclaw/*` endpoints
 
 All features are **opt-in via env vars**. No env var = feature hidden.
 
@@ -73,8 +74,23 @@ Set env vars on Vercel — only `PUBLIC_SITE_URL` is required.
 | `R2_*` variables | No | Cloudflare R2 for media storage |
 | `GEMINI_API_KEY` | No | AI features (voice analysis, preview, content distribution) |
 | `POSTIZ_API_KEY` | No | Social media scheduling |
+| `GOCLAW_API_KEY` | No | GoClaw API adapter for external AI agents |
+| `GOCLAW_WEBHOOK_SECRET` | No | HMAC-SHA256 webhook signature verification (GoClaw) |
 
 See `.env.example` for the full list with descriptions.
+
+## GoClaw API Integration
+
+External AI agents (like GoClaw) can read/write Tree Identity content via authenticated API endpoints:
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/goclaw/health` | GET | Service health check + version |
+| `/api/goclaw/webhook` | POST | Receive GoClaw event callbacks (HMAC verified) |
+
+**Authentication:** Bearer token via `GOCLAW_API_KEY` env var. Returns 503 if not configured.
+
+**All writes force `status: draft`** — human approval required before publishing.
 
 ## Tech Stack
 

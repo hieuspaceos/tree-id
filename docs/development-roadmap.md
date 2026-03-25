@@ -2,12 +2,12 @@
 
 Strategic roadmap for Tree Identity. Tracks active work, completed milestones, and future directions.
 
-## Current Status (2026-03-19)
+## Current Status (2026-03-25)
 
-**Phase:** v2.1.0 complete — Voice profiles, i18n system, admin UI redesign
-**Completion:** Phase 1-4 complete. Voice management complete. Consolidation stable.
+**Phase:** v2.1.0 complete + GoClaw Phase 1 (API adapter for external agents)
+**Completion:** Phases 1-4.5 complete. GoClaw API Phase 1 complete. Ready for external AI integration.
 **Active Team:** Solo (HieuSpace)
-**Key Features Added:** Voice profiles + effectiveness scoring, i18n module, CSS modularization, AI voice analysis/preview
+**Key Features Added:** Voice profiles + effectiveness scoring, i18n module, CSS modularization, AI voice analysis/preview, GoClaw API adapter
 
 ---
 
@@ -141,6 +141,38 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 **Status:** Pending (Phase 4.5 voice management now complete)
 **Previous Deliverables:** 88 tests, modularized content-io, docs sync
+
+---
+
+## Phase 6 — GoClaw API Adapter ✓ COMPLETE (Phase 1)
+
+**Timeline:** 2026-03-25
+**Status:** Phase 1 Complete (Health + Webhook)
+**Effort:** 3 hours
+
+### Phase 1 Deliverables
+- [x] GoClaw API authentication: Bearer token verification via `GOCLAW_API_KEY` env var
+- [x] Health check endpoint: `GET /api/goclaw/health` (returns 503 if not configured)
+- [x] Webhook receiver: `POST /api/goclaw/webhook` with HMAC-SHA256 signature verification
+- [x] Shared types: WebhookPayload, GoclawApiResponse interfaces
+- [x] Write policy: All writes force `status: draft` (human approval required)
+- [x] Documentation: System architecture + API reference
+
+**Architecture:**
+- External AI agents (GoClaw orchestration) authenticate via Bearer token
+- All writes forbidden from publishing directly — must go through admin approval
+- Webhook verification optional (graceful degradation if secret not set)
+- Versioned API: `/api/goclaw/health` returns version string
+
+**Key Insights:**
+- GoClaw acts as content initiator, Tree Identity as decision layer
+- Draft forcing is security-critical: prevents AI from publishing unreviewed content
+- HMAC verification optional but recommended for production GoClaw instances
+
+### Phase 2-4 (Backlog)
+- Phase 2: Content CRUD endpoints (`/api/goclaw/content/{slug}`)
+- Phase 3: Voice profiles reader (`/api/goclaw/voices`)
+- Phase 4: SEO analysis trigger (`/api/goclaw/seo-analyze`)
 
 ---
 

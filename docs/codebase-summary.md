@@ -66,7 +66,10 @@ tree-id/
 │   │   ├── llms-full.txt.ts        # Extended AI/LLM context
 │   │   ├── og.ts                   # Dynamic OG image generation
 │   │   └── api/
-│   │       └── manifests/[slug].ts # Video manifest HTTP API
+│   │       ├── manifests/[slug].ts # Video manifest HTTP API
+│   │       └── goclaw/
+│   │           ├── health.ts       # Health check endpoint
+│   │           └── webhook.ts      # GoClaw webhook receiver
 │   ├── layouts/
 │   │   └── base-layout.astro       # Root layout with nav + footer
 │   ├── components/                  # Astro + React components
@@ -402,6 +405,43 @@ When `video.enabled = true`:
 | `GEMINI_API_KEY` | No | Google Gemini API for voice analysis + preview generation |
 
 Voice analysis and preview features disabled if not set (graceful degradation).
+
+### GoClaw API Adapter (Phase 1, 2026-03-25)
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `GOCLAW_API_KEY` | No | Bearer token for external AI agent authentication |
+| `GOCLAW_WEBHOOK_SECRET` | No | HMAC-SHA256 secret for webhook signature verification |
+
+GoClaw integration disabled (returns 503) if `GOCLAW_API_KEY` not set.
+
+## GoClaw API Adapter Architecture (Phase 1)
+
+External AI agents (orchestration systems like GoClaw) integrate via authenticated REST API:
+
+**Endpoints:**
+- `GET /api/goclaw/health` — Service health + version (requires API key)
+- `POST /api/goclaw/webhook` — Receive event callbacks (HMAC verified)
+
+**Authentication:**
+- Bearer token via `Authorization: Bearer <GOCLAW_API_KEY>` header
+- Returns 401 if token invalid, 503 if not configured
+- Webhook signature verified via HMAC-SHA256 if `GOCLAW_WEBHOOK_SECRET` set
+
+**Write Policy:**
+- All AI agent writes force `status: draft` (human approval required)
+- Draft content never public — security-critical
+
+**Files:**
+- `src/lib/goclaw/api-auth.ts` — Bearer token verification helper
+- `src/lib/goclaw/types.ts` — Shared TypeScript types (WebhookPayload, GoclawApiResponse)
+- `src/pages/api/goclaw/health.ts` — Health check endpoint
+- `src/pages/api/goclaw/webhook.ts` — Event callback receiver + HMAC verification
+
+**Future Phases:**
+- Phase 2: Content CRUD endpoints (`/api/goclaw/content`)
+- Phase 3: Voice profile reader (`/api/goclaw/voices`)
+- Phase 4: SEO analysis trigger (`/api/goclaw/seo-analyze`)
 
 ## Code Standards
 

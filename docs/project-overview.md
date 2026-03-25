@@ -36,6 +36,7 @@ Standards applied so LLMs (Claude, GPT, Gemini) can crawl and accurately "recogn
 
 1. **Digital Authority:** Establish presence via a single domain (hieuspace.com)
 2. **Knowledge Digitization:** Convert personal knowledge into a digital asset both humans and AI can interact with, learn from, and build upon
+3. **AI Agent Integration:** External orchestration systems (GoClaw) use Tree Identity as a content API — agents draft, humans approve, then auto-publish
 
 ## Tech Stack
 

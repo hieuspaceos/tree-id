@@ -95,6 +95,10 @@ https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fhieuspace
 **Optional (R2 video manifests):**
 - `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_ENDPOINT`, `R2_BUCKET`, `R2_REGION`, `R2_PUBLIC_URL`
 
+**Optional (GoClaw AI agent integration):**
+- `GOCLAW_API_KEY` — Bearer token for external orchestration systems
+- `GOCLAW_WEBHOOK_SECRET` — HMAC-SHA256 secret for webhook signature verification
+
 Add these under **Settings → Environment Variables** in Vercel dashboard.
 
 ### First Deploy

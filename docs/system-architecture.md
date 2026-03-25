@@ -151,6 +151,8 @@ Detail Page (/seeds/[slug])
 | `/api/admin/*` | API Route | Admin CRUD: content, auth, media, voice operations |
 | `/api/admin/voice-analyze` | API Route | Gemini-powered voice effectiveness scoring (2026-03-19) |
 | `/api/admin/voice-preview` | API Route | AI-generated voice sample paragraphs (2026-03-19) |
+| `/api/goclaw/health` | API Route | GoClaw health check (Bearer auth, 503 if not configured) |
+| `/api/goclaw/webhook` | API Route | GoClaw event webhook receiver (HMAC verified) |
 
 ### Client-Side Islands
 
@@ -628,4 +630,162 @@ TreeID prioritizes **simplicity, speed, and maintainability** over feature richn
 
 ---
 
-**Last updated:** 2026-03-19
+## GoClaw External Agent Integration (Phase 1 — 2026-03-25)
+
+### Architecture
+
+Tree Identity acts as a **content API** for external AI orchestration systems (like GoClaw). Multi-step content pipeline:
+
+```
+GoClaw Orchestration
+  ├─ Research agents generate article drafts
+  ├─ POST /api/goclaw/content (create with status: draft)
+  │   ↓
+  │ Tree Identity API
+  │   └─ Stores in src/content/articles/ as YAML (never public)
+  │
+  └─ Human-in-the-loop
+     ├─ Admin reviews draft at /admin/articles/{slug}
+     ├─ Optionally: runs SEO analysis via /api/goclaw/seo-analyze
+     ├─ Updates + publishes (sets status: published)
+     │
+     └─ Callback
+        └─ POST /api/goclaw/webhook (event: article_published, agentId, taskId)
+           ↓
+        GoClaw records success + feedback for model improvement
+```
+
+### API Tiers (Access Control)
+
+**Three authentication tiers:**
+
+| Tier | Auth | Endpoints | Use Case |
+|------|------|-----------|----------|
+| **Public** | None | `/`, `/seeds/*`, `/search`, `/og` | Browser, AI crawlers |
+| **Admin** | Session JWT | `/admin/*`, `/api/admin/*` | Human editors |
+| **GoClaw** | Bearer API Key | `/api/goclaw/*` | External AI agents |
+
+### GoClaw Endpoints (Phase 1 Complete)
+
+#### Health Check
+```
+GET /api/goclaw/health
+Authorization: Bearer <GOCLAW_API_KEY>
+
+Response (200):
+{
+  "ok": true,
+  "version": "2.1.0"
+}
+
+Response (503 if GOCLAW_API_KEY not set):
+{
+  "ok": false,
+  "error": "GoClaw integration not configured"
+}
+
+Response (401 if token invalid):
+{
+  "ok": false,
+  "error": "Invalid API key"
+}
+```
+
+#### Webhook Receiver
+```
+POST /api/goclaw/webhook
+Authorization: Bearer <GOCLAW_API_KEY>
+X-GoClaw-Signature: sha256=<HMAC>
+
+Body:
+{
+  "event": "article_published",
+  "agentId": "research-001",
+  "taskId": "task-12345",
+  "result": { "slug": "my-article", "title": "..." },
+  "timestamp": "2026-03-25T10:30:00Z"
+}
+
+Response (200):
+{
+  "ok": true,
+  "data": {
+    "received": true,
+    "event": "article_published"
+  }
+}
+
+Signature verification (HMAC-SHA256):
+- If GOCLAW_WEBHOOK_SECRET set: validates signature via x-goclaw-signature header
+- If missing secret: webhook accepted without signature (graceful degradation)
+```
+
+### Write Policy (Security Critical)
+
+**All GoClaw writes must force `status: draft`:**
+
+```typescript
+// In /api/goclaw/content (Phase 2 future)
+export const POST: APIRoute = async ({ request }) => {
+  const auth = verifyGoclawApiKey(request)
+  if (!auth.ok) return auth.response
+
+  const payload = await request.json()
+
+  // FORCE draft — human approval required
+  payload.status = 'draft'
+
+  // Save to src/content/articles/{slug}/index.mdoc
+  // Never auto-publish
+}
+```
+
+**Why:** Prevents AI agents from publishing unreviewed content. Single source of truth: human judgment.
+
+### Files & Dependencies
+
+**Auth + Types:**
+- `src/lib/goclaw/api-auth.ts` — `verifyGoclawApiKey()` helper
+- `src/lib/goclaw/types.ts` — WebhookPayload, GoclawApiResponse interfaces
+
+**Endpoints:**
+- `src/pages/api/goclaw/health.ts` — Service status
+- `src/pages/api/goclaw/webhook.ts` — Event receiver + HMAC verification
+
+**Environment:**
+- `GOCLAW_API_KEY` — Bearer token (required to enable feature)
+- `GOCLAW_WEBHOOK_SECRET` — Optional webhook signature verification
+
+### Future Phases
+
+**Phase 2:** Content CRUD
+- POST `/api/goclaw/content` — Create article (force draft)
+- GET `/api/goclaw/content/{slug}` — Read article metadata
+- PUT `/api/goclaw/content/{slug}` — Update article (draft only)
+
+**Phase 3:** Voice Profiles Reader
+- GET `/api/goclaw/voices` — List published voices for style reference
+
+**Phase 4:** SEO Analysis Trigger
+- POST `/api/goclaw/seo-analyze` — Trigger analysis on article slug
+
+### Comparison: Manual vs GoClaw Pipeline
+
+**Without GoClaw (current):**
+1. Human writes in /admin/articles
+2. Publishes (status: published)
+3. Public
+
+**With GoClaw (Phase 1+):**
+1. AI agent calls POST /api/goclaw/content (status: draft)
+2. Stored as draft in git
+3. Human reviews + edits in /admin/articles
+4. Human publishes
+5. Webhook callback to GoClaw (success signal)
+6. Public
+
+**Key benefit:** AI agents become content **initiators** (not creators), humans remain **decision makers** (final approval).
+
+---
+
+**Last updated:** 2026-03-25
