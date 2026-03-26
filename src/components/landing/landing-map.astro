@@ -4,9 +4,9 @@ import type { MapData } from '@/lib/landing/landing-types'
 interface Props extends MapData {}
 const { address, embedUrl, height = 400 } = Astro.props
 
-/** Build Google Maps embed URL from address or use provided embedUrl directly */
+/** Google Maps embed — works without API key via maps.google.com */
 const src = embedUrl || (address
-  ? `https://maps.google.com/maps?q=${encodeURIComponent(address)}&output=embed`
+  ? `https://maps.google.com/maps?q=${encodeURIComponent(address)}&t=&z=13&ie=UTF8&iwloc=&output=embed`
   : null)
 ---
 
@@ -17,8 +17,10 @@ const src = embedUrl || (address
       width="100%"
       height={height}
       class="rounded-xl border-0 w-full"
+      style={`height:${height}px`}
       loading="lazy"
       referrerpolicy="no-referrer-when-downgrade"
+      allowfullscreen
       title={address || 'Map'}
     />
   ) : (
