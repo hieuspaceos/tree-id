@@ -82,20 +82,23 @@ export function AdminTopbar({ onToggleSidebar, user }: Props) {
             </svg>
             {user.username}
           </span>
-          <span
-            style={{
-              padding: '0.15rem 0.5rem',
-              borderRadius: '9999px',
-              fontSize: '0.7rem',
-              fontWeight: 600,
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              background: user.role === 'admin' ? 'rgba(99,102,241,0.1)' : 'rgba(34,197,94,0.1)',
-              color: user.role === 'admin' ? '#6366f1' : '#22c55e',
-            }}
-          >
-            {user.role}
-          </span>
+          {/* Hide role badge when username matches role (e.g. "admin" / "ADMIN") */}
+          {user.username.toLowerCase() !== user.role.toLowerCase() && (
+            <span
+              style={{
+                padding: '0.15rem 0.5rem',
+                borderRadius: '9999px',
+                fontSize: '0.7rem',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                background: user.role === 'admin' ? 'rgba(99,102,241,0.1)' : 'rgba(34,197,94,0.1)',
+                color: user.role === 'admin' ? '#6366f1' : '#22c55e',
+              }}
+            >
+              {user.role}
+            </span>
+          )}
         </div>
       )}
 
