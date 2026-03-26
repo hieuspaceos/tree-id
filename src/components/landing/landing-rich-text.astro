@@ -1,0 +1,13 @@
+---
+import type { RichTextData } from '@/lib/landing/landing-types'
+
+interface Props extends RichTextData {}
+const { content } = Astro.props
+
+/** Strip script tags for basic XSS protection */
+const safe = content.replace(/<script[\s\S]*?<\/script>/gi, '')
+---
+
+<section class="landing-section">
+  <div class="prose prose-slate mx-auto max-w-3xl" set:html={safe} />
+</section>

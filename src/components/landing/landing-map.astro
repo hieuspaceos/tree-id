@@ -1,0 +1,30 @@
+---
+import type { MapData } from '@/lib/landing/landing-types'
+
+interface Props extends MapData {}
+const { address, embedUrl, height = 400 } = Astro.props
+
+/** Build Google Maps embed URL from address or use provided embedUrl directly */
+const src = embedUrl || (address
+  ? `https://maps.google.com/maps?q=${encodeURIComponent(address)}&output=embed`
+  : null)
+---
+
+<section class="landing-section">
+  {src ? (
+    <iframe
+      src={src}
+      width="100%"
+      height={height}
+      class="rounded-xl border-0 w-full"
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+      title={address || 'Map'}
+    />
+  ) : (
+    <div class="flex items-center justify-center rounded-xl bg-slate-100 text-slate-400 text-sm" style={`height:${height}px`}>
+      No map address or embed URL provided
+    </div>
+  )}
+  {address && <p class="mt-2 text-center text-sm text-slate-500">{address}</p>}
+</section>

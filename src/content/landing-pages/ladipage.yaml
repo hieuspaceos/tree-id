@@ -1,0 +1,83 @@
+title: Landing page of landingpage builder
+sections:
+  - type: nav
+    order: -1
+    enabled: true
+    data:
+      brandName: ''
+      links: []
+  - type: features
+    order: 3
+    enabled: true
+    data:
+      heading: Features
+      items:
+        - title: Feature 1
+          description: Description
+      subheading: aaaaaa
+  - type: hero
+    order: 2
+    enabled: true
+    data:
+      headline: Your Headline Here 222
+      subheadline: A short description
+      cta:
+        text: Get Started
+        url: '#'
+  - type: pricing
+    order: 4
+    enabled: true
+    data:
+      heading: Pricing
+      plans: []
+  - type: testimonials
+    order: 5
+    enabled: true
+    data:
+      heading: What customers say
+      items:
+        - quote: sdasdas
+          name: dasdasd
+          role: adasdasd
+        - quote: dasdasd
+          name: dasdsad
+          role: dasdasd
+        - quote: dasdasd
+          name: dasdsad
+          role: dasdasd
+        - quote: fsdfsdf
+          name: asdasdsa
+          role: dfsdfsdf
+  - type: faq
+    order: 6
+    enabled: true
+    data:
+      heading: Frequently Asked Questions
+      items: []
+  - type: team
+    order: 7
+    enabled: true
+    data:
+      heading: Meet the team
+      members:
+        - name: fsdf
+          role: fsdf
+        - name: fsdfsdf
+          role: fsdfsd
+        - name: gfdgfd
+          role: asasdsdf
+        - name: fsdf
+          role: asdasd
+  - type: stats
+    order: 8
+    enabled: true
+    data:
+      items:
+        - value: 10k+
+          label: Users
+  - type: footer
+    order: 999
+    enabled: true
+    data:
+      text: asadfdsfsdfsdfsdf
+      links: []

@@ -1,0 +1,8 @@
+name: landingpage
+slug: landingpage
+description: ''
+landingPage: landingpage-builder
+icon: sparkles
+features:
+  - landing
+coreCollections: []

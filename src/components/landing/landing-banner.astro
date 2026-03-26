@@ -1,0 +1,26 @@
+---
+import type { BannerData } from '@/lib/landing/landing-types'
+
+interface Props extends BannerData {}
+const { text, cta, variant = 'info' } = Astro.props
+
+const variantStyles: Record<string, string> = {
+  info:    'bg-blue-50 border-blue-200 text-blue-800',
+  warning: 'bg-amber-50 border-amber-200 text-amber-800',
+  success: 'bg-green-50 border-green-200 text-green-800',
+}
+const ctaStyles: Record<string, string> = {
+  info:    'bg-blue-600 hover:bg-blue-700',
+  warning: 'bg-amber-600 hover:bg-amber-700',
+  success: 'bg-green-600 hover:bg-green-700',
+}
+---
+
+<div class={`w-full border-y px-6 py-3 flex items-center justify-center gap-4 flex-wrap ${variantStyles[variant]}`}>
+  <p class="text-sm font-medium">{text}</p>
+  {cta && (
+    <a href={cta.url} class={`rounded-lg px-4 py-1.5 text-xs font-semibold text-white transition-colors ${ctaStyles[variant]}`}>
+      {cta.text}
+    </a>
+  )}
+</div>

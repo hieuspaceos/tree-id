@@ -3,7 +3,7 @@
  * Each form renders inputs for its typed section data.
  * Dynamic array support: items[] with add/remove.
  */
-import type { SectionData, HeroData, FeaturesData, PricingData, TestimonialsData, FaqData, CtaData, StatsData, HowItWorksData, TeamData, LogoWallData, NavData, FooterData } from '@/lib/landing/landing-types'
+import type { SectionData, HeroData, FeaturesData, PricingData, TestimonialsData, FaqData, CtaData, StatsData, HowItWorksData, TeamData, LogoWallData, NavData, FooterData, VideoData, ImageData, ImageTextData, GalleryData, MapData, RichTextData, DividerData, CountdownData, ContactFormData, BannerData, ContactFormField } from '@/lib/landing/landing-types'
 
 type FormProps<T extends SectionData> = { data: T; onChange: (data: T) => void }
 
@@ -282,6 +282,171 @@ function FooterSectionForm({ data, onChange }: FormProps<FooterData>) {
   )
 }
 
+export function VideoSectionForm({ data, onChange }: FormProps<VideoData>) {
+  const set = (k: keyof VideoData, v: unknown) => onChange({ ...data, [k]: v })
+  return (
+    <>
+      <Field label="Video URL (YouTube, Vimeo, or .mp4)"><input style={inputStyle} value={data.url || ''} onChange={(e) => set('url', e.target.value)} placeholder="https://youtube.com/watch?v=..." /></Field>
+      <Field label="Caption"><input style={inputStyle} value={data.caption || ''} onChange={(e) => set('caption', e.target.value)} /></Field>
+      <Field label="Autoplay">
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
+          <input type="checkbox" checked={!!data.autoplay} onChange={(e) => set('autoplay', e.target.checked)} /> Autoplay (muted)
+        </label>
+      </Field>
+    </>
+  )
+}
+
+export function ImageSectionForm({ data, onChange }: FormProps<ImageData>) {
+  const set = (k: keyof ImageData, v: unknown) => onChange({ ...data, [k]: v })
+  return (
+    <>
+      <Field label="Image URL"><input style={inputStyle} value={data.src || ''} onChange={(e) => set('src', e.target.value)} placeholder="https://..." /></Field>
+      <Field label="Alt Text"><input style={inputStyle} value={data.alt || ''} onChange={(e) => set('alt', e.target.value)} /></Field>
+      <Field label="Caption"><input style={inputStyle} value={data.caption || ''} onChange={(e) => set('caption', e.target.value)} /></Field>
+      <Field label="Full Width">
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
+          <input type="checkbox" checked={!!data.fullWidth} onChange={(e) => set('fullWidth', e.target.checked)} /> Full width
+        </label>
+      </Field>
+    </>
+  )
+}
+
+export function ImageTextSectionForm({ data, onChange }: FormProps<ImageTextData>) {
+  const set = (k: keyof ImageTextData, v: unknown) => onChange({ ...data, [k]: v })
+  return (
+    <>
+      <Field label="Image URL"><input style={inputStyle} value={data.image?.src || ''} onChange={(e) => set('image', { ...data.image, src: e.target.value })} placeholder="https://..." /></Field>
+      <Field label="Image Alt"><input style={inputStyle} value={data.image?.alt || ''} onChange={(e) => set('image', { ...data.image, alt: e.target.value })} /></Field>
+      <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
+      <Field label="Text"><textarea style={textareaStyle} value={data.text || ''} onChange={(e) => set('text', e.target.value)} /></Field>
+      <Field label="Image Position">
+        <select style={inputStyle} value={data.imagePosition || 'left'} onChange={(e) => set('imagePosition', e.target.value)}>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </Field>
+      <Field label="CTA Text"><input style={inputStyle} value={data.cta?.text || ''} onChange={(e) => set('cta', { ...data.cta, text: e.target.value, url: data.cta?.url || '#' })} /></Field>
+      <Field label="CTA URL"><input style={inputStyle} value={data.cta?.url || ''} onChange={(e) => set('cta', { ...data.cta, url: e.target.value, text: data.cta?.text || 'Learn more' })} /></Field>
+    </>
+  )
+}
+
+export function GallerySectionForm({ data, onChange }: FormProps<GalleryData>) {
+  const set = (k: keyof GalleryData, v: unknown) => onChange({ ...data, [k]: v })
+  const images = data.images || []
+  return (
+    <>
+      <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
+      <Field label="Images">
+        {images.map((img, i) => (
+          <div key={i} style={{ background: '#f8fafc', borderRadius: '8px', padding: '0.5rem', marginBottom: '0.5rem' }}>
+            <input placeholder="Image URL" style={{ ...inputStyle, marginBottom: '4px' }} value={img.src} onChange={(e) => { const n = [...images]; n[i] = { ...n[i], src: e.target.value }; set('images', n) }} />
+            <input placeholder="Alt text" style={inputStyle} value={img.alt || ''} onChange={(e) => { const n = [...images]; n[i] = { ...n[i], alt: e.target.value }; set('images', n) }} />
+            <button type="button" onClick={() => set('images', images.filter((_, j) => j !== i))}
+              style={{ fontSize: '0.75rem', color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer', marginTop: '4px' }}>Remove</button>
+          </div>
+        ))}
+        <button type="button" onClick={() => set('images', [...images, { src: '', alt: '' }])}
+          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Image</button>
+      </Field>
+    </>
+  )
+}
+
+export function MapSectionForm({ data, onChange }: FormProps<MapData>) {
+  const set = (k: keyof MapData, v: unknown) => onChange({ ...data, [k]: v })
+  return (
+    <>
+      <Field label="Address (for Google Maps search)"><input style={inputStyle} value={data.address || ''} onChange={(e) => set('address', e.target.value)} placeholder="123 Main St, City, Country" /></Field>
+      <Field label="Or direct embed URL"><input style={inputStyle} value={data.embedUrl || ''} onChange={(e) => set('embedUrl', e.target.value)} placeholder="https://maps.google.com/maps?..." /></Field>
+      <Field label="Height (px)"><input type="number" style={inputStyle} value={data.height || 400} onChange={(e) => set('height', Number(e.target.value))} /></Field>
+    </>
+  )
+}
+
+export function RichTextSectionForm({ data, onChange }: FormProps<RichTextData>) {
+  return (
+    <Field label="HTML Content">
+      <textarea style={{ ...textareaStyle, minHeight: '120px', fontFamily: 'monospace' }} value={data.content || ''} onChange={(e) => onChange({ ...data, content: e.target.value }) } placeholder="<p>Your content here...</p>" />
+    </Field>
+  )
+}
+
+export function DividerSectionForm({ data, onChange }: FormProps<DividerData>) {
+  const set = (k: keyof DividerData, v: unknown) => onChange({ ...data, [k]: v })
+  return (
+    <>
+      <Field label="Style">
+        <select style={inputStyle} value={data.style || 'line'} onChange={(e) => set('style', e.target.value)}>
+          <option value="line">Line</option>
+          <option value="dots">Dots</option>
+          <option value="space">Space only</option>
+        </select>
+      </Field>
+      <Field label="Height (px)"><input type="number" style={inputStyle} value={data.height || 40} onChange={(e) => set('height', Number(e.target.value))} /></Field>
+    </>
+  )
+}
+
+export function CountdownSectionForm({ data, onChange }: FormProps<CountdownData>) {
+  const set = (k: keyof CountdownData, v: unknown) => onChange({ ...data, [k]: v })
+  return (
+    <>
+      <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
+      <Field label="Target Date"><input type="datetime-local" style={inputStyle} value={data.targetDate || ''} onChange={(e) => set('targetDate', e.target.value)} /></Field>
+      <Field label="Expired Text"><input style={inputStyle} value={data.expiredText || ''} onChange={(e) => set('expiredText', e.target.value)} placeholder="This offer has expired." /></Field>
+    </>
+  )
+}
+
+export function ContactFormSectionForm({ data, onChange }: FormProps<ContactFormData>) {
+  const set = (k: keyof ContactFormData, v: unknown) => onChange({ ...data, [k]: v })
+  const fields = data.fields || []
+  return (
+    <>
+      <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
+      <Field label="Fields">
+        {fields.map((f, i) => (
+          <div key={i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.25rem', alignItems: 'center' }}>
+            <input placeholder="Label" style={{ ...inputStyle, flex: 2 }} value={f.label} onChange={(e) => { const n = [...fields]; n[i] = { ...n[i], label: e.target.value }; set('fields', n) }} />
+            <select style={{ ...inputStyle, flex: 1 }} value={f.type} onChange={(e) => { const n = [...fields]; n[i] = { ...n[i], type: e.target.value as ContactFormField['type'] }; set('fields', n) }}>
+              <option value="text">Text</option>
+              <option value="email">Email</option>
+              <option value="textarea">Textarea</option>
+            </select>
+            <button type="button" onClick={() => set('fields', fields.filter((_, j) => j !== i))}
+              style={{ padding: '4px 8px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>×</button>
+          </div>
+        ))}
+        <button type="button" onClick={() => set('fields', [...fields, { label: '', type: 'text' as const }])}
+          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Field</button>
+      </Field>
+      <Field label="Submit Button Text"><input style={inputStyle} value={data.submitText || ''} onChange={(e) => set('submitText', e.target.value)} placeholder="Send Message" /></Field>
+      <Field label="Submit URL"><input style={inputStyle} value={data.submitUrl || ''} onChange={(e) => set('submitUrl', e.target.value)} placeholder="/api/contact" /></Field>
+    </>
+  )
+}
+
+export function BannerSectionForm({ data, onChange }: FormProps<BannerData>) {
+  const set = (k: keyof BannerData, v: unknown) => onChange({ ...data, [k]: v })
+  return (
+    <>
+      <Field label="Text"><input style={inputStyle} value={data.text || ''} onChange={(e) => set('text', e.target.value)} placeholder="Announcement text..." /></Field>
+      <Field label="Variant">
+        <select style={inputStyle} value={data.variant || 'info'} onChange={(e) => set('variant', e.target.value)}>
+          <option value="info">Info (blue)</option>
+          <option value="warning">Warning (amber)</option>
+          <option value="success">Success (green)</option>
+        </select>
+      </Field>
+      <Field label="CTA Text"><input style={inputStyle} value={data.cta?.text || ''} onChange={(e) => set('cta', { ...data.cta, text: e.target.value, url: data.cta?.url || '#' })} /></Field>
+      <Field label="CTA URL"><input style={inputStyle} value={data.cta?.url || ''} onChange={(e) => set('cta', { ...data.cta, url: e.target.value, text: data.cta?.text || 'Learn more' })} /></Field>
+    </>
+  )
+}
+
 /** Maps section type to its form component */
 export const sectionFormMap: Record<string, React.ComponentType<FormProps<any>>> = {
   nav: NavSectionForm,
@@ -296,4 +461,14 @@ export const sectionFormMap: Record<string, React.ComponentType<FormProps<any>>>
   team: TeamSectionForm,
   'logo-wall': LogoWallSectionForm,
   footer: FooterSectionForm,
+  video: VideoSectionForm,
+  image: ImageSectionForm,
+  'image-text': ImageTextSectionForm,
+  gallery: GallerySectionForm,
+  map: MapSectionForm,
+  'rich-text': RichTextSectionForm,
+  divider: DividerSectionForm,
+  countdown: CountdownSectionForm,
+  'contact-form': ContactFormSectionForm,
+  banner: BannerSectionForm,
 }

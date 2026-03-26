@@ -3,7 +3,7 @@
  * Renders sections from React state directly — no server round-trip needed.
  * Mirrors the Astro section components but as simple React divs.
  */
-import type { LandingSection, HeroData, FeaturesData, PricingData, TestimonialsData, FaqData, CtaData, StatsData, HowItWorksData, TeamData, LogoWallData, NavData, FooterData } from '@/lib/landing/landing-types'
+import type { LandingSection, HeroData, FeaturesData, PricingData, TestimonialsData, FaqData, CtaData, StatsData, HowItWorksData, TeamData, LogoWallData, NavData, FooterData, VideoData, ImageData, ImageTextData, GalleryData, MapData, RichTextData, DividerData, CountdownData, ContactFormData, BannerData } from '@/lib/landing/landing-types'
 
 interface Props {
   sections: LandingSection[]
@@ -139,6 +139,130 @@ function PreviewFooter({ data, pageTitle }: { data: FooterData; pageTitle?: stri
   )
 }
 
+function PreviewVideo({ data }: { data: VideoData }) {
+  return (
+    <div style={{ padding: '1rem', background: 'rgba(0,0,0,0.05)', borderRadius: '10px', textAlign: 'center' }}>
+      <div style={{ fontSize: '2rem' }}>▶</div>
+      <p style={{ fontSize: '0.8rem', color: '#475569', wordBreak: 'break-all' }}>{data.url}</p>
+      {data.caption && <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{data.caption}</p>}
+    </div>
+  )
+}
+
+function PreviewImage({ data }: { data: ImageData }) {
+  return (
+    <div style={{ padding: '0.5rem', textAlign: 'center' }}>
+      <div style={{ background: '#e2e8f0', borderRadius: '8px', padding: '2rem', fontSize: '0.75rem', color: '#94a3b8' }}>
+        [Image] {data.alt || data.src}
+      </div>
+      {data.caption && <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '4px' }}>{data.caption}</p>}
+    </div>
+  )
+}
+
+function PreviewImageText({ data }: { data: ImageTextData }) {
+  return (
+    <div style={{ display: 'flex', gap: '1rem', padding: '1rem', flexDirection: data.imagePosition === 'right' ? 'row-reverse' : 'row' }}>
+      <div style={{ flex: 1, background: '#e2e8f0', borderRadius: '8px', minHeight: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', color: '#94a3b8' }}>Image</div>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.5rem' }}>
+        {data.heading && <p style={{ fontWeight: 600, fontSize: '0.9rem', color: '#1e293b' }}>{data.heading}</p>}
+        <p style={{ fontSize: '0.8rem', color: '#64748b' }}>{data.text}</p>
+        {data.cta && <span style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: 600 }}>{data.cta.text} →</span>}
+      </div>
+    </div>
+  )
+}
+
+function PreviewGallery({ data }: { data: GalleryData }) {
+  return (
+    <div style={{ padding: '1rem' }}>
+      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1rem', fontWeight: 700, color: '#1e293b', marginBottom: '0.75rem' }}>{data.heading}</h2>}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
+        {(data.images || []).map((_, i) => (
+          <div key={i} style={{ background: '#e2e8f0', borderRadius: '6px', aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', color: '#94a3b8' }}>img</div>
+        ))}
+        {(data.images || []).length === 0 && [0,1,2].map(i => (
+          <div key={i} style={{ background: '#e2e8f0', borderRadius: '6px', aspectRatio: '1' }} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function PreviewMap({ data }: { data: MapData }) {
+  return (
+    <div style={{ padding: '1rem', background: '#e2e8f0', borderRadius: '10px', textAlign: 'center', minHeight: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+      <span style={{ fontSize: '1.5rem' }}>📍</span>
+      <p style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '4px' }}>{data.address || data.embedUrl || 'Map'}</p>
+    </div>
+  )
+}
+
+function PreviewRichText({ data }: { data: RichTextData }) {
+  // Strip tags for safe preview text
+  const text = data.content.replace(/<[^>]+>/g, ' ').trim().slice(0, 200)
+  return (
+    <div style={{ padding: '1rem' }}>
+      <p style={{ fontSize: '0.8rem', color: '#475569', lineHeight: 1.6 }}>{text}{text.length >= 200 ? '…' : ''}</p>
+    </div>
+  )
+}
+
+function PreviewDivider({ data }: { data: DividerData }) {
+  const h = data.height || 40
+  if (data.style === 'space') return <div style={{ height: h }} />
+  if (data.style === 'dots') return <div style={{ height: h, display: 'flex', alignItems: 'center', justifyContent: 'center', letterSpacing: '0.3em', color: '#cbd5e1', fontSize: '1rem' }}>· · · · ·</div>
+  return <div style={{ height: h, display: 'flex', alignItems: 'center', padding: '0 2rem' }}><hr style={{ width: '100%', border: 'none', borderTop: '1px solid #e2e8f0' }} /></div>
+}
+
+function PreviewCountdown({ data }: { data: CountdownData }) {
+  return (
+    <div style={{ padding: '1.5rem', textAlign: 'center' }}>
+      {data.heading && <p style={{ fontWeight: 700, fontSize: '1rem', color: '#1e293b', marginBottom: '0.75rem' }}>{data.heading}</p>}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
+        {['DD','HH','MM','SS'].map((u) => (
+          <div key={u} style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#16a34a' }}>{u}</div>
+            <div style={{ fontSize: '0.6rem', color: '#94a3b8' }}>{u === 'DD' ? 'Days' : u === 'HH' ? 'Hours' : u === 'MM' ? 'Mins' : 'Secs'}</div>
+          </div>
+        ))}
+      </div>
+      {data.targetDate && <p style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.5rem' }}>{data.targetDate}</p>}
+    </div>
+  )
+}
+
+function PreviewContactForm({ data }: { data: ContactFormData }) {
+  const fields = data.fields || []
+  return (
+    <div style={{ padding: '1rem' }}>
+      {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1rem', fontWeight: 700, color: '#1e293b', marginBottom: '0.75rem' }}>{data.heading}</h2>}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxWidth: '300px', margin: '0 auto' }}>
+        {fields.map((f, i) => (
+          <div key={i} style={{ background: '#f1f5f9', borderRadius: '6px', padding: '0.5rem', fontSize: '0.75rem', color: '#64748b' }}>{f.label} ({f.type})</div>
+        ))}
+        {fields.length === 0 && <div style={{ background: '#f1f5f9', borderRadius: '6px', padding: '0.5rem', fontSize: '0.75rem', color: '#94a3b8' }}>No fields configured</div>}
+        <div style={{ background: '#16a34a', borderRadius: '6px', padding: '0.4rem 1rem', fontSize: '0.75rem', color: 'white', textAlign: 'center', alignSelf: 'flex-start' }}>{data.submitText || 'Send Message'}</div>
+      </div>
+    </div>
+  )
+}
+
+function PreviewBanner({ data }: { data: BannerData }) {
+  const colors: Record<string, { bg: string; text: string }> = {
+    info: { bg: '#eff6ff', text: '#1d4ed8' },
+    warning: { bg: '#fffbeb', text: '#92400e' },
+    success: { bg: '#f0fdf4', text: '#166534' },
+  }
+  const c = colors[data.variant || 'info']
+  return (
+    <div style={{ background: c.bg, color: c.text, padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', fontSize: '0.8rem', borderRadius: '6px' }}>
+      <span>{data.text}</span>
+      {data.cta && <span style={{ fontWeight: 700, textDecoration: 'underline' }}>{data.cta.text}</span>}
+    </div>
+  )
+}
+
 /** Render preview from section data, keyed by type */
 function renderSection(section: LandingSection, allSections: LandingSection[], pageTitle?: string) {
   const d = section.data as Record<string, unknown>
@@ -152,6 +276,16 @@ function renderSection(section: LandingSection, allSections: LandingSection[], p
     case 'faq': return <PreviewText heading={(d as any).heading} items={(d as any).items} />
     case 'how-it-works': return <PreviewText heading={(d as any).heading} items={(d as any).items} />
     case 'team': return <PreviewText heading={(d as any).heading} items={(d as any).members} />
+    case 'video': return <PreviewVideo data={d as unknown as VideoData} />
+    case 'image': return <PreviewImage data={d as unknown as ImageData} />
+    case 'image-text': return <PreviewImageText data={d as unknown as ImageTextData} />
+    case 'gallery': return <PreviewGallery data={d as unknown as GalleryData} />
+    case 'map': return <PreviewMap data={d as unknown as MapData} />
+    case 'rich-text': return <PreviewRichText data={d as unknown as RichTextData} />
+    case 'divider': return <PreviewDivider data={d as unknown as DividerData} />
+    case 'countdown': return <PreviewCountdown data={d as unknown as CountdownData} />
+    case 'contact-form': return <PreviewContactForm data={d as unknown as ContactFormData} />
+    case 'banner': return <PreviewBanner data={d as unknown as BannerData} />
     default: return <div style={{ padding: '1rem', color: '#94a3b8', textAlign: 'center' }}>[{section.type}]</div>
   }
 }

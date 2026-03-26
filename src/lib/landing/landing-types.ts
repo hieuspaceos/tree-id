@@ -118,11 +118,73 @@ export interface FooterData {
   links?: Array<{ label: string; href: string }>
 }
 
+export interface VideoData {
+  url: string
+  caption?: string
+  autoplay?: boolean
+}
+
+export interface ImageData {
+  src: string
+  alt?: string
+  caption?: string
+  fullWidth?: boolean
+}
+
+export interface ImageTextData {
+  image: { src: string; alt?: string }
+  heading?: string
+  text: string
+  imagePosition?: 'left' | 'right'
+  cta?: { text: string; url: string }
+}
+
+export interface GalleryItem { src: string; alt?: string; caption?: string }
+export interface GalleryData {
+  heading?: string
+  images: GalleryItem[]
+}
+
+export interface MapData {
+  address?: string
+  embedUrl?: string
+  height?: number
+}
+
+export interface RichTextData {
+  content: string
+}
+
+export interface DividerData {
+  style?: 'line' | 'dots' | 'space'
+  height?: number
+}
+
+export interface CountdownData {
+  targetDate: string
+  heading?: string
+  expiredText?: string
+}
+
+export interface ContactFormField { label: string; type: 'text' | 'email' | 'textarea' }
+export interface ContactFormData {
+  heading?: string
+  fields?: ContactFormField[]
+  submitText?: string
+  submitUrl?: string
+}
+
+export interface BannerData {
+  text: string
+  cta?: { text: string; url: string }
+  variant?: 'info' | 'warning' | 'success'
+}
+
 /** All possible section type identifiers */
-export type SectionType = 'hero' | 'features' | 'pricing' | 'testimonials' | 'faq' | 'cta' | 'stats' | 'how-it-works' | 'team' | 'logo-wall' | 'nav' | 'footer'
+export type SectionType = 'hero' | 'features' | 'pricing' | 'testimonials' | 'faq' | 'cta' | 'stats' | 'how-it-works' | 'team' | 'logo-wall' | 'nav' | 'footer' | 'video' | 'image' | 'image-text' | 'gallery' | 'map' | 'rich-text' | 'divider' | 'countdown' | 'contact-form' | 'banner'
 
 /** Union of all section data types */
-export type SectionData = HeroData | FeaturesData | PricingData | TestimonialsData | FaqData | CtaData | StatsData | HowItWorksData | TeamData | LogoWallData | NavData | FooterData
+export type SectionData = HeroData | FeaturesData | PricingData | TestimonialsData | FaqData | CtaData | StatsData | HowItWorksData | TeamData | LogoWallData | NavData | FooterData | VideoData | ImageData | ImageTextData | GalleryData | MapData | RichTextData | DividerData | CountdownData | ContactFormData | BannerData
 
 export interface LandingSection {
   type: SectionType

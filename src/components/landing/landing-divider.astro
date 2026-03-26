@@ -1,0 +1,12 @@
+---
+import type { DividerData } from '@/lib/landing/landing-types'
+
+interface Props extends DividerData {}
+const { style = 'line', height = 40 } = Astro.props
+---
+
+<div style={`height:${height}px`} class="flex items-center justify-center w-full px-8">
+  {style === 'line' && <hr class="w-full border-slate-200" />}
+  {style === 'dots' && <p class="tracking-widest text-slate-300 text-lg select-none">· · · · ·</p>}
+  {style === 'space' && <span />}
+</div>

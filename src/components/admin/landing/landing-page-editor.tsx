@@ -27,6 +27,16 @@ const SECTION_CATALOG: Array<{ type: SectionType; label: string; icon: string; d
   { type: 'team', label: 'Team', icon: '👥', desc: 'Team members' },
   { type: 'logo-wall', label: 'Logo Wall', icon: '🏢', desc: 'Partner/client logos' },
   { type: 'footer', label: 'Footer', icon: '📄', desc: 'Page footer' },
+  { type: 'video', label: 'Video', icon: '🎬', desc: 'YouTube/Vimeo embed' },
+  { type: 'image', label: 'Image', icon: '🖼', desc: 'Single image block' },
+  { type: 'image-text', label: 'Image + Text', icon: '📰', desc: '50/50 image and text split' },
+  { type: 'gallery', label: 'Gallery', icon: '🗃', desc: 'Responsive image grid' },
+  { type: 'map', label: 'Map', icon: '📍', desc: 'Embedded Google Maps' },
+  { type: 'rich-text', label: 'Rich Text', icon: '📝', desc: 'Free-form HTML content' },
+  { type: 'divider', label: 'Divider', icon: '➖', desc: 'Section separator' },
+  { type: 'countdown', label: 'Countdown', icon: '⏱', desc: 'Countdown timer' },
+  { type: 'contact-form', label: 'Contact Form', icon: '📬', desc: 'Contact form with fields' },
+  { type: 'banner', label: 'Banner', icon: '📣', desc: 'Announcement banner' },
 ]
 const SECTION_TYPES: SectionType[] = SECTION_CATALOG.map(s => s.type)
 
@@ -44,6 +54,16 @@ function defaultSectionData(type: SectionType): SectionData {
     team: { heading: 'Meet the team', members: [] },
     'logo-wall': { logos: [] },
     footer: { text: '', links: [] },
+    video: { url: '' },
+    image: { src: '', alt: '' },
+    'image-text': { image: { src: '' }, text: '', imagePosition: 'left' },
+    gallery: { images: [] },
+    map: { address: '' },
+    'rich-text': { content: '<p>Your content here...</p>' },
+    divider: { style: 'line', height: 40 },
+    countdown: { targetDate: '', heading: 'Offer ends in' },
+    'contact-form': { heading: 'Contact Us', fields: [{ label: 'Name', type: 'text' }, { label: 'Email', type: 'email' }, { label: 'Message', type: 'textarea' }], submitText: 'Send Message' },
+    banner: { text: 'Announcement goes here', variant: 'info' },
   }
   return defaults[type] || {} as SectionData
 }

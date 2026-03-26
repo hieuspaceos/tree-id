@@ -1,0 +1,51 @@
+---
+import type { VideoData } from '@/lib/landing/landing-types'
+
+interface Props extends VideoData {}
+const { url, caption, autoplay } = Astro.props
+
+/** Convert YouTube/Vimeo watch URLs to embed URLs. Returns null for unrecognised URLs. */
+function toEmbedUrl(raw: string): string | null {
+  // YouTube: youtu.be/<id> or youtube.com/watch?v=<id>
+  const ytMatch = raw.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/)
+  if (ytMatch) {
+    const params = autoplay ? '?autoplay=1&mute=1' : ''
+    return `https://www.youtube.com/embed/${ytMatch[1]}${params}`
+  }
+  // Vimeo: vimeo.com/<id>
+  const vmMatch = raw.match(/vimeo\.com\/(\d+)/)
+  if (vmMatch) {
+    const params = autoplay ? '?autoplay=1&muted=1' : ''
+    return `https://player.vimeo.com/video/${vmMatch[1]}${params}`
+  }
+  // Direct video file
+  if (/\.(mp4|webm|ogg)(\?|$)/i.test(raw)) return raw
+  return null
+}
+
+const embedUrl = toEmbedUrl(url)
+const isDirectVideo = embedUrl === url
+---
+
+<section class="landing-section">
+  <div class="mx-auto max-w-4xl">
+    {isDirectVideo ? (
+      <video class="w-full rounded-xl" controls autoplay={autoplay} muted={autoplay}>
+        <source src={embedUrl!} />
+      </video>
+    ) : embedUrl ? (
+      <div style="position:relative;padding-top:56.25%">
+        <iframe
+          src={embedUrl}
+          class="absolute inset-0 h-full w-full rounded-xl"
+          allowfullscreen
+          loading="lazy"
+          allow="autoplay; encrypted-media"
+        />
+      </div>
+    ) : (
+      <p class="text-slate-400 text-sm">Unsupported video URL</p>
+    )}
+    {caption && <p class="mt-3 text-center text-sm text-slate-500">{caption}</p>}
+  </div>
+</section>
