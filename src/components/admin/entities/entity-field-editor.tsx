@@ -1,6 +1,6 @@
 /**
  * Entity field schema editor — inline editor for adding/editing/removing fields on an entity definition.
- * Used in entity definitions page to configure fields after creating a type.
+ * Each existing field is directly editable inline (label, type, required).
  */
 import { useState } from 'react'
 import type { EntityFieldDef } from '@/lib/admin/entity-io'
@@ -20,10 +20,15 @@ export function EntityFieldEditor({ fields, onChange }: Props) {
   const [adding, setAdding] = useState(false)
   const [draft, setDraft] = useState<EntityFieldDef>({ name: '', type: 'text', label: '', required: false })
 
+  function updateField(idx: number, patch: Partial<EntityFieldDef>) {
+    const next = fields.map((f, i) => i === idx ? { ...f, ...patch } : f)
+    onChange(next)
+  }
+
   function addField() {
-    if (!draft.name || !draft.label) return
-    const clean = { ...draft, name: draft.name.toLowerCase().replace(/\s+/g, '_') }
-    onChange([...fields, clean])
+    if (!draft.label) return
+    const name = draft.name || draft.label.toLowerCase().replace(/\s+/g, '_')
+    onChange([...fields, { ...draft, name }])
     setDraft({ name: '', type: 'text', label: '', required: false })
     setAdding(false)
   }
@@ -42,28 +47,56 @@ export function EntityFieldEditor({ fields, onChange }: Props) {
 
   return (
     <div>
-      {/* Field list */}
+      {/* Header */}
       {fields.length > 0 && (
-        <div style={{ marginBottom: '0.75rem' }}>
-          {fields.map((f, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0', borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
-              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1e293b', minWidth: '80px' }}>{f.label}</span>
-              <code style={{ fontSize: '0.7rem', color: '#64748b', background: 'rgba(0,0,0,0.04)', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>{f.name}</code>
-              <span style={{ fontSize: '0.7rem', padding: '0.1rem 0.4rem', borderRadius: '4px', background: 'rgba(99,102,241,0.08)', color: '#6366f1' }}>{f.type}</span>
-              {f.required && <span style={{ fontSize: '0.6rem', color: '#dc2626', fontWeight: 600 }}>required</span>}
-              <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.25rem' }}>
-                <button onClick={() => moveField(i, -1)} className="admin-btn admin-btn-ghost" style={{ padding: '2px 6px', fontSize: '0.7rem' }} disabled={i === 0}>↑</button>
-                <button onClick={() => moveField(i, 1)} className="admin-btn admin-btn-ghost" style={{ padding: '2px 6px', fontSize: '0.7rem' }} disabled={i === fields.length - 1}>↓</button>
-                <button onClick={() => removeField(i)} className="admin-btn admin-btn-ghost" style={{ padding: '2px 6px', fontSize: '0.7rem', color: '#dc2626' }}>×</button>
-              </div>
-            </div>
-          ))}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px 70px 50px 80px', gap: '0.4rem', padding: '0 0 0.3rem', marginBottom: '0.25rem', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+          <span style={{ fontSize: '0.65rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase' }}>Label / Name</span>
+          <span style={{ fontSize: '0.65rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase' }}>Type</span>
+          <span style={{ fontSize: '0.65rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase' }}>Req</span>
+          <span style={{ fontSize: '0.65rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase' }}>Order</span>
+          <span />
         </div>
       )}
 
+      {/* Editable field rows */}
+      {fields.map((f, i) => (
+        <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 80px 70px 50px 80px', gap: '0.4rem', alignItems: 'center', padding: '0.3rem 0', borderBottom: '1px solid rgba(0,0,0,0.03)' }}>
+          {/* Label + name */}
+          <div>
+            <input
+              style={{ ...inputStyle, fontWeight: 600, marginBottom: '2px' }}
+              value={f.label}
+              onChange={e => updateField(i, { label: e.target.value })}
+              placeholder="Label"
+            />
+            <input
+              style={{ ...inputStyle, fontSize: '0.7rem', color: '#94a3b8' }}
+              value={f.name}
+              onChange={e => updateField(i, { name: e.target.value.toLowerCase().replace(/\s+/g, '_') })}
+              placeholder="field_name"
+            />
+          </div>
+          {/* Type */}
+          <select style={inputStyle} value={f.type} onChange={e => updateField(i, { type: e.target.value as EntityFieldDef['type'] })}>
+            {FIELD_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+          {/* Required */}
+          <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+            <input type="checkbox" checked={f.required || false} onChange={e => updateField(i, { required: e.target.checked })} />
+          </label>
+          {/* Move */}
+          <div style={{ display: 'flex', gap: '2px' }}>
+            <button onClick={() => moveField(i, -1)} className="admin-btn admin-btn-ghost" style={{ padding: '2px 5px', fontSize: '0.65rem' }} disabled={i === 0}>↑</button>
+            <button onClick={() => moveField(i, 1)} className="admin-btn admin-btn-ghost" style={{ padding: '2px 5px', fontSize: '0.65rem' }} disabled={i === fields.length - 1}>↓</button>
+          </div>
+          {/* Remove */}
+          <button onClick={() => removeField(i)} className="admin-btn admin-btn-ghost" style={{ padding: '2px 6px', fontSize: '0.7rem', color: '#dc2626' }}>Remove</button>
+        </div>
+      ))}
+
       {/* Add field form */}
       {adding ? (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto', gap: '0.5rem', alignItems: 'end', marginBottom: '0.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px 70px auto', gap: '0.4rem', alignItems: 'end', marginTop: '0.5rem', padding: '0.5rem', background: 'rgba(0,0,0,0.02)', borderRadius: '8px' }}>
           <div>
             <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: 600, color: '#94a3b8', marginBottom: '2px' }}>Label</label>
             <input style={inputStyle} placeholder="e.g. Email" value={draft.label}
@@ -85,7 +118,7 @@ export function EntityFieldEditor({ fields, onChange }: Props) {
           </div>
         </div>
       ) : (
-        <button className="admin-btn admin-btn-ghost" style={{ fontSize: '0.8rem' }} onClick={() => setAdding(true)}>
+        <button className="admin-btn admin-btn-ghost" style={{ fontSize: '0.8rem', marginTop: '0.5rem' }} onClick={() => setAdding(true)}>
           + Add Field
         </button>
       )}
