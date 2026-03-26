@@ -199,11 +199,19 @@ function FeatureNavItems({ features, collapsed }: { features: ReturnType<typeof 
   )
 }
 
-/** Features nav item with hover submenu — groups modules by section */
+/** Features nav with inline expand/collapse submenu inside sidebar */
 function FeaturesNavMenu({ collapsed, enabledFeatures }: { collapsed: boolean; enabledFeatures?: EnabledFeaturesMap }) {
   const [location] = useLocation()
-  const [open, setOpen] = useState(false)
+  const [expanded, setExpanded] = useState(() => {
+    try { return localStorage.getItem('admin-features-expanded') === 'true' } catch { return false }
+  })
   const isActive = location === '/features' || location.startsWith('/features')
+
+  function toggle() {
+    const next = !expanded
+    setExpanded(next)
+    try { localStorage.setItem('admin-features-expanded', String(next)) } catch {}
+  }
 
   // Build grouped items
   const coreItems = CORE_COLLECTIONS.filter(c => c.id !== 'categories').map(c => ({
@@ -222,47 +230,44 @@ function FeaturesNavMenu({ collapsed, enabledFeatures }: { collapsed: boolean; e
   ].filter(g => g.items.length > 0)
 
   return (
-    <div
-      style={{ position: 'relative' }}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-    >
-      <Link
-        href="/features"
-        className={`admin-nav-item ${isActive ? 'active' : ''}`}
-        title={collapsed ? 'Features' : undefined}
-      >
-        {icons.grid}
-        {!collapsed && 'Features'}
-      </Link>
+    <div>
+      {/* Features header — click toggles submenu, grid icon links to hub */}
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <Link
+          href="/features"
+          className={`admin-nav-item ${isActive ? 'active' : ''}`}
+          style={{ flex: 1 }}
+          title={collapsed ? 'Features' : undefined}
+        >
+          {icons.grid}
+          {!collapsed && 'Features'}
+        </Link>
+        {!collapsed && (
+          <button
+            onClick={toggle}
+            className="admin-btn admin-btn-ghost"
+            style={{ padding: '0.25rem', marginRight: '0.25rem', opacity: 0.5 }}
+            title={expanded ? 'Collapse' : 'Expand'}
+          >
+            {expanded ? icons.chevronLeft : icons.chevronRight}
+          </button>
+        )}
+      </div>
 
-      {/* Hover submenu flyout */}
-      {open && (
-        <div style={{
-          position: 'absolute',
-          left: '100%',
-          top: 0,
-          marginLeft: '4px',
-          background: 'rgba(255,255,255,0.95)',
-          backdropFilter: 'blur(16px)',
-          borderRadius: '12px',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-          padding: '0.5rem',
-          minWidth: '180px',
-          zIndex: 100,
-        }}>
+      {/* Inline submenu — expanded inside sidebar */}
+      {expanded && !collapsed && (
+        <div style={{ paddingLeft: '0.5rem' }}>
           {groups.map((group) => (
             <div key={group.label}>
-              <div style={{ fontSize: '0.6rem', fontWeight: 600, textTransform: 'uppercase', color: '#94a3b8', padding: '0.4rem 0.6rem 0.2rem', letterSpacing: '0.05em' }}>
+              <div style={{ fontSize: '0.6rem', fontWeight: 600, textTransform: 'uppercase', color: '#94a3b8', padding: '0.4rem 0.75rem 0.15rem', letterSpacing: '0.05em' }}>
                 {group.label}
               </div>
               {group.items.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="admin-nav-item"
-                  style={{ fontSize: '0.8rem', padding: '0.35rem 0.6rem', gap: '0.4rem', borderRadius: '8px' }}
-                  onClick={() => setOpen(false)}
+                  className={`admin-nav-item ${location.startsWith(item.href) ? 'active' : ''}`}
+                  style={{ fontSize: '0.8rem', padding: '0.3rem 0.75rem', gap: '0.4rem' }}
                 >
                   {item.icon}
                   {item.label}
