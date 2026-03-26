@@ -1,0 +1,96 @@
+/**
+ * Entity definitions page — list entity types, create new definition
+ */
+import { useEffect, useState } from 'react'
+import { useLocation } from 'wouter'
+import { api } from '@/lib/admin/api-client'
+import type { EntityDefinition } from '@/lib/admin/entity-io'
+
+export function EntityDefinitionsPage() {
+  const [, navigate] = useLocation()
+  const [defs, setDefs] = useState<EntityDefinition[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showForm, setShowForm] = useState(false)
+  const [newName, setNewName] = useState('')
+  const [newLabel, setNewLabel] = useState('')
+  const [creating, setCreating] = useState(false)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    api.entities.listDefinitions().then((res) => {
+      setDefs((res.data as any)?.entries || [])
+      setLoading(false)
+    })
+  }, [])
+
+  async function handleCreate() {
+    if (!newName || !newLabel) { setError('Name and label required'); return }
+    setCreating(true); setError('')
+    const res = await api.entities.createDefinition({ name: newName, label: newLabel, fields: [] })
+    setCreating(false)
+    if (res.ok) {
+      setDefs((prev) => [...prev, { name: newName, label: newLabel, fields: [] }])
+      setShowForm(false); setNewName(''); setNewLabel('')
+    } else {
+      setError(res.error || 'Failed to create')
+    }
+  }
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <h1 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1e293b' }}>Entity Types</h1>
+        <button className="admin-btn admin-btn-primary" onClick={() => setShowForm((s) => !s)}>
+          + New Entity Type
+        </button>
+      </div>
+
+      {showForm && (
+        <div className="glass-panel" style={{ padding: '1.25rem', borderRadius: '12px', marginBottom: '1.5rem' }}>
+          <h2 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#475569', marginBottom: '1rem' }}>Create Entity Type</h2>
+          {error && <p style={{ color: '#dc2626', fontSize: '0.8rem', marginBottom: '0.75rem' }}>{error}</p>}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '0.25rem' }}>Name (kebab-case)</label>
+              <input style={{ width: '100%', padding: '6px 10px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '0.85rem' }}
+                placeholder="e.g. customers" value={newName} onChange={(e) => setNewName(e.target.value.toLowerCase().replace(/\s+/g, '-'))} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '0.25rem' }}>Label</label>
+              <input style={{ width: '100%', padding: '6px 10px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '0.85rem' }}
+                placeholder="e.g. Customers" value={newLabel} onChange={(e) => setNewLabel(e.target.value)} />
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button className="admin-btn admin-btn-primary" onClick={handleCreate} disabled={creating}>
+              {creating ? 'Creating…' : 'Create'}
+            </button>
+            <button className="admin-btn" onClick={() => { setShowForm(false); setError('') }}>Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {loading && <p style={{ color: '#94a3b8' }}>Loading...</p>}
+
+      {!loading && defs.length === 0 && (
+        <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center', borderRadius: '14px' }}>
+          <p style={{ color: '#64748b' }}>No entity types yet. Create one to get started.</p>
+        </div>
+      )}
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
+        {defs.map((def) => (
+          <div key={def.name} className="glass-card" style={{ padding: '1.25rem', borderRadius: '12px' }}>
+            <h3 style={{ fontWeight: 600, color: '#1e293b', marginBottom: '0.25rem' }}>{def.label}</h3>
+            <p style={{ fontSize: '0.75rem', color: '#94a3b8', fontFamily: 'monospace', marginBottom: '0.5rem' }}>{def.name}</p>
+            <p style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '1rem' }}>{def.fields?.length || 0} fields</p>
+            <button className="admin-btn admin-btn-primary" style={{ width: '100%', fontSize: '0.8rem' }}
+              onClick={() => navigate(`/entities/${def.name}`)}>
+              View Entries
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}

@@ -154,4 +154,59 @@ export const api = {
         body: JSON.stringify({ key }),
       }),
   },
+
+  landing: {
+    list: () => adminFetch<unknown>('/api/admin/landing'),
+    read: (slug: string) => adminFetch<unknown>(`/api/admin/landing/${slug}`),
+    create: (data: Record<string, unknown>) =>
+      adminFetch<{ slug: string }>('/api/admin/landing', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    update: (slug: string, data: Record<string, unknown>) =>
+      adminFetch('/api/admin/landing/' + slug, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }),
+    delete: (slug: string) =>
+      adminFetch('/api/admin/landing/' + slug, { method: 'DELETE' }),
+  },
+
+  templates: {
+    list: () => adminFetch<unknown>('/api/admin/templates'),
+    read: (name: string) => adminFetch<unknown>(`/api/admin/templates?name=${encodeURIComponent(name)}`),
+  },
+
+  entities: {
+    listDefinitions: () => adminFetch<unknown>('/api/admin/entity-definitions'),
+    createDefinition: (data: Record<string, unknown>) =>
+      adminFetch<{ name: string }>('/api/admin/entity-definitions', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    listInstances: (name: string) =>
+      adminFetch<unknown>(`/api/admin/entities/${name}`),
+    readInstance: (name: string, slug: string) =>
+      adminFetch<unknown>(`/api/admin/entities/${name}/${slug}`),
+    createInstance: (name: string, data: Record<string, unknown>) =>
+      adminFetch<{ slug: string }>(`/api/admin/entities/${name}`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    updateInstance: (name: string, slug: string, data: Record<string, unknown>) =>
+      adminFetch(`/api/admin/entities/${name}/${slug}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }),
+    deleteInstance: (name: string, slug: string) =>
+      adminFetch(`/api/admin/entities/${name}/${slug}`, { method: 'DELETE' }),
+  },
+
+  setup: {
+    generate: (description: string, slug: string) =>
+      adminFetch<unknown>('/api/admin/setup/generate', {
+        method: 'POST',
+        body: JSON.stringify({ description, slug }),
+      }),
+  },
 }

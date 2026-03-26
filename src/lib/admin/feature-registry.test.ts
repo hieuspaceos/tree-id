@@ -13,8 +13,8 @@ import {
 
 describe('feature-registry', () => {
   describe('FEATURE_MODULES registry', () => {
-    it('exports 7 feature modules', () => {
-      expect(FEATURE_MODULES.length).toBe(7)
+    it('exports 10 feature modules', () => {
+      expect(FEATURE_MODULES.length).toBe(10)
     })
 
     it('all features have required fields', () => {
@@ -117,8 +117,8 @@ describe('feature-registry', () => {
       expect(getFeatureById('fake-feature')).toBeUndefined()
     })
 
-    it('finds all 7 registered features', () => {
-      const ids = ['voices', 'translations', 'media', 'distribution', 'email', 'analytics', 'goclaw']
+    it('finds all 10 registered features', () => {
+      const ids = ['voices', 'translations', 'media', 'distribution', 'email', 'analytics', 'goclaw', 'landing', 'entities', 'setup-wizard']
       ids.forEach((id) => {
         expect(getFeatureById(id)).toBeDefined()
       })
@@ -128,13 +128,13 @@ describe('feature-registry', () => {
   describe('getEnabledFeatures', () => {
     it('returns all features when enabledFeatures undefined', () => {
       const enabled = getEnabledFeatures()
-      expect(enabled.length).toBe(7)
+      expect(enabled.length).toBe(10)
       expect(enabled).toEqual(FEATURE_MODULES)
     })
 
     it('returns all features when enabledFeatures empty', () => {
       const enabled = getEnabledFeatures({})
-      expect(enabled.length).toBe(7)
+      expect(enabled.length).toBe(10)
     })
 
     it('filters out disabled features', () => {
@@ -155,6 +155,9 @@ describe('feature-registry', () => {
       expect(ids).toContain('translations')
       expect(ids).toContain('analytics')
       expect(ids).toContain('goclaw')
+      expect(ids).toContain('landing')
+      expect(ids).toContain('entities')
+      expect(ids).toContain('setup-wizard')
     })
 
     it('returns empty array when all features disabled', () => {
@@ -166,6 +169,9 @@ describe('feature-registry', () => {
         email: false,
         analytics: false,
         goclaw: false,
+        landing: false,
+        entities: false,
+        'setup-wizard': false,
       }
       const enabled = getEnabledFeatures(map)
       expect(enabled.length).toBe(0)
@@ -187,19 +193,19 @@ describe('feature-registry', () => {
     it('returns all features grouped when enabledFeatures undefined', () => {
       const grouped = getFeaturesBySection()
 
-      expect(grouped.content).toHaveLength(2) // voices, translations
+      expect(grouped.content).toHaveLength(4) // voices, translations, landing, entities
       expect(grouped.assets).toHaveLength(1) // media
       expect(grouped.marketing).toHaveLength(3) // distribution, email, analytics
-      expect(grouped.system).toHaveLength(1) // goclaw
+      expect(grouped.system).toHaveLength(2) // goclaw, setup-wizard
     })
 
     it('returns empty sections when enabledFeatures empty', () => {
       const grouped = getFeaturesBySection({})
 
-      expect(grouped.content).toHaveLength(2)
+      expect(grouped.content).toHaveLength(4)
       expect(grouped.assets).toHaveLength(1)
       expect(grouped.marketing).toHaveLength(3)
-      expect(grouped.system).toHaveLength(1)
+      expect(grouped.system).toHaveLength(2)
     })
 
     it('groups enabled features correctly with mixed state', () => {
@@ -211,13 +217,16 @@ describe('feature-registry', () => {
         email: true,
         analytics: true,
         goclaw: false,
+        landing: false,
+        entities: false,
+        'setup-wizard': false,
       }
       const grouped = getFeaturesBySection(map)
 
-      expect(grouped.content.map((f) => f.id)).toEqual(['voices']) // translations disabled
+      expect(grouped.content.map((f) => f.id)).toEqual(['voices']) // translations, landing, entities disabled
       expect(grouped.assets.map((f) => f.id)).toEqual(['media'])
       expect(grouped.marketing.map((f) => f.id)).toEqual(['email', 'analytics']) // distribution disabled
-      expect(grouped.system).toHaveLength(0) // goclaw disabled
+      expect(grouped.system).toHaveLength(0) // goclaw, setup-wizard disabled
     })
 
     it('respects backward compat — missing keys default to enabled', () => {
@@ -225,10 +234,10 @@ describe('feature-registry', () => {
       const map: EnabledFeaturesMap = { media: false }
       const grouped = getFeaturesBySection(map)
 
-      expect(grouped.content.map((f) => f.id)).toEqual(['voices', 'translations'])
+      expect(grouped.content.map((f) => f.id)).toEqual(['voices', 'translations', 'landing', 'entities'])
       expect(grouped.assets).toHaveLength(0) // media disabled
       expect(grouped.marketing.map((f) => f.id)).toEqual(['distribution', 'email', 'analytics'])
-      expect(grouped.system.map((f) => f.id)).toEqual(['goclaw'])
+      expect(grouped.system.map((f) => f.id)).toEqual(['goclaw', 'setup-wizard'])
     })
 
     it('returns all empty sections when all features disabled', () => {
@@ -240,6 +249,9 @@ describe('feature-registry', () => {
         email: false,
         analytics: false,
         goclaw: false,
+        landing: false,
+        entities: false,
+        'setup-wizard': false,
       }
       const grouped = getFeaturesBySection(map)
 

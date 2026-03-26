@@ -23,6 +23,16 @@ const LazySubscribersPage = lazy(() => import('./admin-subscribers-page').then((
 const LazyAnalyticsPage = lazy(() => import('./admin-analytics-page').then((m) => ({ default: m.AdminAnalyticsPage })))
 const LazyTranslationsPage = lazy(() => import('./admin-translations-page').then((m) => ({ default: m.AdminTranslationsPage })))
 
+// Landing page builder — lazy, gated by 'landing' feature
+const LazyLandingList = lazy(() => import('./landing/landing-pages-list').then((m) => ({ default: m.LandingPagesList })))
+const LazyLandingEditor = lazy(() => import('./landing/landing-page-editor').then((m) => ({ default: m.LandingPageEditor })))
+const LazySetupWizard = lazy(() => import('./landing/landing-setup-wizard').then((m) => ({ default: m.LandingSetupWizard })))
+
+// Custom entities — lazy, gated by 'entities' feature
+const LazyEntityDefs = lazy(() => import('./entities/entity-definitions-page').then((m) => ({ default: m.EntityDefinitionsPage })))
+const LazyEntityList = lazy(() => import('./entities/entity-list-page').then((m) => ({ default: m.EntityListPage })))
+const LazyEntityEditor = lazy(() => import('./entities/entity-editor-page').then((m) => ({ default: m.EntityEditorPage })))
+
 interface Props {
   siteName: string
   onLogout: () => void
@@ -142,6 +152,58 @@ export function AdminLayout({ siteName, onLogout, user, enabledFeatures }: Props
           {isFeatureEnabled('translations', ef) && (
             <Route path="/translations">
               <Suspense fallback={<RouteLoading />}><LazyTranslationsPage /></Suspense>
+            </Route>
+          )}
+
+          {/* Landing pages — lazy, gated */}
+          {isFeatureEnabled('landing', ef) && (
+            <Route path="/landing">
+              <Suspense fallback={<RouteLoading />}><LazyLandingList /></Suspense>
+            </Route>
+          )}
+          {isFeatureEnabled('landing', ef) && (
+            <Route path="/landing/wizard">
+              <Suspense fallback={<RouteLoading />}><LazySetupWizard /></Suspense>
+            </Route>
+          )}
+          {isFeatureEnabled('landing', ef) && (
+            <Route path="/landing/new">
+              <Suspense fallback={<RouteLoading />}><LazyLandingEditor /></Suspense>
+            </Route>
+          )}
+          {isFeatureEnabled('landing', ef) && (
+            <Route path="/landing/:slug">
+              {(params) => (
+                <Suspense fallback={<RouteLoading />}><LazyLandingEditor slug={params.slug} /></Suspense>
+              )}
+            </Route>
+          )}
+
+          {/* Custom entities — lazy, gated */}
+          {isFeatureEnabled('entities', ef) && (
+            <Route path="/entities">
+              <Suspense fallback={<RouteLoading />}><LazyEntityDefs /></Suspense>
+            </Route>
+          )}
+          {isFeatureEnabled('entities', ef) && (
+            <Route path="/entities/:name">
+              {(params) => (
+                <Suspense fallback={<RouteLoading />}><LazyEntityList name={params.name} /></Suspense>
+              )}
+            </Route>
+          )}
+          {isFeatureEnabled('entities', ef) && (
+            <Route path="/entities/:name/new">
+              {(params) => (
+                <Suspense fallback={<RouteLoading />}><LazyEntityEditor name={params.name} /></Suspense>
+              )}
+            </Route>
+          )}
+          {isFeatureEnabled('entities', ef) && (
+            <Route path="/entities/:name/:slug">
+              {(params) => (
+                <Suspense fallback={<RouteLoading />}><LazyEntityEditor name={params.name} slug={params.slug} /></Suspense>
+              )}
             </Route>
           )}
 

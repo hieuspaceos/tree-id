@@ -5,7 +5,7 @@
 import { z } from 'zod'
 
 /** Allowed collection names (prevents path traversal) */
-export const ALLOWED_COLLECTIONS = ['articles', 'notes', 'records', 'categories', 'voices'] as const
+export const ALLOWED_COLLECTIONS = ['articles', 'notes', 'records', 'categories', 'voices', 'landing-pages'] as const
 export type CollectionName = (typeof ALLOWED_COLLECTIONS)[number]
 
 /** Allowed singleton names */
@@ -35,6 +35,17 @@ interface ValidationResult {
 /** Validate entry data for a given collection */
 export function validateEntry(collection: string, data: Record<string, unknown>): ValidationResult {
   const errors: string[] = []
+
+  // Landing pages require title and sections array
+  if (collection === 'landing-pages') {
+    if (!data.title || typeof data.title !== 'string' || !data.title.trim()) {
+      errors.push('title is required')
+    }
+    if (!Array.isArray(data.sections)) {
+      errors.push('sections array is required')
+    }
+    return { valid: errors.length === 0, errors }
+  }
 
   // Categories have different required fields
   if (collection === 'categories') {

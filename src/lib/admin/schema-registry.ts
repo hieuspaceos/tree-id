@@ -124,6 +124,11 @@ export const collectionSchemas: Record<string, FieldSchema[]> = {
     { name: 'description', type: 'textarea', label: 'Description' },
     { name: 'color', type: 'color', label: 'Color' },
   ],
+  'landing-pages': [
+    { name: 'title', type: 'text', label: 'Title', required: true },
+    { name: 'description', type: 'textarea', label: 'Description' },
+    { name: 'template', type: 'text', label: 'Template (optional)' },
+  ],
   voices: [
     { name: 'name', type: 'text', label: 'Voice Name', required: true },
     { name: 'description', type: 'textarea', label: 'Description (when to use this voice)' },

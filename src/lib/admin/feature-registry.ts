@@ -143,6 +143,50 @@ export const FEATURE_MODULES: FeatureModule[] = [
     routes: [],
     navItems: [],
   },
+  {
+    id: 'landing',
+    label: 'Landing Pages',
+    description: 'Visual landing page builder with sections',
+    section: 'content',
+    iconKey: 'layout',
+    routes: [
+      {
+        path: '/landing',
+        component: () =>
+          import('@/components/admin/landing/landing-pages-list').then((m) => ({
+            default: m.LandingPagesList,
+          })),
+      },
+    ],
+    navItems: [{ href: '/landing', label: 'Landing Pages', iconKey: 'layout' }],
+  },
+  {
+    id: 'entities',
+    label: 'Custom Entities',
+    description: 'Define and manage custom data entities',
+    section: 'content',
+    iconKey: 'database',
+    routes: [
+      {
+        path: '/entities',
+        component: () =>
+          import('@/components/admin/entities/entity-definitions-page').then((m) => ({
+            default: m.EntityDefinitionsPage,
+          })),
+      },
+    ],
+    navItems: [{ href: '/entities', label: 'Entities', iconKey: 'database' }],
+  },
+  {
+    id: 'setup-wizard',
+    label: 'AI Setup Wizard',
+    description: 'Generate landing pages with Gemini Flash AI',
+    section: 'system',
+    iconKey: 'sparkles',
+    envCheck: ['GEMINI_API_KEY'],
+    routes: [],
+    navItems: [],
+  },
 ]
 
 /** Check if feature enabled — defaults true when key missing (backward compat) */
