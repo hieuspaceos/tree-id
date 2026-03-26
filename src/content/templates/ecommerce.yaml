@@ -1,0 +1,79 @@
+name: "E-commerce"
+description: "Product landing page with stats, social proof, and trust signals"
+targetAudience: "Physical/digital product sellers, DTC brands"
+sections:
+  - type: hero
+    order: 1
+    enabled: true
+    data:
+      headline: "The Everyday Backpack"
+      subheadline: "Designed for commuters. Built to last. Loved by 50,000+ customers."
+      cta:
+        text: "Shop Now"
+        url: "/shop"
+  - type: features
+    order: 2
+    enabled: true
+    data:
+      heading: "Why customers love it"
+      columns: 3
+      items:
+        - icon: "🎒"
+          title: "30L Capacity"
+          description: "Fits a 16-inch laptop, gym clothes, and lunch — with room to spare"
+        - icon: "🌧️"
+          title: "Waterproof"
+          description: "YKK aquaguard zippers and 900D water-resistant nylon"
+        - icon: "♻️"
+          title: "Sustainable"
+          description: "Made from 100% recycled ocean plastic"
+  - type: stats
+    order: 3
+    enabled: true
+    data:
+      heading: "By the numbers"
+      items:
+        - value: "50K"
+          suffix: "+"
+          label: "Happy customers"
+        - value: "4.9"
+          label: "Average rating"
+        - value: "98"
+          suffix: "%"
+          label: "Would recommend"
+        - value: "2"
+          label: "Year warranty"
+  - type: testimonials
+    order: 4
+    enabled: true
+    data:
+      heading: "What people are saying"
+      items:
+        - quote: "Best backpack I've ever owned. The laptop compartment is a game changer."
+          name: "Tom Richards"
+          role: "Software Engineer"
+        - quote: "Survived 6 months of daily commuting in rain. Still looks new."
+          name: "Lisa Park"
+          role: "Product Designer"
+  - type: logo-wall
+    order: 5
+    enabled: true
+    data:
+      heading: "As featured in"
+      logos:
+        - name: "TechCrunch"
+          image: "/images/logos/placeholder-tc.svg"
+        - name: "Wired"
+          image: "/images/logos/placeholder-wired.svg"
+        - name: "The Verge"
+          image: "/images/logos/placeholder-verge.svg"
+  - type: cta
+    order: 6
+    enabled: true
+    data:
+      headline: "Free shipping on orders over $50"
+      subheadline: "30-day returns. No questions asked."
+      cta:
+        text: "Shop Now"
+        url: "/shop"
+      variant: accent

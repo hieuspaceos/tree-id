@@ -1,0 +1,48 @@
+---
+/**
+ * Section renderer — maps section type string to Astro component,
+ * sorts by order, filters disabled sections, renders in sequence.
+ */
+import LandingHero from './landing-hero.astro'
+import LandingFeatures from './landing-features.astro'
+import LandingPricing from './landing-pricing.astro'
+import LandingTestimonials from './landing-testimonials.astro'
+import LandingFaq from './landing-faq.astro'
+import LandingCta from './landing-cta.astro'
+import LandingStats from './landing-stats.astro'
+import LandingHowItWorks from './landing-how-it-works.astro'
+import LandingTeam from './landing-team.astro'
+import LandingLogoWall from './landing-logo-wall.astro'
+import type { LandingSection } from '@/lib/landing/landing-types'
+
+import '@/styles/landing.css'
+
+interface Props {
+  sections: LandingSection[]
+}
+
+const { sections } = Astro.props
+const sorted = sections
+  .filter(s => s.enabled !== false)
+  .sort((a, b) => a.order - b.order)
+
+const componentMap: Record<string, any> = {
+  hero: LandingHero,
+  features: LandingFeatures,
+  pricing: LandingPricing,
+  testimonials: LandingTestimonials,
+  faq: LandingFaq,
+  cta: LandingCta,
+  stats: LandingStats,
+  'how-it-works': LandingHowItWorks,
+  team: LandingTeam,
+  'logo-wall': LandingLogoWall,
+}
+---
+
+<div class="landing-sections">
+  {sorted.map(section => {
+    const Component = componentMap[section.type]
+    return Component ? <Component {...section.data as any} /> : null
+  })}
+</div>

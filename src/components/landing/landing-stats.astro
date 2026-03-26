@@ -1,0 +1,20 @@
+---
+import type { StatsData } from '@/lib/landing/landing-types'
+
+interface Props extends StatsData {}
+const { heading, items } = Astro.props
+---
+
+<section class="landing-section">
+  {heading && <h2 class="mb-8 text-center text-3xl font-bold text-slate-900">{heading}</h2>}
+  <div class="landing-grid-4">
+    {items.map((stat) => (
+      <div class="glass-card p-6 text-center">
+        <p class="landing-stat-value">
+          {stat.prefix}{stat.value}{stat.suffix}
+        </p>
+        <p class="mt-2 text-sm text-slate-500">{stat.label}</p>
+      </div>
+    ))}
+  </div>
+</section>

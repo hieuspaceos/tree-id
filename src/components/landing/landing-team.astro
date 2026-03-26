@@ -1,0 +1,28 @@
+---
+import type { TeamData } from '@/lib/landing/landing-types'
+
+interface Props extends TeamData {}
+const { heading, subheading, members } = Astro.props
+---
+
+<section class="landing-section">
+  {heading && <h2 class="mb-2 text-center text-3xl font-bold text-slate-900">{heading}</h2>}
+  {subheading && <p class="mx-auto mb-8 max-w-2xl text-center text-slate-500">{subheading}</p>}
+  <div class="landing-grid-3">
+    {members.map((m) => (
+      <div class="glass-card p-6 text-center">
+        {m.photo && <img src={m.photo} alt={m.name} class="mx-auto mb-4 h-20 w-20 rounded-full object-cover" />}
+        <h3 class="text-lg font-semibold text-slate-900">{m.name}</h3>
+        <p class="text-sm text-slate-400">{m.role}</p>
+        {m.bio && <p class="mt-2 text-sm text-slate-500">{m.bio}</p>}
+        {m.social && (
+          <div class="mt-3 flex justify-center gap-3 text-xs text-slate-400">
+            {m.social.twitter && <a href={m.social.twitter} target="_blank" rel="noopener noreferrer">Twitter</a>}
+            {m.social.linkedin && <a href={m.social.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>}
+            {m.social.github && <a href={m.social.github} target="_blank" rel="noopener noreferrer">GitHub</a>}
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+</section>

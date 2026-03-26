@@ -1,0 +1,21 @@
+---
+import type { LogoWallData } from '@/lib/landing/landing-types'
+
+interface Props extends LogoWallData {}
+const { heading, logos } = Astro.props
+---
+
+<section class="landing-section">
+  {heading && <h2 class="mb-8 text-center text-3xl font-bold text-slate-900">{heading}</h2>}
+  <div class="flex flex-wrap items-center justify-center gap-8">
+    {logos.map((logo) =>
+      logo.url ? (
+        <a href={logo.url} target="_blank" rel="noopener noreferrer" title={logo.name}>
+          <img src={logo.image} alt={logo.name} class="h-10 opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition" />
+        </a>
+      ) : (
+        <img src={logo.image} alt={logo.name} class="h-10 opacity-60 grayscale" />
+      )
+    )}
+  </div>
+</section>

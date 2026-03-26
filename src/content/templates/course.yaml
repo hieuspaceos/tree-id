@@ -1,0 +1,90 @@
+name: "Online Course"
+description: "Course landing page with curriculum highlights, pricing tiers, and student testimonials"
+targetAudience: "Educators, course creators, bootcamps"
+sections:
+  - type: hero
+    order: 1
+    enabled: true
+    data:
+      headline: "Master React in 30 Days"
+      subheadline: "From zero to production-ready apps — project-based learning with real-world exercises"
+      cta:
+        text: "Enroll Now"
+        url: "/enroll"
+  - type: features
+    order: 2
+    enabled: true
+    data:
+      heading: "What you'll learn"
+      columns: 3
+      items:
+        - icon: "📚"
+          title: "12 Modules"
+          description: "Structured curriculum from fundamentals to advanced patterns"
+        - icon: "🛠️"
+          title: "5 Projects"
+          description: "Build real apps — portfolio, dashboard, e-commerce, chat, API"
+        - icon: "🎓"
+          title: "Certificate"
+          description: "Earn a verified certificate upon completion"
+  - type: pricing
+    order: 3
+    enabled: true
+    data:
+      heading: "Choose your plan"
+      plans:
+        - name: "Self-paced"
+          price: "$49"
+          features:
+            - "All 12 modules"
+            - "Project source code"
+            - "Community access"
+          cta:
+            text: "Start Learning"
+            url: "/enroll?plan=self-paced"
+        - name: "Mentored"
+          price: "$199"
+          highlighted: true
+          features:
+            - "All 12 modules"
+            - "Weekly 1-on-1 mentoring"
+            - "Code reviews"
+            - "Certificate of completion"
+          cta:
+            text: "Enroll with Mentor"
+            url: "/enroll?plan=mentored"
+  - type: testimonials
+    order: 4
+    enabled: true
+    data:
+      heading: "Student success stories"
+      items:
+        - quote: "I landed my first dev job 2 months after finishing this course."
+          name: "Emily Tran"
+          role: "Junior Developer"
+          company: "Startup Inc."
+        - quote: "The project-based approach made all the difference. Highly recommend."
+          name: "Carlos Ruiz"
+          role: "Career Switcher"
+  - type: faq
+    order: 5
+    enabled: true
+    data:
+      heading: "Common questions"
+      items:
+        - question: "Do I need prior experience?"
+          answer: "Basic HTML/CSS knowledge is helpful but not required. We start from the fundamentals."
+        - question: "How long do I have access?"
+          answer: "Lifetime access. Learn at your own pace."
+        - question: "Is there a money-back guarantee?"
+          answer: "Yes, 30-day full refund — no questions asked."
+  - type: cta
+    order: 6
+    enabled: true
+    data:
+      headline: "Start your learning journey today"
+      subheadline: "Join 2,000+ students who transformed their careers"
+      cta:
+        text: "Enroll Now"
+        url: "/enroll"
+      variant: accent

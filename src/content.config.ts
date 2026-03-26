@@ -98,4 +98,37 @@ const voices = defineCollection({
   }),
 })
 
-export const collections = { articles, notes, records, categories, voices }
+// Landing pages: YAML-configured modular landing pages with section components
+const landingPages = defineCollection({
+  loader: glob({ pattern: '**/*.yaml', base: './src/content/landing-pages' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string().optional(),
+    template: z.string().optional(),
+    sections: z.array(z.object({
+      type: z.enum(['hero', 'features', 'pricing', 'testimonials', 'faq', 'cta', 'stats', 'how-it-works', 'team', 'logo-wall']),
+      order: z.number(),
+      enabled: z.boolean().default(true),
+      data: z.record(z.unknown()),
+    })),
+  }),
+})
+
+// Templates: pre-built landing page templates with default section configs
+const templates = defineCollection({
+  loader: glob({ pattern: '**/*.yaml', base: './src/content/templates' }),
+  schema: z.object({
+    name: z.string(),
+    description: z.string(),
+    targetAudience: z.string().optional(),
+    previewImage: z.string().optional(),
+    sections: z.array(z.object({
+      type: z.enum(['hero', 'features', 'pricing', 'testimonials', 'faq', 'cta', 'stats', 'how-it-works', 'team', 'logo-wall']),
+      order: z.number(),
+      enabled: z.boolean().default(true),
+      data: z.record(z.unknown()),
+    })),
+  }),
+})
+
+export const collections = { articles, notes, records, categories, voices, landingPages, templates }

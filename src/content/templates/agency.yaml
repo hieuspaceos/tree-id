@@ -1,0 +1,81 @@
+name: "Agency"
+description: "Service agency landing page with team showcase, client logos, and testimonials"
+targetAudience: "Design, development, and marketing agencies"
+sections:
+  - type: hero
+    order: 1
+    enabled: true
+    data:
+      headline: "We Build Digital Products"
+      subheadline: "Award-winning agency crafting web and mobile experiences since 2018"
+      cta:
+        text: "View Our Work"
+        url: "/portfolio"
+  - type: features
+    order: 2
+    enabled: true
+    data:
+      heading: "Our services"
+      columns: 3
+      items:
+        - icon: "🎨"
+          title: "UI/UX Design"
+          description: "User-centered design that converts visitors into customers"
+        - icon: "💻"
+          title: "Web Development"
+          description: "Modern, performant web applications built to scale"
+        - icon: "📱"
+          title: "Mobile Apps"
+          description: "Native and cross-platform mobile experiences"
+  - type: team
+    order: 3
+    enabled: true
+    data:
+      heading: "Meet the team"
+      subheading: "Experienced professionals who care about your success"
+      members:
+        - name: "Alex Chen"
+          role: "Founder & CEO"
+          bio: "15 years in digital product design"
+        - name: "Maria Santos"
+          role: "Lead Developer"
+          bio: "Full-stack engineer, React & Node.js expert"
+        - name: "David Kim"
+          role: "Design Director"
+          bio: "Former Google designer, Figma advocate"
+  - type: testimonials
+    order: 4
+    enabled: true
+    data:
+      heading: "What our clients say"
+      items:
+        - quote: "They delivered our project on time and exceeded our expectations."
+          name: "Sarah Johnson"
+          role: "Product Manager"
+          company: "FinTech Inc."
+        - quote: "The best agency we've worked with. Period."
+          name: "Michael Brown"
+          role: "CEO"
+          company: "E-Commerce Co."
+  - type: logo-wall
+    order: 5
+    enabled: true
+    data:
+      heading: "Trusted by leading companies"
+      logos:
+        - name: "Company A"
+          image: "/images/logos/placeholder-a.svg"
+        - name: "Company B"
+          image: "/images/logos/placeholder-b.svg"
+        - name: "Company C"
+          image: "/images/logos/placeholder-c.svg"
+  - type: cta
+    order: 6
+    enabled: true
+    data:
+      headline: "Let's build something great together"
+      subheadline: "Tell us about your project — free consultation"
+      cta:
+        text: "Get in Touch"
+        url: "/contact"
+      variant: accent

@@ -1,0 +1,48 @@
+/* Landing page section styles — spacing, responsive grids, section-specific tweaks */
+
+.landing-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.landing-section {
+  padding: 3rem 2rem;
+}
+
+/* Feature grid responsive columns */
+.landing-grid-2 { display: grid; grid-template-columns: repeat(1, 1fr); gap: 1.5rem; }
+.landing-grid-3 { display: grid; grid-template-columns: repeat(1, 1fr); gap: 1.5rem; }
+.landing-grid-4 { display: grid; grid-template-columns: repeat(1, 1fr); gap: 1.5rem; }
+
+@media (min-width: 640px) {
+  .landing-grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .landing-grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .landing-grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1024px) {
+  .landing-grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .landing-grid-4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* Pricing card highlight ring */
+.landing-pricing-highlight {
+  border: 2px solid var(--t-accent);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--t-accent) 20%, transparent);
+}
+
+/* Stats number display */
+.landing-stat-value {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--t-accent);
+}
+
+/* CTA variants */
+.landing-cta-accent { background: linear-gradient(135deg, var(--t-accent-soft), var(--t-secondary-soft)); }
+.landing-cta-dark { background: var(--t-bg-base); color: white; }

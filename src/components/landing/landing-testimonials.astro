@@ -1,0 +1,26 @@
+---
+import type { TestimonialsData } from '@/lib/landing/landing-types'
+
+interface Props extends TestimonialsData {}
+const { heading, items } = Astro.props
+---
+
+<section class="landing-section">
+  {heading && <h2 class="mb-8 text-center text-3xl font-bold text-slate-900">{heading}</h2>}
+  <div class="landing-grid-2">
+    {items.map((t) => (
+      <div class="glass-card p-6">
+        <p class="mb-4 text-slate-600 italic">"{t.quote}"</p>
+        <div class="flex items-center gap-3">
+          {t.avatar && <img src={t.avatar} alt={t.name} class="h-10 w-10 rounded-full object-cover" />}
+          <div>
+            <p class="text-sm font-semibold text-slate-900">{t.name}</p>
+            {(t.role || t.company) && (
+              <p class="text-xs text-slate-400">{[t.role, t.company].filter(Boolean).join(' · ')}</p>
+            )}
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>

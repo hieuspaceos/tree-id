@@ -1,0 +1,39 @@
+title: "Tree Identity"
+description: "Your digital twin — a personal content engine"
+template: saas
+sections:
+  - type: hero
+    order: 1
+    enabled: true
+    data:
+      headline: "Your Digital Twin"
+      subheadline: "A personal content engine. Fork, configure, deploy — in minutes."
+      cta:
+        text: "Get Started"
+        url: "https://github.com/hieuspaceos/tree-id"
+  - type: features
+    order: 2
+    enabled: true
+    data:
+      heading: "Everything you need"
+      columns: 3
+      items:
+        - icon: "✍️"
+          title: "Markdown-first"
+          description: "Write in Markdoc with a full admin editor — no database needed"
+        - icon: "🎨"
+          title: "Glass Morphism"
+          description: "Beautiful theme system with CSS variables and design tokens"
+        - icon: "🤖"
+          title: "AI-Ready"
+          description: "JSON-LD, llms.txt, RSS — optimized for search and AI agents"
+  - type: cta
+    order: 3
+    enabled: true
+    data:
+      headline: "Ready to build your identity?"
+      subheadline: "Fork the repo, edit site-config.ts, and deploy to Vercel"
+      cta:
+        text: "Fork on GitHub"
+        url: "https://github.com/hieuspaceos/tree-id"
+      variant: accent

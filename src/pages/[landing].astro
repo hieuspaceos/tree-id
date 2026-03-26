@@ -1,0 +1,24 @@
+---
+/**
+ * Dynamic landing page route — renders YAML-configured landing pages.
+ * Each landing page config in src/content/landing-pages/*.yaml becomes a static page.
+ * The 'home' slug is excluded (handled by index.astro).
+ */
+import { getCollection } from 'astro:content'
+import BaseLayout from '@/layouts/base-layout.astro'
+import LandingSectionRenderer from '@/components/landing/landing-section-renderer.astro'
+import type { LandingSection } from '@/lib/landing/landing-types'
+
+export async function getStaticPaths() {
+  const pages = await getCollection('landingPages')
+  return pages
+    .filter(p => p.id !== 'home')
+    .map(p => ({ params: { landing: p.id }, props: { page: p } }))
+}
+
+const { page } = Astro.props
+---
+
+<BaseLayout title={page.data.title} description={page.data.description}>
+  <LandingSectionRenderer sections={page.data.sections as unknown as LandingSection[]} />
+</BaseLayout>

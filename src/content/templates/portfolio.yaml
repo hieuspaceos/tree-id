@@ -1,0 +1,68 @@
+name: "Portfolio"
+description: "Personal portfolio with project showcase, stats, and process breakdown"
+targetAudience: "Freelancers, designers, developers"
+sections:
+  - type: hero
+    order: 1
+    enabled: true
+    data:
+      headline: "Hi, I'm [Your Name]"
+      subheadline: "Full-stack developer crafting modern web experiences. 8 years of shipping products."
+      cta:
+        text: "View Projects"
+        url: "#projects"
+  - type: features
+    order: 2
+    enabled: true
+    data:
+      heading: "What I do"
+      columns: 3
+      items:
+        - icon: "🌐"
+          title: "Web Applications"
+          description: "React, Next.js, and Node.js — from concept to production"
+        - icon: "📊"
+          title: "Data Dashboards"
+          description: "Interactive visualizations that turn data into decisions"
+        - icon: "⚙️"
+          title: "API Design"
+          description: "RESTful and GraphQL APIs built for scale"
+  - type: stats
+    order: 3
+    enabled: true
+    data:
+      heading: "Track record"
+      items:
+        - value: "40"
+          suffix: "+"
+          label: "Projects shipped"
+        - value: "8"
+          label: "Years experience"
+        - value: "15"
+          label: "Happy clients"
+        - value: "99"
+          suffix: "%"
+          label: "On-time delivery"
+  - type: how-it-works
+    order: 4
+    enabled: true
+    data:
+      heading: "How I work"
+      subheading: "A simple process that gets results"
+      items:
+        - title: "Discovery"
+          description: "We talk about your goals, users, and constraints"
+        - title: "Build"
+          description: "I design and develop in 2-week sprints with weekly demos"
+        - title: "Launch"
+          description: "Deploy, monitor, and iterate based on real user data"
+  - type: cta
+    order: 5
+    enabled: true
+    data:
+      headline: "Let's work together"
+      subheadline: "Available for freelance projects starting next month"
+      cta:
+        text: "Get in Touch"
+        url: "/contact"
+      variant: accent
