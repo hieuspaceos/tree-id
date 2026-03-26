@@ -1,6 +1,6 @@
 # Tree Identity — Codebase Summary
 
-**Status:** v2.3.0 — Landing Page Builder System
+**Status:** v2.4.0 — Product Module Architecture + Landing Builder v2
 **Last Updated:** 2026-03-26
 **Stack:** Astro 5 + Keystatic + Pagefind + Cloudflare R2 (optional)
 **Deployment:** Vercel
@@ -52,85 +52,97 @@ tree-id/
 │   │   │   └── my-note.yaml
 │   │   ├── records/                # Structured YAML records
 │   │   │   └── my-record.yaml
-│   │   ├── landing-pages/          # NEW: Landing page configs (YAML)
+│   │   ├── products/               # NEW v2.4.0: Product definitions
+│   │   │   └── my-product.yaml
+│   │   ├── landing-pages/          # Landing page configs (YAML)
 │   │   │   └── my-landing/
-│   │   │       └── index.yaml      # Landing page YAML config
-│   │   ├── templates/              # NEW: Product landing templates
+│   │   │       └── index.yaml
+│   │   ├── templates/              # Product landing templates
 │   │   │   ├── saas.yaml
 │   │   │   ├── agency.yaml
 │   │   │   ├── course.yaml
 │   │   │   ├── ecommerce.yaml
 │   │   │   └── portfolio.yaml
-│   │   ├── entity-definitions/     # NEW: Custom entity schemas
+│   │   ├── entity-definitions/     # Custom entity schemas
 │   │   │   └── my-entity.yaml
-│   │   ├── entities/               # NEW: Entity instances
+│   │   ├── entities/               # Entity instances
 │   │   │   └── my-entity-instance.yaml
 │   │   └── site-settings/
 │   │       └── index.yaml          # Global settings (theme, etc.)
 │   ├── pages/                       # Astro page routes
 │   │   ├── index.astro             # Home page
-│   │   ├── [landing-slug].astro    # NEW: Dynamic landing page renderer
+│   │   ├── [landing-slug].astro    # Dynamic landing page renderer
+│   │   ├── [product-slug]/         # NEW v2.4.0: Per-product routes
+│   │   │   └── admin/[...path].astro  # Per-product admin shell
 │   │   ├── admin/
 │   │   │   ├── index.astro         # Admin dashboard home
-│   │   │   ├── landing/            # NEW: Landing page admin pages
+│   │   │   ├── products/           # NEW v2.4.0: Product management
 │   │   │   │   ├── index.astro
 │   │   │   │   ├── [slug].astro
 │   │   │   │   └── create.astro
-│   │   │   ├── entities/           # NEW: Entity admin pages
+│   │   │   ├── landing/
+│   │   │   │   ├── index.astro
+│   │   │   │   ├── [slug].astro
+│   │   │   │   └── create.astro
+│   │   │   ├── entities/
 │   │   │   │   ├── index.astro
 │   │   │   │   └── [...path].astro
-│   │   │   ├── templates/          # NEW: Template gallery
-│   │   │   └── setup/              # NEW: AI setup wizard
+│   │   │   ├── templates/
+│   │   │   └── setup/
 │   │   ├── api/
+│   │   │   ├── products/           # NEW v2.4.0: Per-product API
+│   │   │   │   └── [slug]/[...].ts # Per-product content/media
 │   │   │   ├── admin/
-│   │   │   │   ├── landing/        # NEW: Landing CRUD endpoints
+│   │   │   │   ├── products/       # NEW v2.4.0: Product CRUD
+│   │   │   │   │   ├── index.ts
+│   │   │   │   │   └── [slug].ts
+│   │   │   │   ├── landing/
 │   │   │   │   │   ├── index.ts    # GET/POST/DELETE
 │   │   │   │   │   ├── [slug].ts   # PUT update
 │   │   │   │   │   └── sections.ts # Section CRUD
-│   │   │   │   ├── entities/       # NEW: Entity CRUD endpoints
+│   │   │   │   ├── entities/
 │   │   │   │   │   ├── index.ts
 │   │   │   │   │   ├── [slug].ts
 │   │   │   │   │   └── definitions.ts
-│   │   │   │   ├── templates/      # NEW: Template endpoints
-│   │   │   │   └── setup/          # NEW: Setup wizard endpoints
+│   │   │   │   ├── templates/
+│   │   │   │   └── setup/
 │   │   │   └── goclaw/
-│   │   │       ├── landing/        # NEW: GoClaw landing endpoints
-│   │   │       ├── entities/       # NEW: GoClaw entity endpoints
-│   │   │       ├── templates/      # NEW: GoClaw template endpoints
-│   │   │       └── setup            # NEW: GoClaw setup endpoint
+│   │   │       ├── landing/
+│   │   │       ├── entities/
+│   │   │       ├── templates/
+│   │   │       └── setup
 │   │   └── ...
 │   ├── layouts/
 │   │   └── base-layout.astro       # Root layout with nav + footer
 │   ├── components/
-│   │   ├── landing/                # NEW: Landing page sections
-│   │   │   ├── hero.astro
-│   │   │   ├── features.astro
-│   │   │   ├── pricing.astro
-│   │   │   ├── testimonials.astro
-│   │   │   ├── faq.astro
-│   │   │   ├── cta.astro
-│   │   │   ├── stats.astro
-│   │   │   ├── how-it-works.astro
-│   │   │   ├── team.astro
-│   │   │   └── logo-wall.astro
+│   │   ├── landing/                # Landing page sections (23 types)
+│   │   │   ├── nav.astro           # NEW v2.4.0
+│   │   │   ├── footer.astro        # NEW v2.4.0
+│   │   │   ├── layout.astro        # NEW v2.4.0
+│   │   │   ├── divider.astro       # NEW v2.4.0
+│   │   │   ├── rich-text.astro     # NEW v2.4.0
+│   │   │   ├── banner.astro        # NEW v2.4.0
+│   │   │   ├── map.astro           # NEW v2.4.0
+│   │   │   ├── gallery.astro       # NEW v2.4.0
+│   │   │   ├── video.astro         # NEW v2.4.0
+│   │   │   ├── image.astro         # NEW v2.4.0
+│   │   │   ├── image-text.astro    # NEW v2.4.0
+│   │   │   ├── countdown.astro     # NEW v2.4.0
+│   │   │   ├── contact-form.astro  # NEW v2.4.0
+│   │   │   ├── (10 v2.3 sections)
 │   │   ├── admin/
-│   │   │   ├── landing/            # NEW: Landing admin components
-│   │   │   │   ├── landing-config-editor.tsx
-│   │   │   │   ├── section-editor.tsx
-│   │   │   │   ├── landing-preview.tsx
-│   │   │   │   └── landing-list.tsx
-│   │   │   ├── entities/           # NEW: Entity admin components
-│   │   │   │   ├── entity-crud.tsx
-│   │   │   │   ├── entity-schema-editor.tsx
-│   │   │   │   └── entity-list.tsx
-│   │   │   ├── templates/          # NEW: Template components
-│   │   │   │   ├── template-preview.tsx
-│   │   │   │   └── template-gallery.tsx
-│   │   │   ├── setup/              # NEW: Setup wizard components
-│   │   │   │   ├── setup-wizard.tsx
-│   │   │   │   ├── setup-form.tsx
-│   │   │   │   └── setup-preview.tsx
-│   │   │   └── ... (existing components)
+│   │   │   ├── landing/
+│   │   │   │   ├── landing-dnd-editor.tsx    # NEW v2.4.0: D&D reorder
+│   │   │   │   ├── landing-live-preview.tsx  # NEW v2.4.0: Real-time preview
+│   │   │   │   ├── device-toggle.tsx         # NEW v2.4.0: Mobile/tablet/desktop
+│   │   │   │   ├── section-picker-toolbar.tsx # NEW v2.4.0: 23-section picker
+│   │   │   │   ├── page-settings-panel.tsx   # NEW v2.4.0: Metadata editor
+│   │   │   │   └── (v2.3.0 components)
+│   │   │   ├── entities/
+│   │   │   ├── templates/
+│   │   │   ├── setup/
+│   │   │   ├── products/            # NEW v2.4.0: Product admin components
+│   │   │   └── ... (existing)
 │   │   └── ...
 │   ├── lib/
 │   │   ├── landing/                # NEW: Landing page system

@@ -1169,4 +1169,188 @@ export default async function LandingPage({ params }) {
 
 ---
 
+## Product Module Architecture (v2.4.0)
+
+**Multi-tenant system:** Each product has isolated admin, API, and auth scope.
+
+### Product Structure
+
+**File:** `src/content/products/{slug}.yaml`
+```yaml
+slug: my-saas
+name: My SaaS
+description: Product description
+icon: icon-id
+theme: liquid-glass
+status: published
+```
+
+**Admin Endpoint:** `/{slug}/admin` — Per-product admin dashboard
+- Scoped feature access (only enabled features for product)
+- Product-specific content collections
+- Isolated media storage namespace
+- User management per product
+
+**API Endpoint:** `/api/products/{slug}/...` — Per-product REST API
+- Content CRUD: `GET /api/products/{slug}/content`
+- Media: `GET /api/products/{slug}/media`
+- Auth: JWT with product claim (`productSlug` in token payload)
+
+**Auth Scope:**
+- Core admin (`/admin/products`): Superadmin only
+- Product admin (`/{slug}/admin`): Product users + roles
+- Product API (`/api/products/{slug}`): Bearer token with product claim
+
+### Files & Routing
+
+**New Directories:**
+- `src/content/products/` — Product definitions (YAML)
+- `src/pages/[product-slug]/admin/[...path].astro` — Per-product admin shell
+- `src/pages/api/products/[slug]/[...].ts` — Per-product API routes
+
+**Modified Files:**
+- `keystatic.config.ts` — Added products collection
+- `src/content.config.ts` — Added product schema (Zod)
+- `src/components/admin/admin-sidebar.tsx` — Products nav in core admin
+- `src/lib/admin/feature-registry.ts` — Per-product feature filtering
+
+---
+
+## Landing Page Builder v2 (v2.4.0) — Enhanced
+
+**23 section types + drag-and-drop editor + live preview + multi-device support**
+
+### New Section Types
+
+| Section | Type | Props | Purpose |
+|---------|------|-------|---------|
+| Navigation | `nav` | links[], logo, align | Header with link menu |
+| Footer | `footer` | links[], copyright, align | Footer with links |
+| Layout | `layout` | columns, layout, children | Grid container with nested sections |
+| Divider | `divider` | height, color | Visual separator |
+| Rich Text | `rich-text` | content | Rendered HTML content block |
+| Banner | `banner` | bgColor, text, cta | Full-width banner |
+| Map | `map` | lat, lng, zoom | Embedded map |
+| Gallery | `gallery` | items[], layout | Image gallery with lightbox |
+| Video | `video` | url, ratio | Embedded video player |
+| Image | `image` | url, alt, caption | Single image block |
+| Image+Text | `image-text` | image, text, layout | Side-by-side image + content |
+| Countdown | `countdown` | targetDate, bgColor | Countdown timer |
+| Contact Form | `contact-form` | fields[], submit | Email capture form |
+
+**Existing (v2.3.0):** hero, features, pricing, testimonials, faq, cta, stats, how-it-works, team, logo-wall (10 total)
+
+### Editor Features
+
+**Drag-and-Drop Reordering:**
+- @dnd-kit library for accessible D&D
+- Sections reorderable via handle
+- Real-time position updates
+- Optimistic UI feedback
+
+**Live Preview:**
+- React-based preview (no page reload)
+- Real-time section prop updates
+- Split-view: editor left, preview right
+- Auto-scroll to edited section
+
+**Multi-Device Preview:**
+- Toggle: Mobile (375px) | Tablet (768px) | Desktop (full)
+- Responsive CSS applied per breakpoint
+- Orientation toggle for mobile
+
+**Visual Section Picker:**
+- Sticky toolbar with 23 section type buttons
+- Icon + label per section
+- Quick-add: click to insert at bottom
+- Search/filter sections by keyword
+
+**Page Settings:**
+- Collapsible sidebar panel
+- Metadata: title, slug, description, theme, locale
+- Layout: standalone vs site nav/footer
+- Publishing: status, publishedAt
+
+**Navigation/Footer:**
+- Toggleable as sections (not forced)
+- Auto-generate anchor links for nav (→ sections)
+- Smooth scroll behavior
+- Responsive collapse on mobile
+
+### Component Architecture
+
+**Section Components:** All in `src/components/landing/`
+```
+├── nav.astro              # New
+├── footer.astro           # New
+├── layout.astro           # New
+├── divider.astro          # New
+├── rich-text.astro        # New
+├── banner.astro           # New
+├── map.astro              # New
+├── gallery.astro          # New
+├── video.astro            # New
+├── image.astro            # New
+├── image-text.astro       # New
+├── countdown.astro        # New
+├── contact-form.astro     # New
+├── (10 v2.3.0 sections)   # Existing
+```
+
+**Admin Components:** New in `src/components/admin/landing/`
+- `landing-dnd-editor.tsx` — D&D reordering with @dnd-kit
+- `landing-live-preview.tsx` — Real-time preview rendering
+- `device-toggle.tsx` — Mobile/tablet/desktop switcher
+- `section-picker-toolbar.tsx` — 23-section picker (sticky)
+- `page-settings-panel.tsx` — Collapsible metadata editor
+
+### Config Schema Update
+
+```yaml
+slug: my-landing
+title: My Landing
+sections:
+  - id: section-1
+    type: nav
+    props:
+      links:
+        - text: Home
+          href: "#hero"
+        - text: Features
+          href: "#features"
+      logo: logo-url
+      align: center
+  - id: section-2
+    type: hero
+    props: {...}
+  - id: section-3
+    type: layout
+    props:
+      columns: [50, 50]
+      children:
+        - type: image
+          props: {...}
+        - type: rich-text
+          props: {...}
+metadata:
+  theme: liquid-glass
+  locale: en
+  standalone: true        # NEW: no core nav/footer
+  anchorNavigation: true  # NEW: auto-link nav to sections
+```
+
+### API Routes (New)
+
+**Landing Section Management:**
+- `GET /api/admin/landing/[slug]/sections` — List sections in order
+- `POST /api/admin/landing/[slug]/sections` — Add section
+- `PUT /api/admin/landing/[slug]/sections/[id]` — Update section props
+- `PATCH /api/admin/landing/[slug]/sections/reorder` — Batch reorder (array of IDs)
+- `DELETE /api/admin/landing/[slug]/sections/[id]` — Remove section
+
+**GoClaw Endpoints (Extended):**
+- `PATCH /api/goclaw/landing/[slug]/sections/reorder` — Agents can reorder sections
+
+---
+
 **Last updated:** 2026-03-26

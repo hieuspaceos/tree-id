@@ -4,10 +4,14 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ## Current Status (2026-03-26)
 
-**Phase:** v2.3.0 complete — Landing Page Builder System deployed
-**Completion:** Phases 1-7 complete. Landing builder fully implemented with 9 sub-phases. Ready for product builder use cases.
+**Phase:** v2.4.0 complete — Product Module Architecture + Landing Builder v2
+**Completion:** Phases 1-7 complete + product modules + landing builder enhancements. Multi-tenant support with per-product admin/API scoping. 23 landing section types, D&D editor, live preview, multi-device support.
 **Active Team:** Solo (HieuSpace)
-**Key Features Added:** 10 section components, entity system, AI setup wizard, 5 product templates, GoClaw landing API integration
+**Key Features Added:**
+- Product module system (multi-tenant, per-product admin, product-scoped API)
+- Landing builder v2: 23 section types, D&D reordering, live preview, device toggles
+- Navigation/footer as toggleable sections with anchor generation
+- Visual section picker toolbar, page settings panel
 
 ---
 
@@ -237,7 +241,66 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-## Phase 8 — Future Enhancements (Backlog)
+## Phase 8 — Product Module Architecture ✓ COMPLETE
+
+**Timeline:** 2026-03-26
+**Status:** Complete
+**Effort:** 6 hours
+
+### Deliverables
+- [x] Product module system: YAML-based product definitions at `src/content/products/`
+- [x] Per-product admin: Isolated dashboard at `/{slug}/admin`
+- [x] Per-product API: Scoped endpoints at `/api/products/{slug}/...`
+- [x] Per-product auth: JWT with product claim for authorization
+- [x] Product CRUD: Core admin at `/admin/products` (superadmin only)
+- [x] Tenant isolation: Core admin access control + per-product routes
+
+**Architecture:**
+- Products collection in Keystatic
+- Product-scoped admin routes with auth checks
+- Feature filtering: only enabled features per product
+- API routes use product claim from JWT
+
+**Key Insights:**
+- Product routing: `[product-slug]/admin/[...path]` enables tenant isolation
+- Feature scoping: re-use existing feature registry, filter by product
+- Auth: JWT claim approach avoids separate token system
+
+---
+
+## Phase 9 — Landing Builder v2 (Enhanced) ✓ COMPLETE
+
+**Timeline:** 2026-03-26
+**Status:** Complete
+**Effort:** 10 hours
+
+### Deliverables
+- [x] 13 new section types: nav, footer, layout, divider, rich-text, banner, map, gallery, video, image, image-text, countdown, contact-form (23 total)
+- [x] Drag-and-drop section reordering: @dnd-kit integration
+- [x] Real-time live preview: No page reload, instant prop updates
+- [x] Multi-device preview: Mobile (375px), tablet (768px), desktop (full)
+- [x] Visual section picker: Sticky toolbar, 23 section types, search/filter
+- [x] Page settings panel: Collapsible, metadata + layout options
+- [x] Navigation as section: Auto-generate anchor links, toggle on/off
+- [x] Footer as section: Same anchor linking, toggleable
+- [x] Standalone landing layout: No core site nav/footer by default
+- [x] New admin components: DnD editor, live preview, device toggle, section picker, settings panel
+
+**Architecture:**
+- Section components: 23 Astro components, props-driven
+- D&D: @dnd-kit for accessible, performant reordering
+- Live preview: React component with real-time rendering
+- Config schema: Updated to support section IDs + layout nesting
+
+**Key Insights:**
+- Layout section enables arbitrary nesting (columns, subsections)
+- Navigation/footer as sections = user control (not forced)
+- Anchor generation: nav links auto-discover section IDs
+- Device preview: CSS media queries applied per breakpoint
+
+---
+
+## Phase 10 — Future Enhancements (Backlog)
 
 ### 8A — Landing Page Advanced Features (Proposed)
 **Effort:** 12 hours
@@ -420,10 +483,12 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 | 5.5 — Feature Modules | 2026-03-26 | 8h | HieuSpace | ✓ Complete |
 | 6 — GoClaw Phase 1 | 2026-03-25 | 3h | HieuSpace | ✓ Complete |
 | 7 — Landing Builder | 2026-03-26 | 18h | HieuSpace | ✓ Complete |
-| 8A — Landing Advanced | TBD | 12h | — | Proposed |
-| 8B — Analytics Dashboard | TBD | 12h | — | Proposed |
-| 8C — Media+ | TBD | 8h | — | Proposed |
-| 8D — Collaboration | TBD | 20h | — | Proposed |
+| 8 — Product Modules | 2026-03-26 | 6h | HieuSpace | ✓ Complete |
+| 9 — Landing Builder v2 | 2026-03-26 | 10h | HieuSpace | ✓ Complete |
+| 10A — Landing Analytics | TBD | 12h | — | Proposed |
+| 10B — Analytics Dashboard | TBD | 12h | — | Proposed |
+| 10C — Media+ | TBD | 8h | — | Proposed |
+| 10D — Collaboration | TBD | 20h | — | Proposed |
 
 ---
 
@@ -431,8 +496,8 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 | Release | Version | Target Date | Focus | Status |
 |---------|---------|-------------|-------|--------|
-| Current | v2.3.0 | 2026-03-26 | Landing Page Builder + AI Setup Wizard | Complete |
-| Planned | v2.4.0 | 2026-Q2 | Landing Advanced Features (A/B testing, analytics) | Backlog |
+| Current | v2.4.0 | 2026-03-26 | Product Modules + Landing Builder v2 | Complete |
+| Planned | v2.5.0 | 2026-Q2 | Landing Advanced (A/B testing, email capture, form analytics) | Backlog |
 | Planned | v3.0.0 | 2026-Q3 | Analytics Dashboard + Media Features | Backlog |
 | Planned | v4.0.0 | 2026-Q4 | Extended i18n + Plugin System | Backlog |
 

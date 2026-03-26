@@ -4,6 +4,41 @@ All notable changes to Tree Identity are documented here.
 
 ## Releases
 
+### v2.4.0 — Product Module Architecture + Landing Builder Enhancements (2026-03-26)
+
+**Status:** Complete
+
+Multi-tenant product module system with per-product admin, API scoping, and expanded landing page builder with 23 section types and drag-and-drop editor.
+
+#### Product Module Architecture (New)
+- **Product definitions:** YAML-based at `src/content/products/*.yaml`
+- **Per-product admin:** Dashboard at `/{slug}/admin` with scoped feature access
+- **Per-product API:** REST endpoints at `/api/products/{slug}/...`
+- **Per-product auth:** JWT with product claim for authorization
+- **Product CRUD:** Core admin at `/admin/products` (superadmin only)
+- **Tenant isolation:** Core admin = superadmin, product users = scoped access
+
+#### Landing Page Builder Enhancements (Phase 2)
+- **23 section types:** nav, footer, hero, features, pricing, testimonials, faq, cta, stats, how-it-works, team, logo-wall, video, image, image-text, gallery, map, rich-text, divider, countdown, contact-form, banner, layout
+- **Standalone landing layout:** No core site nav/footer inheritance (optional toggles)
+- **Navigation & footer:** Toggleable sections with auto-generated anchor links
+- **Drag-and-drop reordering:** @dnd-kit section reordering
+- **Real-time live preview:** React-based preview, no save needed
+- **Multi-device preview:** Mobile (375px), tablet (768px), desktop (full width) toggles
+- **Layout/grid section:** Column presets (50/50, 33/67, etc.) with nested sections
+- **Visual section picker:** Sticky toolbar with section type picker
+- **Collapsible page settings:** Metadata editor in sidebar
+- **Smooth scroll anchors:** Nav/footer auto-link to sections
+
+#### Architecture
+- Product system: YAML config + file-based storage
+- Landing sections: 23 composable Astro components
+- Admin UI: React components for drag-drop, live preview, device toggles
+- DnD library: @dnd-kit for performant section reordering
+- Type-safe: Zod validation for product + section schemas
+
+---
+
 ### v2.3.0 — Landing Page Builder System (2026-03-26)
 
 **Status:** Complete
