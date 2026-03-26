@@ -1,0 +1,18 @@
+label: customer
+fields:
+  - name: email
+    type: text
+    label: email
+    required: false
+  - name: name
+    type: text
+    label: name
+    required: false
+  - name: phone2
+    type: number
+    label: phone2
+    required: false
+  - name: link
+    type: text
+    label: link
+    required: false
