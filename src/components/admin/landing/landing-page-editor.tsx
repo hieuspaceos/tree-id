@@ -119,19 +119,37 @@ export function LandingPageEditor({ slug }: Props) {
     }
   }
 
+  // Split view: editor left, iframe preview right
+  const [splitView, setSplitView] = useState(false)
+  const [previewKey, setPreviewKey] = useState(0)
+
+  // Refresh preview iframe after save
+  async function handleSaveAndPreview() {
+    await handleSave()
+    setPreviewKey((k) => k + 1)
+  }
+
   if (loading) return <p style={{ color: '#94a3b8' }}>Loading...</p>
 
-  return (
-    <div style={{ maxWidth: '760px' }}>
+  const editorContent = (
+    <div style={{ maxWidth: splitView ? '100%' : '760px', overflowY: splitView ? 'auto' : undefined, height: splitView ? 'calc(100vh - 80px)' : undefined, padding: splitView ? '0 1rem 2rem 0' : undefined }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
         <button className="admin-btn" onClick={() => navigate('/landing')} style={{ fontSize: '0.8rem' }}>← Back</button>
         <h1 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#1e293b', flex: 1 }}>
           {isNew ? 'New Landing Page' : `Edit: ${config.title}`}
         </h1>
-        {!isNew && <a href={`/${slug}`} target="_blank" rel="noopener noreferrer" className="admin-btn" style={{ fontSize: '0.8rem' }}>Preview</a>}
-        <button className="admin-btn admin-btn-primary" onClick={handleSave} disabled={saving}>
-          {saving ? 'Saving…' : 'Save'}
+        {!isNew && (
+          <button
+            className={`admin-btn ${splitView ? 'admin-btn-primary' : ''}`}
+            onClick={() => setSplitView((v) => !v)}
+            style={{ fontSize: '0.8rem' }}
+            title="Toggle split preview"
+          >{splitView ? '✕ Close Preview' : '⊞ Split Preview'}</button>
+        )}
+        {!isNew && !splitView && <a href={`/${slug}`} target="_blank" rel="noopener noreferrer" className="admin-btn" style={{ fontSize: '0.8rem' }}>Preview</a>}
+        <button className="admin-btn admin-btn-primary" onClick={splitView ? handleSaveAndPreview : handleSave} disabled={saving}>
+          {saving ? 'Saving…' : splitView ? 'Save & Refresh' : 'Save'}
         </button>
       </div>
 
@@ -191,4 +209,28 @@ export function LandingPageEditor({ slug }: Props) {
       </div>
     </div>
   )
+
+  // Split view: editor left + iframe preview right
+  if (splitView && !isNew) {
+    return (
+      <div style={{ display: 'flex', gap: '1rem', height: 'calc(100vh - 80px)' }}>
+        <div style={{ flex: 1, minWidth: 0, overflowY: 'auto' }}>
+          {editorContent}
+        </div>
+        <div style={{ flex: 1, minWidth: 0, borderLeft: '1px solid #e2e8f0', position: 'relative' }}>
+          <div style={{ position: 'absolute', top: 8, right: 8, zIndex: 10, background: '#fef3c7', color: '#92400e', fontSize: '0.7rem', padding: '2px 8px', borderRadius: '4px' }}>
+            Live Preview
+          </div>
+          <iframe
+            key={previewKey}
+            src={`/${slug}`}
+            style={{ width: '100%', height: '100%', border: 'none', borderRadius: '8px' }}
+            title="Landing page preview"
+          />
+        </div>
+      </div>
+    )
+  }
+
+  return editorContent
 }
