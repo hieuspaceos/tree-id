@@ -491,6 +491,15 @@ function nestedSectionDefault(type: string): SectionData {
   return map[type] || ({} as SectionData)
 }
 
+/** Section type labels for display in layout column list */
+const SECTION_LABELS: Record<string, string> = {
+  hero: 'Hero', features: 'Features', pricing: 'Pricing', testimonials: 'Testimonials',
+  faq: 'FAQ', cta: 'CTA', stats: 'Stats', 'how-it-works': 'How It Works',
+  team: 'Team', 'logo-wall': 'Logo Wall', video: 'Video', image: 'Image',
+  'image-text': 'Image+Text', gallery: 'Gallery', map: 'Map', 'rich-text': 'Rich Text',
+  divider: 'Divider', countdown: 'Countdown', 'contact-form': 'Contact Form', banner: 'Banner',
+}
+
 export function LayoutSectionForm({ data, onChange }: FormProps<LayoutData>) {
   const columns = data.columns || [1, 1]
   const gap = data.gap || '1rem'
@@ -553,30 +562,27 @@ export function LayoutSectionForm({ data, onChange }: FormProps<LayoutData>) {
         return (
           <Field key={colIdx} label={`Column ${colIdx + 1} (${columns[colIdx]}fr)`}>
             <div style={{ background: '#f8fafc', borderRadius: '8px', padding: '0.5rem' }}>
+              {col.sections.length === 0 && (
+                <div style={{ padding: '0.75rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.7rem', border: '1px dashed #cbd5e1', borderRadius: '6px' }}>
+                  Empty — add sections below
+                </div>
+              )}
               {col.sections.map((s, si) => (
-                <div key={si} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem', background: 'white', borderRadius: '6px', padding: '4px 8px', border: '1px solid #e2e8f0' }}>
-                  <span style={{ fontSize: '0.75rem', color: '#475569', flex: 1 }}>{s.type}</span>
+                <div key={si} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem', background: 'white', borderRadius: '6px', padding: '6px 8px', border: '1px solid #e2e8f0' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#1e293b', flex: 1 }}>{SECTION_LABELS[s.type] || s.type}</span>
                   <button type="button" onClick={() => removeNestedSection(colIdx, si)}
                     style={{ padding: '2px 6px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.7rem' }}>×</button>
                 </div>
               ))}
-              <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.25rem' }}>
-                <select
-                  id={`layout-col-${colIdx}-select`}
-                  style={{ ...inputStyle, flex: 1, fontSize: '0.75rem' }}
-                  defaultValue=""
-                >
-                  <option value="" disabled>Add section…</option>
-                  {NESTED_SECTION_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                </select>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const sel = document.getElementById(`layout-col-${colIdx}-select`) as HTMLSelectElement
-                    if (sel?.value) addNestedSection(colIdx, sel.value)
-                  }}
-                  style={{ padding: '4px 10px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.75rem' }}
-                >+</button>
+              {/* Quick-add buttons for common section types */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem', marginTop: '0.5rem' }}>
+                {NESTED_SECTION_TYPES.map(t => (
+                  <button key={t} type="button" onClick={() => addNestedSection(colIdx, t)}
+                    style={{ padding: '2px 6px', fontSize: '0.6rem', border: '1px solid #e2e8f0', borderRadius: '4px', background: 'white', cursor: 'pointer', color: '#475569' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.background = '#eff6ff' }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = 'white' }}
+                  >{SECTION_LABELS[t] || t}</button>
+                ))}
               </div>
             </div>
           </Field>
