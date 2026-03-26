@@ -45,7 +45,6 @@ export interface CoreCollectionDef {
 export const CORE_COLLECTIONS: CoreCollectionDef[] = [
   { id: 'articles', label: 'Articles', iconKey: 'fileText', routes: { list: '/articles', new: '/articles/new', edit: '/articles/:slug' } },
   { id: 'notes', label: 'Notes', iconKey: 'stickyNote', routes: { list: '/notes', new: '/notes/new', edit: '/notes/:slug' } },
-  { id: 'records', label: 'Records', iconKey: 'database', routes: { list: '/records', new: '/records/new', edit: '/records/:slug' } },
   { id: 'categories', label: 'Categories', iconKey: 'folder', routes: { list: '/categories', new: '/categories/new', edit: '/categories/:slug' } },
 ]
 

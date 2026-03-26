@@ -103,22 +103,6 @@ export const collectionSchemas: Record<string, FieldSchema[]> = {
     ...baseSeedFields,
     { name: 'content', type: 'textarea', label: 'Content' },
   ],
-  records: [
-    { name: 'title', type: 'text', label: 'Title', required: true },
-    ...baseSeedFields,
-    {
-      name: 'recordType',
-      type: 'select',
-      label: 'Record Type',
-      options: [
-        { label: 'Project', value: 'project' },
-        { label: 'Product', value: 'product' },
-        { label: 'Experiment', value: 'experiment' },
-      ],
-      defaultValue: 'project',
-    },
-    { name: 'recordData', type: 'textarea', label: 'Record Data (JSON)' },
-  ],
   categories: [
     { name: 'name', type: 'text', label: 'Name', required: true },
     { name: 'description', type: 'textarea', label: 'Description' },

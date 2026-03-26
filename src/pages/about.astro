@@ -5,13 +5,10 @@
  */
 import BaseLayout from '@/layouts/base-layout.astro'
 import { siteConfig } from '@/config/site-config'
-import { getCollection } from 'astro:content'
-
 const { about, author, socialLinks } = siteConfig
 
-const projects = await getCollection('records', (e) =>
-  e.data.status === 'published' && e.data.recordType === 'project'
-)
+// Projects section — TODO: migrate to entities when Feature Builder is ready
+const projects: any[] = []
 
 const socials = Object.entries(socialLinks).filter(([, url]) => url)
 ---
@@ -87,7 +84,7 @@ const socials = Object.entries(socialLinks).filter(([, url]) => url)
             <p class="text-sm text-slate-500">{project.data.description}</p>
             {(project.data.tags ?? []).length > 0 && (
               <div class="mt-3 flex flex-wrap gap-1.5">
-                {(project.data.tags ?? []).map((tag) => (
+                {(project.data.tags ?? []).map((tag: string) => (
                   <span class="glass-tag text-xs">{tag}</span>
                 ))}
               </div>

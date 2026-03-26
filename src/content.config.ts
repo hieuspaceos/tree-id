@@ -59,15 +59,6 @@ const notes = defineCollection({
   }),
 })
 
-// Records: structured YAML data in src/content/records/*.yaml
-const records = defineCollection({
-  loader: glob({ pattern: '**/*.yaml', base: './src/content/records' }),
-  schema: baseSeedSchema.extend({
-    recordType: z.enum(['project', 'product', 'experiment']),
-    recordData: z.string().optional().nullable(),
-  }),
-})
-
 // Categories: taxonomy for organizing content in src/content/categories/*.yaml
 const categories = defineCollection({
   loader: glob({ pattern: '**/*.yaml', base: './src/content/categories' }),
@@ -142,7 +133,7 @@ const products = defineCollection({
     icon: z.string().optional(),
     features: z.array(z.string()).default([]),
     coreCollections: z.array(
-      z.enum(['articles', 'notes', 'records', 'categories', 'voices'])
+      z.enum(['articles', 'notes', 'categories', 'voices'])
     ).default([]),
     sidebarSections: z.record(z.string()).optional(),
     // Per-product users — scoped to this product's admin only
@@ -154,4 +145,4 @@ const products = defineCollection({
   }),
 })
 
-export const collections = { articles, notes, records, categories, voices, landingPages, templates, products }
+export const collections = { articles, notes, categories, voices, landingPages, templates, products }

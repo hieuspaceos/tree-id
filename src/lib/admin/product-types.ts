@@ -25,7 +25,7 @@ export interface ProductConfig {
   icon?: string
   /** Feature registry IDs to enable for this product (e.g. 'landing', 'media', 'voices') */
   features: string[]
-  /** Core Astro content collections to include: 'articles' | 'notes' | 'records' | 'categories' | 'voices' */
+  /** Core Astro content collections to include: 'articles' | 'notes' | 'categories' | 'voices' */
   coreCollections: string[]
   /** Override sidebar section labels — keys are section IDs, values are display labels */
   sidebarSections?: Record<string, string>

@@ -9,7 +9,7 @@ import { api } from '@/lib/admin/api-client'
 import { FEATURE_MODULES } from '@/lib/admin/feature-registry'
 
 const ICON_OPTIONS = ['layout', 'fileText', 'stickyNote', 'database', 'folder', 'image', 'mail', 'chart', 'megaphone', 'globe', 'userPen', 'sparkles']
-const CORE_COLLECTIONS = ['articles', 'notes', 'records', 'categories', 'voices']
+const CORE_COLLECTIONS = ['articles', 'notes', 'categories', 'voices']
 
 interface Props {
   slug?: string

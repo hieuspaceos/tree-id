@@ -8,13 +8,11 @@ import { api, type EntryMeta } from '@/lib/admin/api-client'
 interface Stats {
   articles: { total: number; published: number }
   notes: { total: number; published: number }
-  records: { total: number; published: number }
 }
 
 const defaultStats: Stats = {
   articles: { total: 0, published: 0 },
   notes: { total: 0, published: 0 },
-  records: { total: 0, published: 0 },
 }
 
 export function AdminDashboard() {
@@ -24,27 +22,23 @@ export function AdminDashboard() {
 
   useEffect(() => {
     async function fetchStats() {
-      const [articlesRes, notesRes, recordsRes] = await Promise.all([
+      const [articlesRes, notesRes] = await Promise.all([
         api.collections.list('articles'),
         api.collections.list('notes'),
-        api.collections.list('records'),
       ])
 
       const a = articlesRes.data?.entries || []
       const n = notesRes.data?.entries || []
-      const r = recordsRes.data?.entries || []
 
       setStats({
         articles: { total: a.length, published: a.filter((e) => e.status === 'published').length },
         notes: { total: n.length, published: n.filter((e) => e.status === 'published').length },
-        records: { total: r.length, published: r.filter((e) => e.status === 'published').length },
       })
 
       // Merge and sort by publishedAt desc, take 5
       const all = [
         ...a.map((e) => ({ ...e, collection: 'articles' })),
         ...n.map((e) => ({ ...e, collection: 'notes' })),
-        ...r.map((e) => ({ ...e, collection: 'records' })),
       ]
         .sort((a, b) => (b.publishedAt || '').localeCompare(a.publishedAt || ''))
         .slice(0, 5)
@@ -68,8 +62,8 @@ export function AdminDashboard() {
     )
   }
 
-  const totalPublished = stats.articles.published + stats.notes.published + stats.records.published
-  const totalAll = stats.articles.total + stats.notes.total + stats.records.total
+  const totalPublished = stats.articles.published + stats.notes.published
+  const totalAll = stats.articles.total + stats.notes.total
 
   return (
     <div>
@@ -77,7 +71,6 @@ export function AdminDashboard() {
       <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', marginBottom: '2rem' }}>
         <StatCard label="Articles" value={stats.articles.total} sub={`${stats.articles.published} published`} />
         <StatCard label="Notes" value={stats.notes.total} sub={`${stats.notes.published} published`} />
-        <StatCard label="Records" value={stats.records.total} sub={`${stats.records.published} published`} />
         <StatCard label="Total Published" value={totalPublished} sub={`of ${totalAll} entries`} />
       </div>
 
@@ -85,7 +78,6 @@ export function AdminDashboard() {
       <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
         <Link href="/articles/new" className="admin-btn admin-btn-primary">+ New Article</Link>
         <Link href="/notes/new" className="admin-btn admin-btn-ghost">+ New Note</Link>
-        <Link href="/records/new" className="admin-btn admin-btn-ghost">+ New Record</Link>
       </div>
 
       {/* Recent entries */}
