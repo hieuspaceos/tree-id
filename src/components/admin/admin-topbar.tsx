@@ -9,14 +9,17 @@ interface Props {
   user: AdminUserInfo | null
 }
 
-/** Derive breadcrumb segments from current path (relative to base) */
+/** Derive breadcrumb segments from current path (relative to base).
+ *  Single-segment paths return empty — the page heading handles the title.
+ *  Breadcrumb only shown for deep navigation (e.g. /articles/my-post). */
 function getBreadcrumb(path: string): string[] {
   const segments = path
     .replace(/^\//, '')
     .split('/')
     .filter(Boolean)
 
-  if (segments.length === 0) return ['Dashboard']
+  // Single-segment pages (e.g. /landing, /articles) have their own h1 — skip breadcrumb
+  if (segments.length <= 1) return []
 
   return segments.map((s) =>
     s.charAt(0).toUpperCase() + s.slice(1).replace(/-/g, ' ')
