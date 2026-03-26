@@ -66,6 +66,7 @@ export function LandingPageEditor({ slug }: Props) {
   const [splitView, setSplitView] = useState(false)
   const [previewKey, setPreviewKey] = useState(0)
   const [previewWidth, setPreviewWidth] = useState<string | number>('100%')
+  const [settingsOpen, setSettingsOpen] = useState(true)
 
   useEffect(() => {
     if (!slug) return
@@ -166,34 +167,68 @@ export function LandingPageEditor({ slug }: Props) {
       {error && <div style={{ background: '#fee2e2', color: '#dc2626', padding: '0.75rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.85rem' }}>{error}</div>}
       {success && <div style={{ background: '#dcfce7', color: '#16a34a', padding: '0.75rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.85rem' }}>{success}</div>}
 
-      {/* Metadata */}
-      <div className="glass-panel" style={{ padding: '1.25rem', borderRadius: '12px', marginBottom: '1.5rem' }}>
-        <h2 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#475569', marginBottom: '1rem' }}>Page Settings</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-          <div>
-            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '0.25rem' }}>Title *</label>
-            <input style={{ width: '100%', padding: '6px 10px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '0.85rem' }}
-              value={config.title} onChange={(e) => setConfig((c) => ({ ...c, title: e.target.value }))} />
-          </div>
-          <div>
-            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '0.25rem' }}>
-              Slug {!isNew && <span style={{ color: '#94a3b8' }}>(readonly)</span>}
-            </label>
-            <input style={{ width: '100%', padding: '6px 10px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '0.85rem', background: !isNew ? '#f8fafc' : 'white' }}
-              value={config.slug} readOnly={!isNew}
-              onChange={(e) => isNew && setConfig((c) => ({ ...c, slug: e.target.value }))} />
-          </div>
+      {/* Page Settings — collapsible */}
+      <div className="glass-panel" style={{ borderRadius: '12px', marginBottom: '1rem', overflow: 'hidden' }}>
+        <div
+          style={{ display: 'flex', alignItems: 'center', padding: '0.75rem 1rem', cursor: 'pointer', userSelect: 'none' }}
+          onClick={() => setSettingsOpen((o) => !o)}
+        >
+          <span style={{ color: '#94a3b8', fontSize: '0.7rem', marginRight: '0.5rem', transition: 'transform 0.15s', transform: settingsOpen ? 'rotate(90deg)' : 'none' }}>▶</span>
+          <h2 style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569', flex: 1, margin: 0 }}>Page Settings</h2>
+          <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{config.title || 'Untitled'}</span>
         </div>
-        <div style={{ marginTop: '0.75rem' }}>
-          <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '0.25rem' }}>Description</label>
-          <textarea style={{ width: '100%', padding: '6px 10px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '0.85rem', minHeight: '60px', resize: 'vertical' }}
-            value={config.description || ''} onChange={(e) => setConfig((c) => ({ ...c, description: e.target.value }))} />
+        {settingsOpen && (
+          <div style={{ padding: '0 1rem 1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 600, color: '#475569', marginBottom: '0.2rem' }}>Title *</label>
+                <input style={{ width: '100%', padding: '5px 8px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '0.8rem' }}
+                  value={config.title} onChange={(e) => setConfig((c) => ({ ...c, title: e.target.value }))} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 600, color: '#475569', marginBottom: '0.2rem' }}>
+                  Slug {!isNew && <span style={{ color: '#94a3b8' }}>(readonly)</span>}
+                </label>
+                <input style={{ width: '100%', padding: '5px 8px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '0.8rem', background: !isNew ? '#f8fafc' : 'white' }}
+                  value={config.slug} readOnly={!isNew}
+                  onChange={(e) => isNew && setConfig((c) => ({ ...c, slug: e.target.value }))} />
+              </div>
+            </div>
+            <div style={{ marginTop: '0.5rem' }}>
+              <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 600, color: '#475569', marginBottom: '0.2rem' }}>Description</label>
+              <textarea style={{ width: '100%', padding: '5px 8px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '0.8rem', minHeight: '40px', resize: 'vertical' }}
+                value={config.description || ''} onChange={(e) => setConfig((c) => ({ ...c, description: e.target.value }))} />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Section picker — sticky below header */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 5, background: 'var(--t-bg-base, #f8fafc)', paddingBottom: '0.5rem' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem', padding: '0.5rem 0' }}>
+          {SECTION_CATALOG.map((s) => (
+            <button
+              key={s.type}
+              onClick={() => addSection(s.type)}
+              title={s.desc}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '0.2rem',
+                padding: '0.25rem 0.5rem', border: '1px solid #e2e8f0', borderRadius: '6px',
+                background: 'white', cursor: 'pointer', fontSize: '0.65rem', color: '#475569',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.background = '#eff6ff' }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = 'white' }}
+            >
+              <span style={{ fontSize: '0.8rem' }}>{s.icon}</span>
+              <span>{s.label}</span>
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Sections — drag-and-drop sortable */}
       <div style={{ marginBottom: '1rem' }}>
-        <h2 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#475569', marginBottom: '0.75rem', position: 'sticky', top: 0, background: 'var(--t-bg-base, #f8fafc)', padding: '0.5rem 0', zIndex: 5 }}>
+        <h2 style={{ fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8', marginBottom: '0.5rem' }}>
           Sections ({config.sections.length})
         </h2>
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -209,30 +244,8 @@ export function LandingPageEditor({ slug }: Props) {
         </DndContext>
       </div>
 
-      {/* Add section — visual grid picker */}
-      <div className="glass-panel" style={{ padding: '1rem', borderRadius: '12px' }}>
-        <h3 style={{ fontSize: '0.8rem', fontWeight: 600, color: '#475569', marginBottom: '0.75rem' }}>+ Add Section</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem' }}>
-          {SECTION_CATALOG.map((s) => (
-            <button
-              key={s.type}
-              onClick={() => addSection(s.type)}
-              style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem',
-                padding: '0.6rem 0.25rem', border: '1px solid #e2e8f0', borderRadius: '8px',
-                background: 'white', cursor: 'pointer', transition: 'all 0.15s',
-                fontSize: '0.7rem', color: '#475569',
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.background = '#eff6ff' }}
-              onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = 'white' }}
-              title={s.desc}
-            >
-              <span style={{ fontSize: '1.2rem' }}>{s.icon}</span>
-              <span style={{ fontWeight: 500 }}>{s.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Spacer for scroll room */}
+      <div style={{ height: '2rem' }} />
     </div>
   )
 
