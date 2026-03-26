@@ -3,6 +3,7 @@
  * POST /api/goclaw/seo-analyze — analyze content and return SEO score
  */
 import type { APIRoute } from 'astro'
+import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
 import { verifyGoclawApiKey } from '@/lib/goclaw/api-auth'
 import { analyzeSeo } from '@/lib/admin/seo-analyzer'
 
@@ -17,6 +18,8 @@ function json(data: unknown, status = 200): Response {
 
 /** POST /api/goclaw/seo-analyze — run SEO analysis on provided content */
 export const POST: APIRoute = async ({ request }) => {
+  const fc = checkFeatureEnabled('goclaw')
+  if (!fc.enabled) return fc.response
   const auth = verifyGoclawApiKey(request)
   if (!auth.ok) return auth.response
 

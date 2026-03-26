@@ -3,11 +3,14 @@
  * GET /api/goclaw/health — returns service status and version
  */
 import type { APIRoute } from 'astro'
+import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
 import { verifyGoclawApiKey } from '@/lib/goclaw/api-auth'
 
 export const prerender = false
 
 export const GET: APIRoute = async ({ request }) => {
+  const fc = checkFeatureEnabled('goclaw')
+  if (!fc.enabled) return fc.response
   const auth = verifyGoclawApiKey(request)
   if (!auth.ok) return auth.response
 

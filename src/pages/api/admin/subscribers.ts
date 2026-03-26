@@ -3,6 +3,7 @@
  * Auth required (handled by middleware)
  */
 import type { APIRoute } from 'astro'
+import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
 import { getAllSubscribers, getSubscriberCount, removeByEmail } from '@/lib/email/subscriber-io'
 
 export const prerender = false
@@ -16,6 +17,8 @@ function json(data: unknown, status = 200) {
 
 /** GET /api/admin/subscribers — list all subscribers */
 export const GET: APIRoute = async () => {
+  const fc = checkFeatureEnabled('email')
+  if (!fc.enabled) return fc.response
   try {
     const subscribers = getAllSubscribers()
     const count = getSubscriberCount()
@@ -27,6 +30,8 @@ export const GET: APIRoute = async () => {
 
 /** DELETE /api/admin/subscribers — remove subscriber by email */
 export const DELETE: APIRoute = async ({ request }) => {
+  const fc2 = checkFeatureEnabled('email')
+  if (!fc2.enabled) return fc2.response
   try {
     const body = await request.json()
     const email = (body?.email ?? '').toString().trim()

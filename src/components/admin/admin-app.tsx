@@ -23,6 +23,7 @@ export interface AdminUserInfo {
 function AdminAppInner({ siteName }: Props) {
   const [authed, setAuthed] = useState<boolean | null>(null) // null = checking
   const [user, setUser] = useState<AdminUserInfo | null>(null)
+  const [enabledFeatures, setEnabledFeatures] = useState<Record<string, boolean> | undefined>(undefined)
   const [showShortcuts, setShowShortcuts] = useState(false)
   const toast = useToast()
 
@@ -34,6 +35,29 @@ function AdminAppInner({ siteName }: Props) {
         setUser({ username: res.data.username, role: res.data.role })
       }
     })
+  }, [])
+
+  // Fetch site-settings to get feature toggle state
+  useEffect(() => {
+    if (!authed) return
+    api.singletons.read('site-settings').then((res) => {
+      if (res.ok && res.data) {
+        setEnabledFeatures((res.data as Record<string, any>).enabledFeatures)
+      }
+    })
+  }, [authed])
+
+  // Re-fetch features when settings are saved (custom event from settings-editor)
+  useEffect(() => {
+    const handler = () => {
+      api.singletons.read('site-settings').then((res) => {
+        if (res.ok && res.data) {
+          setEnabledFeatures((res.data as Record<string, any>).enabledFeatures)
+        }
+      })
+    }
+    window.addEventListener('settings-changed', handler)
+    return () => window.removeEventListener('settings-changed', handler)
   }, [])
 
   // Hide static Astro loader only AFTER auth check completes
@@ -98,7 +122,7 @@ function AdminAppInner({ siteName }: Props) {
 
   return (
     <div className="admin-root">
-      <AdminLayout siteName={siteName} onLogout={handleLogout} user={user} />
+      <AdminLayout siteName={siteName} onLogout={handleLogout} user={user} enabledFeatures={enabledFeatures} />
       {showShortcuts && <KeyboardShortcuts onClose={() => setShowShortcuts(false)} />}
     </div>
   )

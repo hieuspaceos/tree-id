@@ -3,6 +3,7 @@
  * No auth required. Validates email, adds subscriber, sends welcome email.
  */
 import type { APIRoute } from 'astro'
+import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
 import { addSubscriber, isSubscribed } from '@/lib/email/subscriber-io'
 import { sendEmail, isEmailConfigured } from '@/lib/email/resend-client'
 import { siteConfig } from '@/config/site-config'
@@ -19,6 +20,8 @@ function json(data: unknown, status = 200) {
 }
 
 export const POST: APIRoute = async ({ request }) => {
+  const fc = checkFeatureEnabled('email')
+  if (!fc.enabled) return fc.response
   try {
     const body = await request.json()
     const email = (body?.email ?? '').toString().trim().toLowerCase()

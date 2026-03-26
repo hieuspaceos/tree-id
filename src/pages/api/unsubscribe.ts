@@ -8,6 +8,7 @@ import { siteConfig } from '@/config/site-config'
 
 export const prerender = false
 
+// No feature guard — unsubscribe must always work (GDPR compliance)
 export const GET: APIRoute = async ({ url }) => {
   const token = url.searchParams.get('token') ?? ''
 

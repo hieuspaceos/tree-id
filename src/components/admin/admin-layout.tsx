@@ -1,8 +1,9 @@
 /**
- * Admin layout — sidebar + topbar + content area with client-side routing
- * Routes are relative to wouter Router base="/admin"
+ * Admin layout — sidebar + topbar + content area with client-side routing.
+ * Feature routes are gated by enabledFeatures from site-settings.
+ * Optional pages lazy-loaded via React.lazy for code splitting.
  */
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense, lazy } from 'react'
 import { Route, Switch } from 'wouter'
 import type { AdminUserInfo } from './admin-app'
 import { AdminSidebar } from './admin-sidebar'
@@ -11,23 +12,36 @@ import { AdminDashboard } from './admin-dashboard'
 import { ContentList } from './content-list'
 import { ContentEditor } from './content-editor'
 import { SettingsEditor } from './settings-editor'
-import { MediaBrowser } from './media-browser'
-import { MarketingDashboard } from './marketing-dashboard'
 import { CategoriesList } from './categories-list'
 import { CategoryEditor } from './category-editor'
-import { AdminSubscribersPage } from './admin-subscribers-page'
-import { AdminAnalyticsPage } from './admin-analytics-page'
-import { AdminTranslationsPage } from './admin-translations-page'
+import { isFeatureEnabled, type EnabledFeaturesMap } from '@/lib/admin/feature-registry'
+
+// Lazy-loaded feature pages — only fetched when route is matched
+const LazyMediaBrowser = lazy(() => import('./media-browser').then((m) => ({ default: m.MediaBrowser })))
+const LazyMarketingDashboard = lazy(() => import('./marketing-dashboard').then((m) => ({ default: m.MarketingDashboard })))
+const LazySubscribersPage = lazy(() => import('./admin-subscribers-page').then((m) => ({ default: m.AdminSubscribersPage })))
+const LazyAnalyticsPage = lazy(() => import('./admin-analytics-page').then((m) => ({ default: m.AdminAnalyticsPage })))
+const LazyTranslationsPage = lazy(() => import('./admin-translations-page').then((m) => ({ default: m.AdminTranslationsPage })))
 
 interface Props {
   siteName: string
   onLogout: () => void
   user: AdminUserInfo | null
+  enabledFeatures?: EnabledFeaturesMap
 }
 
 const SIDEBAR_KEY = 'admin-sidebar-collapsed'
 
-export function AdminLayout({ siteName, onLogout, user }: Props) {
+/** Loading fallback for lazy-loaded feature routes */
+function RouteLoading() {
+  return (
+    <div className="glass-panel" style={{ padding: '2rem', borderRadius: '14px', textAlign: 'center' }}>
+      <p style={{ color: '#94a3b8' }}>Loading...</p>
+    </div>
+  )
+}
+
+export function AdminLayout({ siteName, onLogout, user, enabledFeatures }: Props) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try { return localStorage.getItem(SIDEBAR_KEY) === 'true' } catch { return false }
@@ -36,6 +50,8 @@ export function AdminLayout({ siteName, onLogout, user }: Props) {
   useEffect(() => {
     try { localStorage.setItem(SIDEBAR_KEY, String(sidebarCollapsed)) } catch {}
   }, [sidebarCollapsed])
+
+  const ef = enabledFeatures
 
   return (
     <div className={sidebarCollapsed ? 'admin-wrapper sidebar-collapsed' : 'admin-wrapper'}>
@@ -46,6 +62,7 @@ export function AdminLayout({ siteName, onLogout, user }: Props) {
         onClose={() => setSidebarOpen(false)}
         onLogout={onLogout}
         onToggleCollapse={() => setSidebarCollapsed((c) => !c)}
+        enabledFeatures={ef}
       />
 
       <main className="admin-main">
@@ -54,29 +71,13 @@ export function AdminLayout({ siteName, onLogout, user }: Props) {
         <Switch>
           <Route path="/" component={AdminDashboard} />
 
-          {/* Content list routes */}
-          <Route path="/articles">
-            <ContentList collection="articles" />
-          </Route>
-          <Route path="/notes">
-            <ContentList collection="notes" />
-          </Route>
-          <Route path="/records">
-            <ContentList collection="records" />
-          </Route>
-
-          {/* Create routes */}
-          <Route path="/articles/new">
-            <ContentEditor collection="articles" />
-          </Route>
-          <Route path="/notes/new">
-            <ContentEditor collection="notes" />
-          </Route>
-          <Route path="/records/new">
-            <ContentEditor collection="records" />
-          </Route>
-
-          {/* Edit routes */}
+          {/* Core content routes — always on */}
+          <Route path="/articles"><ContentList collection="articles" /></Route>
+          <Route path="/notes"><ContentList collection="notes" /></Route>
+          <Route path="/records"><ContentList collection="records" /></Route>
+          <Route path="/articles/new"><ContentEditor collection="articles" /></Route>
+          <Route path="/notes/new"><ContentEditor collection="notes" /></Route>
+          <Route path="/records/new"><ContentEditor collection="records" /></Route>
           <Route path="/articles/:slug">
             {(params) => <ContentEditor collection="articles" slug={params.slug} />}
           </Route>
@@ -87,57 +88,65 @@ export function AdminLayout({ siteName, onLogout, user }: Props) {
             {(params) => <ContentEditor collection="records" slug={params.slug} />}
           </Route>
 
-          {/* Categories */}
-          <Route path="/categories">
-            <CategoriesList />
-          </Route>
-          <Route path="/categories/new">
-            <CategoryEditor />
-          </Route>
+          {/* Categories — always on */}
+          <Route path="/categories"><CategoriesList /></Route>
+          <Route path="/categories/new"><CategoryEditor /></Route>
           <Route path="/categories/:slug">
             {(params) => <CategoryEditor slug={params.slug} />}
           </Route>
 
-          {/* Voices */}
-          <Route path="/voices">
-            <ContentList collection="voices" />
-          </Route>
-          <Route path="/voices/new">
-            <ContentEditor collection="voices" />
-          </Route>
-          <Route path="/voices/:slug">
-            {(params) => <ContentEditor collection="voices" slug={params.slug} />}
-          </Route>
+          {/* Voices — collection-based, gated by feature toggle */}
+          {isFeatureEnabled('voices', ef) && (
+            <Route path="/voices"><ContentList collection="voices" /></Route>
+          )}
+          {isFeatureEnabled('voices', ef) && (
+            <Route path="/voices/new"><ContentEditor collection="voices" /></Route>
+          )}
+          {isFeatureEnabled('voices', ef) && (
+            <Route path="/voices/:slug">
+              {(params) => <ContentEditor collection="voices" slug={params.slug} />}
+            </Route>
+          )}
 
-          {/* Media */}
-          <Route path="/media">
-            <MediaBrowser mode="page" />
-          </Route>
+          {/* Media — lazy, gated */}
+          {isFeatureEnabled('media', ef) && (
+            <Route path="/media">
+              <Suspense fallback={<RouteLoading />}>
+                <LazyMediaBrowser mode="page" />
+              </Suspense>
+            </Route>
+          )}
 
-          {/* Marketing */}
-          <Route path="/marketing">
-            <MarketingDashboard />
-          </Route>
+          {/* Distribution — lazy, gated */}
+          {isFeatureEnabled('distribution', ef) && (
+            <Route path="/marketing">
+              <Suspense fallback={<RouteLoading />}><LazyMarketingDashboard /></Suspense>
+            </Route>
+          )}
 
-          {/* Subscribers */}
-          <Route path="/subscribers">
-            <AdminSubscribersPage />
-          </Route>
+          {/* Subscribers — lazy, gated */}
+          {isFeatureEnabled('email', ef) && (
+            <Route path="/subscribers">
+              <Suspense fallback={<RouteLoading />}><LazySubscribersPage /></Suspense>
+            </Route>
+          )}
 
-          {/* Analytics */}
-          <Route path="/analytics">
-            <AdminAnalyticsPage />
-          </Route>
+          {/* Analytics — lazy, gated */}
+          {isFeatureEnabled('analytics', ef) && (
+            <Route path="/analytics">
+              <Suspense fallback={<RouteLoading />}><LazyAnalyticsPage /></Suspense>
+            </Route>
+          )}
 
-          {/* Translations */}
-          <Route path="/translations">
-            <AdminTranslationsPage />
-          </Route>
+          {/* Translations — lazy, gated */}
+          {isFeatureEnabled('translations', ef) && (
+            <Route path="/translations">
+              <Suspense fallback={<RouteLoading />}><LazyTranslationsPage /></Suspense>
+            </Route>
+          )}
 
-          {/* Settings */}
-          <Route path="/settings">
-            <SettingsEditor />
-          </Route>
+          {/* Settings — always on */}
+          <Route path="/settings"><SettingsEditor /></Route>
 
           {/* 404 */}
           <Route>

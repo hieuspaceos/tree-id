@@ -9,6 +9,7 @@ import {
   getDistributionStats,
   buildContentInventory,
 } from '@/lib/distribution-helpers'
+import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
 
 export const prerender = false
 
@@ -20,6 +21,8 @@ function json(data: unknown, status = 200) {
 }
 
 export const GET: APIRoute = async () => {
+  const fc = checkFeatureEnabled('distribution')
+  if (!fc.enabled) return fc.response
   try {
     const entries = parseDistributionLog()
     const stats = getDistributionStats(entries)

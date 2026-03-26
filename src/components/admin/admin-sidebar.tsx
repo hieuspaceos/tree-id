@@ -1,12 +1,14 @@
 /**
- * Admin sidebar navigation — fixed left panel with nav links
- * Collapsible on desktop (icon-only mode), mobile overlay via hamburger
- * Routes are relative — wouter Router base="/admin" handles the prefix
+ * Admin sidebar navigation — fixed left panel with nav links.
+ * Collapsible on desktop (icon-only mode), mobile overlay via hamburger.
+ * Feature nav items rendered dynamically from feature registry.
  */
+import type React from 'react'
 import { useLocation, Link } from 'wouter'
+import { getFeaturesBySection, type EnabledFeaturesMap } from '@/lib/admin/feature-registry'
 
 // Inline SVG icons (no icon library dependency)
-const icons = {
+const icons: Record<string, React.ReactNode> = {
   home: (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
@@ -120,6 +122,7 @@ interface Props {
   onClose: () => void
   onLogout: () => void
   onToggleCollapse: () => void
+  enabledFeatures?: EnabledFeaturesMap
 }
 
 function NavItem({ href, icon, label, collapsed }: { href: string; icon: React.ReactNode; label: string; collapsed: boolean }) {
@@ -140,7 +143,36 @@ function NavItem({ href, icon, label, collapsed }: { href: string; icon: React.R
   )
 }
 
-export function AdminSidebar({ siteName, open, collapsed, onClose, onLogout, onToggleCollapse }: Props) {
+/** Render nav items for a feature section from registry */
+function FeatureNavItems({ features, collapsed }: { features: ReturnType<typeof getFeaturesBySection>[keyof ReturnType<typeof getFeaturesBySection>]; collapsed: boolean }) {
+  return (
+    <>
+      {features.map((f) =>
+        f.navItems.map((nav) => (
+          <NavItem
+            key={nav.href}
+            href={nav.href}
+            icon={icons[nav.iconKey] || icons.folder}
+            label={nav.label}
+            collapsed={collapsed}
+          />
+        ))
+      )}
+    </>
+  )
+}
+
+/** Section divider — only renders if section has items */
+function SectionHeader({ label, collapsed, show }: { label: string; collapsed: boolean; show: boolean }) {
+  if (!show) return null
+  return collapsed
+    ? <div className="admin-nav-divider" style={{ margin: '0.25rem 0.5rem' }} />
+    : <div className="admin-nav-section">{label}</div>
+}
+
+export function AdminSidebar({ siteName, open, collapsed, onClose, onLogout, onToggleCollapse, enabledFeatures }: Props) {
+  const sections = getFeaturesBySection(enabledFeatures)
+
   return (
     <>
       {open && <div className="admin-sidebar-backdrop" onClick={onClose} />}
@@ -163,27 +195,24 @@ export function AdminSidebar({ siteName, open, collapsed, onClose, onLogout, onT
 
         <NavItem href="/" icon={icons.home} label="Dashboard" collapsed={collapsed} />
 
-        {!collapsed && <div className="admin-nav-section">Content</div>}
-        {collapsed && <div className="admin-nav-divider" style={{ margin: '0.25rem 0.5rem' }} />}
+        {/* Content — core items always shown, feature items dynamic */}
+        <SectionHeader label="Content" collapsed={collapsed} show />
         <NavItem href="/articles" icon={icons.fileText} label="Articles" collapsed={collapsed} />
         <NavItem href="/notes" icon={icons.stickyNote} label="Notes" collapsed={collapsed} />
         <NavItem href="/records" icon={icons.database} label="Records" collapsed={collapsed} />
         <NavItem href="/categories" icon={icons.folder} label="Categories" collapsed={collapsed} />
-        <NavItem href="/voices" icon={icons.userPen} label="Voices" collapsed={collapsed} />
-        <NavItem href="/translations" icon={icons.globe} label="Translations" collapsed={collapsed} />
+        <FeatureNavItems features={sections.content} collapsed={collapsed} />
 
-        {!collapsed && <div className="admin-nav-section">Assets</div>}
-        {collapsed && <div className="admin-nav-divider" style={{ margin: '0.25rem 0.5rem' }} />}
-        <NavItem href="/media" icon={icons.image} label="Media" collapsed={collapsed} />
+        {/* Assets — only show section if features enabled */}
+        <SectionHeader label="Assets" collapsed={collapsed} show={sections.assets.length > 0} />
+        <FeatureNavItems features={sections.assets} collapsed={collapsed} />
 
-        {!collapsed && <div className="admin-nav-section">Marketing</div>}
-        {collapsed && <div className="admin-nav-divider" style={{ margin: '0.25rem 0.5rem' }} />}
-        <NavItem href="/marketing" icon={icons.megaphone} label="Distribution" collapsed={collapsed} />
-        <NavItem href="/subscribers" icon={icons.mail} label="Subscribers" collapsed={collapsed} />
-        <NavItem href="/analytics" icon={icons.chart} label="Analytics" collapsed={collapsed} />
+        {/* Marketing — only show section if features enabled */}
+        <SectionHeader label="Marketing" collapsed={collapsed} show={sections.marketing.length > 0} />
+        <FeatureNavItems features={sections.marketing} collapsed={collapsed} />
 
-        {!collapsed && <div className="admin-nav-section">System</div>}
-        {collapsed && <div className="admin-nav-divider" style={{ margin: '0.25rem 0.5rem' }} />}
+        {/* System — settings always shown */}
+        <SectionHeader label="System" collapsed={collapsed} show />
         <NavItem href="/settings" icon={icons.settings} label="Settings" collapsed={collapsed} />
 
         <div style={{ flex: 1 }} />

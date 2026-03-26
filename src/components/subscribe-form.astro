@@ -4,8 +4,10 @@
  * Uses vanilla JS fetch (no React dependency)
  */
 import { isEmailConfigured } from '@/lib/email/resend-client'
+import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
 
-const showForm = isEmailConfigured()
+const emailFeature = checkFeatureEnabled('email')
+const showForm = isEmailConfigured() && emailFeature.enabled
 ---
 
 {showForm && (

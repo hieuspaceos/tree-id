@@ -2,6 +2,7 @@
  * Schema registry — maps collection/singleton names to field definitions
  * Derived from keystatic.config.ts baseSeedFields + collection-specific fields
  */
+import { FEATURE_MODULES } from './feature-registry'
 
 export interface FieldOption {
   label: string
@@ -195,6 +196,16 @@ export const singletonSchemas: Record<string, FieldSchema[]> = {
       type: 'dynamic-select',
       label: 'Active Writing Voice',
       apiEndpoint: '/api/admin/collections/voices',
+    },
+    {
+      name: 'enabledFeatures',
+      type: 'object',
+      label: 'Feature Modules',
+      fields: FEATURE_MODULES.map((f) => ({
+        name: f.id,
+        type: 'checkbox' as const,
+        label: f.label,
+      })),
     },
   ],
 }

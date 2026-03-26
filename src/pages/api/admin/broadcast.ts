@@ -4,6 +4,7 @@
  * Auth required (handled by middleware)
  */
 import type { APIRoute } from 'astro'
+import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
 import { getAllSubscribers } from '@/lib/email/subscriber-io'
 import { sendBatchEmails, isEmailConfigured } from '@/lib/email/resend-client'
 
@@ -18,6 +19,8 @@ function json(data: unknown, status = 200) {
 
 /** POST /api/admin/broadcast — send email blast to all subscribers */
 export const POST: APIRoute = async ({ request }) => {
+  const fc = checkFeatureEnabled('email')
+  if (!fc.enabled) return fc.response
   try {
     if (!isEmailConfigured()) {
       return json({ ok: false, error: 'Email not configured (RESEND_API_KEY missing)' }, 503)

@@ -3,6 +3,7 @@
  * POST /api/goclaw/webhook — receive callbacks from GoClaw with HMAC-SHA256 verification
  */
 import type { APIRoute } from 'astro'
+import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
 import { verifyGoclawApiKey } from '@/lib/goclaw/api-auth'
 import type { WebhookPayload } from '@/lib/goclaw/types'
 
@@ -36,6 +37,8 @@ async function verifyHmacSignature(body: string, signature: string, secret: stri
 
 /** POST /api/goclaw/webhook — receive GoClaw event callbacks */
 export const POST: APIRoute = async ({ request }) => {
+  const fc = checkFeatureEnabled('goclaw')
+  if (!fc.enabled) return fc.response
   const auth = verifyGoclawApiKey(request)
   if (!auth.ok) return auth.response
 

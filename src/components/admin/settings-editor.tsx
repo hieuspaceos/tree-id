@@ -8,6 +8,7 @@ import { useFormState } from '@/lib/admin/form-reducer'
 import { renderField } from './field-renderers/render-field'
 import { useToast } from './admin-toast'
 import { SettingsIntegrationStatus } from './settings-integration-status'
+import { FeatureTogglesPanel } from './feature-toggles-panel'
 
 export function SettingsEditor() {
   const toast = useToast()
@@ -30,6 +31,7 @@ export function SettingsEditor() {
       if (res.ok) {
         toast.success('Settings saved')
         form.reset(form.values)
+        window.dispatchEvent(new CustomEvent('settings-changed'))
       } else {
         toast.error(res.error || 'Save failed')
       }
@@ -47,7 +49,7 @@ export function SettingsEditor() {
 
       <div className="glass-panel" style={{ padding: '1.5rem', borderRadius: '14px' }}>
         <form onSubmit={(e) => { e.preventDefault(); handleSave() }}>
-          {schema.map((field) =>
+          {schema.filter((f) => f.name !== 'enabledFeatures').map((field) =>
             renderField(field, form.values[field.name], (v) => form.setField(field.name, v)),
           )}
 
@@ -63,6 +65,14 @@ export function SettingsEditor() {
           </div>
         </form>
       </div>
+
+      <FeatureTogglesPanel
+        enabledFeatures={form.values.enabledFeatures as Record<string, boolean> | undefined}
+        onChange={(id, val) => {
+          const current = (form.values.enabledFeatures || {}) as Record<string, boolean>
+          form.setField('enabledFeatures', { ...current, [id]: val })
+        }}
+      />
 
       <SettingsIntegrationStatus />
     </div>

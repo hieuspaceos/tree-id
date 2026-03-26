@@ -3,6 +3,7 @@
  */
 import type { APIRoute } from 'astro'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
 
 export const prerender = false
 
@@ -11,6 +12,8 @@ const ALLOWED_TYPES = ['image/', 'video/', 'application/pdf']
 
 /** POST /api/admin/upload — upload file to R2 */
 export const POST: APIRoute = async ({ request }) => {
+  const fc = checkFeatureEnabled('media')
+  if (!fc.enabled) return fc.response
   try {
     const formData = await request.formData()
     const file = formData.get('file') as File | null

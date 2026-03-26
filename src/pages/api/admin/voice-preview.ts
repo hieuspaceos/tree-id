@@ -4,12 +4,15 @@
  * Minimal token usage: only sends voice metadata + article title (no full content)
  */
 import type { APIRoute } from 'astro'
+import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
 
 export const prerender = false
 
 const GEMINI_MODEL = import.meta.env.GEMINI_MODEL || 'gemini-2.5-flash'
 
 export const POST: APIRoute = async ({ request }) => {
+  const fc = checkFeatureEnabled('voices')
+  if (!fc.enabled) return fc.response
   const apiKey = import.meta.env.GEMINI_API_KEY
   if (!apiKey) {
     return json({ ok: false, error: 'GEMINI_API_KEY not configured' }, 400)

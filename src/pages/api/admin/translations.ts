@@ -4,6 +4,7 @@
  * PUT — writes updated translations to the JSON file
  */
 import type { APIRoute } from 'astro'
+import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
 
 export const prerender = false
 
@@ -25,6 +26,8 @@ function unflatten(flat: Record<string, string>): Record<string, unknown> {
 }
 
 export const GET: APIRoute = async ({ url }) => {
+  const fc = checkFeatureEnabled('translations')
+  if (!fc.enabled) return fc.response
   const locale = url.searchParams.get('locale') || 'en'
   const validLocales = ['en', 'vi']
   if (!validLocales.includes(locale)) {
@@ -45,6 +48,8 @@ export const GET: APIRoute = async ({ url }) => {
 }
 
 export const PUT: APIRoute = async ({ request }) => {
+  const fc = checkFeatureEnabled('translations')
+  if (!fc.enabled) return fc.response
   try {
     const { locale, translations } = await request.json()
     const validLocales = ['en', 'vi']

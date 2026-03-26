@@ -5,6 +5,7 @@
  */
 import type { APIRoute } from 'astro'
 import { S3Client, ListObjectsV2Command, DeleteObjectCommand } from '@aws-sdk/client-s3'
+import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
 
 export const prerender = false
 
@@ -30,6 +31,8 @@ function buildR2Client() {
 
 /** GET — list media files from R2 */
 export const GET: APIRoute = async ({ url }) => {
+  const fc = checkFeatureEnabled('media')
+  if (!fc.enabled) return fc.response
   const bucket = process.env.R2_BUCKET
   const publicUrl = process.env.R2_PUBLIC_URL
   const client = buildR2Client()
@@ -74,6 +77,8 @@ export const GET: APIRoute = async ({ url }) => {
 
 /** DELETE — remove a file from R2 */
 export const DELETE: APIRoute = async ({ request }) => {
+  const fc = checkFeatureEnabled('media')
+  if (!fc.enabled) return fc.response
   const bucket = process.env.R2_BUCKET
   const client = buildR2Client()
 

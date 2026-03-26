@@ -5,6 +5,7 @@
 import type { APIRoute } from 'astro'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
 import { verifyGoclawApiKey } from '@/lib/goclaw/api-auth'
 import { isValidSlug } from '@/lib/admin/validation'
 
@@ -19,6 +20,8 @@ function json(data: unknown, status = 200): Response {
 
 /** GET /api/goclaw/voices/[slug] — read single voice profile */
 export const GET: APIRoute = async ({ params, request }) => {
+  const fc = checkFeatureEnabled('goclaw')
+  if (!fc.enabled) return fc.response
   const auth = verifyGoclawApiKey(request)
   if (!auth.ok) return auth.response
 

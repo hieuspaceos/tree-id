@@ -5,6 +5,7 @@
  */
 import type { APIRoute } from 'astro'
 import { schedulePost } from '@/lib/admin/postiz-client'
+import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
 
 export const prerender = false
 
@@ -16,6 +17,8 @@ function json(data: unknown, status = 200) {
 }
 
 export const POST: APIRoute = async ({ request }) => {
+  const fc = checkFeatureEnabled('distribution')
+  if (!fc.enabled) return fc.response
   try {
     const body = await request.json()
     const { platform, content, integrationId, scheduledAt } = body as {

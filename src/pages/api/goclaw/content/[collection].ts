@@ -3,6 +3,7 @@
  * All writes forced to status: 'draft' (human must publish)
  */
 import type { APIRoute } from 'astro'
+import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
 import { verifyGoclawApiKey } from '@/lib/goclaw/api-auth'
 import { getContentIO } from '@/lib/admin/content-io'
 import { isValidCollection, validateEntry } from '@/lib/admin/validation'
@@ -19,6 +20,8 @@ function json(data: unknown, status = 200): Response {
 
 /** GET /api/goclaw/content/[collection] — list entries */
 export const GET: APIRoute = async ({ params, request }) => {
+  const fc = checkFeatureEnabled('goclaw')
+  if (!fc.enabled) return fc.response
   const auth = verifyGoclawApiKey(request)
   if (!auth.ok) return auth.response
 
@@ -34,6 +37,8 @@ export const GET: APIRoute = async ({ params, request }) => {
 
 /** POST /api/goclaw/content/[collection] — create entry (always draft) */
 export const POST: APIRoute = async ({ params, request }) => {
+  const fc = checkFeatureEnabled('goclaw')
+  if (!fc.enabled) return fc.response
   const auth = verifyGoclawApiKey(request)
   if (!auth.ok) return auth.response
 

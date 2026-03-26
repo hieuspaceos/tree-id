@@ -3,6 +3,7 @@ import { getTheme, themeToStyleVars } from '@/themes/theme-resolver'
 import { getActiveThemeId } from '@/lib/get-active-theme-id'
 import { siteConfig } from '@/config/site-config'
 import { personJsonLd, safeJsonLd } from '@/lib/seo/json-ld'
+import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
 
 const personLd = personJsonLd()
 const canonicalUrl = new URL(Astro.url.pathname, siteConfig.url).href
@@ -46,7 +47,7 @@ const styleString = Object.entries(themeVars)
     {personLd && (
       <script is:inline type="application/ld+json" set:html={safeJsonLd(personLd)} />
     )}
-    {siteConfig.analytics.measurementId && (
+    {siteConfig.analytics.measurementId && checkFeatureEnabled('analytics').enabled && (
       <>
         <meta name="ga-measurement-id" content={siteConfig.analytics.measurementId} />
         <script is:inline src={`https://www.googletagmanager.com/gtag/js?id=${siteConfig.analytics.measurementId}`} async></script>
