@@ -481,15 +481,16 @@ interface EntityReference {
 
 Optional features managed via registry:
 - `email` — Email newsletter capture
-- `goclaw` — External AI agent integration
+- `goclaw` — External AI agent integration (product-scoped in v2.5+)
 - `distribution` — Social media post generation
 - `analytics` — GA4 tracking
 - `media` — Cloudflare R2 file upload
 - `voices` — Voice profile management
 - `translations` — i18n translations
-- **`landing`** — NEW: Landing page builder (toggleable)
-- **`entities`** — NEW: Custom entity definitions (toggleable)
-- **`setup-wizard`** — NEW: AI landing setup wizard (toggleable)
+- **`landing`** — Landing page builder (toggleable)
+- **`entities`** — Custom entity definitions with public rendering (toggleable)
+- **`setup-wizard`** — AI landing setup wizard (toggleable)
+- **`feature-builder`** — AI-assisted feature generation (NEW, v2.5+, system section)
 
 **Registry:** `src/lib/admin/feature-registry.ts`
 **Guard:** `src/lib/admin/feature-guard.ts`
@@ -552,6 +553,27 @@ See `.env.example` for full details.
 
 ## Recent Changes (2026-03-27)
 
+### Feature Builder Phase 1 (New)
+- **Wizard UI:** `/admin/feature-builder` (Define + AI Clarify steps)
+- **Files:** `feature-builder-ai.ts`, `feature-builder-wizard.tsx`, `feature-builder-define-step.tsx`, `feature-builder-clarify-step.tsx`
+- **API:** `POST /api/admin/feature-builder/clarify` — Gemini Flash clarification
+- **Registration:** Feature module (system section, requires `GEMINI_API_KEY`)
+
+### Product-Scoped GoClaw API (New)
+- **15 new endpoints:** `/api/goclaw/[product]/*` (landing, content, setup, voices, templates)
+- **Auth:** Existing `GOCLAW_API_KEY` + product slug validation
+- **Content filtering:** Filtered by `product.coreCollections`
+- **Feature gating:** Respects `product.features` enabled status
+- **Auth module:** `src/lib/goclaw/product-scope.ts` (product validation + filtering)
+- **Backward compat:** Global `/api/goclaw/*` endpoints unchanged
+
+### Public Entity Rendering (New)
+- **Configuration:** Entity definitions with `public` config: `enabled`, `path`, `listTitle`, `listFields`
+- **Routes:** `/e/{path}/` (list) and `/e/{path}/{slug}` (detail)
+- **Components:** `entity-list-view.astro`, `entity-detail-view.astro`
+- **SEO:** Dynamic OG/Twitter meta via `BaseHead`
+- **Example:** Customer entity at `/e/customers/`
+
 ### Accessibility & SEO Enhancements
 - **Shared head component:** `base-head.astro` centralizes OG/Twitter meta, aria-labels, form labels, unique section IDs
 - **Self-hosted Inter font:** Removed Google Fonts CDN dependency, fonts now in `public/fonts/`
@@ -596,3 +618,4 @@ See `.env.example` for full details.
 ---
 
 **Last updated:** 2026-03-27
+**Version:** v2.5.0

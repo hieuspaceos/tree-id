@@ -4,20 +4,18 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ## Current Status (2026-03-27)
 
-**Phase:** v2.4.1 — Accessibility/SEO + Landing Builder v2 Phase 2
-**Completion:** v2.4.0 complete + accessibility enhancements + product admin improvements + landing builder phase 2 + entity system fixes
+**Phase:** v2.5.0 — Feature Builder Phase 1 + Product-Scoped API + Public Entity Rendering
+**Completion:** v2.4.1 complete + feature builder phase 1 + product-scoped GoClaw API + public entity rendering
 **Active Team:** Solo (HieuSpace)
-**Key Features Added:**
-- Shared head component (`base-head.astro`) for OG/Twitter/accessibility metadata
-- Self-hosted Inter font (removed Google Fonts CDN)
-- Product admin improvements: separate settings, no dashboard, auto-landing-page, back-to-site links
-- Features Hub: marketplace-style page with search/filters
-- Sidebar redesign: simplified core admin, expanded features submenu, product scoping
-- Landing builder v2 phase 2: layout/grid sections with column presets, nested sections, quick-add
-- Entity system: field editor, batch save, delete entity type API
-- Records removed: entirely replaced by Entities system
-- Breadcrumb polish: hidden on single-segment pages
-- Topbar polish: role badge only when username != role
+**Key Features Added (v2.5.0):**
+- Feature Builder Phase 1: Wizard at `/admin/feature-builder` with define + AI clarify steps
+- Gemini Flash clarification: Auto-generate follow-up questions to refine feature specs
+- Product-Scoped GoClaw API: 15 new endpoints at `/api/goclaw/[product]/*` with product filtering + feature gating
+- Product auth module: `src/lib/goclaw/product-scope.ts` for validation + content filtering
+- Public Entity Rendering: Entity definitions with public config enable static pages at `/e/{path}/`
+- Entity view components: `entity-list-view.astro`, `entity-detail-view.astro` for dynamic rendering
+- SEO for entity pages: OG/Twitter meta via existing `BaseHead` component
+- Backward compatibility: Global `/api/goclaw/*` endpoints unchanged
 
 ---
 
@@ -306,27 +304,31 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-## Phase 10 — Feature Builder System (In Progress)
+## Phase 10 — Feature Builder System (Phase 1 Complete — 2026-03-27)
 
 **Timeline:** 2026-03-27 onwards
-**Status:** Planning Phase (4 phases defined)
+**Status:** Phase 1 Complete, Phases 2-4 Backlog
 **Plan Location:** `plans/260327-0215-feature-builder/`
-**Effort:** ~16 hours (estimated)
+**Effort:** Phase 1 = 4 hours, Total = ~16 hours (estimated)
 
-### Overview
+### Phase 1 Deliverables (Complete)
 
-AI-assisted feature module generator. Enables non-technical users to create custom features without code via:
-1. Natural language prompt describing feature
-2. AI generates module scaffold (schema, API, UI components)
-3. User reviews + edits in visual builder
-4. Deploy to feature registry
+**Define + AI Clarify Wizard:**
+- [x] Wizard UI at `/admin/feature-builder` (2-step: define + clarify)
+- [x] Define step: User enters feature description (text input)
+- [x] AI Clarify step: Gemini Flash generates follow-up questions (3-5 max)
+- [x] API endpoint: `POST /api/admin/feature-builder/clarify`
+- [x] Feature registration: System section, requires `GEMINI_API_KEY`
+- [x] Files: `feature-builder-ai.ts`, 3 React components, 1 API route
 
-### Phase Breakdown
+**Files Created:**
+- `src/lib/admin/feature-builder-ai.ts` — Gemini Flash integration
+- `src/components/admin/feature-builder/feature-builder-wizard.tsx` — Multi-step shell
+- `src/components/admin/feature-builder/feature-builder-define-step.tsx` — Description input
+- `src/components/admin/feature-builder/feature-builder-clarify-step.tsx` — Q&A interface
+- `src/pages/api/admin/feature-builder/clarify.ts` — Clarification API
 
-**Phase 1 — Prompt Capture & AI Generation**
-- Natural language input form
-- Gemini API integration to generate feature scaffold
-- Output: TypeScript module structure + Zod schema
+### Phase Breakdown (Remaining)
 
 **Phase 2 — Visual Schema Builder**
 - Drag-drop field type selector
@@ -348,6 +350,56 @@ AI-assisted feature module generator. Enables non-technical users to create cust
 - Generated code is 100% editable + deletable
 - Feature toggle immediately functional
 - No production code breakage
+
+---
+
+## Phase 10.5 — Product-Scoped GoClaw API & Public Entity Rendering (Complete — 2026-03-27)
+
+**Timeline:** 2026-03-27
+**Status:** Complete
+**Effort:** 6 hours
+
+### Deliverables
+
+**Product-Scoped GoClaw API:**
+- [x] 15 new endpoints at `/api/goclaw/[product]/*`
+- [x] Auth: Bearer token + product slug validation
+- [x] Content filtering by `product.coreCollections`
+- [x] Feature gating by `product.features`
+- [x] Auth module: `src/lib/goclaw/product-scope.ts`
+- [x] Endpoints: landing config, content, setup, voices, templates
+
+**Public Entity Rendering:**
+- [x] Entity definitions with public config (enabled, path, listTitle, listFields)
+- [x] Static pages: `/e/{path}/` (list) and `/e/{path}/{slug}` (detail)
+- [x] Components: `entity-list-view.astro`, `entity-detail-view.astro`
+- [x] SEO integration via `BaseHead` (OG/Twitter meta)
+- [x] Example: Customer entity configured at `/e/customers/`
+
+### Files Created
+
+**GoClaw Product Scope:**
+- `src/lib/goclaw/product-scope.ts` — Product validation + filtering functions
+- `src/pages/api/goclaw/[product]/landing/config.ts` — Landing config endpoints
+- `src/pages/api/goclaw/[product]/content/[collection].ts` — Content listing
+- `src/pages/api/goclaw/[product]/content/[collection]/[slug].ts` — Content detail
+- `src/pages/api/goclaw/[product]/setup.ts` — AI setup generation
+- `src/pages/api/goclaw/[product]/voices/*.ts` — Voice endpoints (2 files)
+- `src/pages/api/goclaw/[product]/templates/*.ts` — Template endpoints (2 files)
+- `src/pages/api/goclaw/[product]/entities/*.ts` — Entity endpoints (2 files)
+- `src/pages/api/goclaw/[product]/landing/sections/*.ts` — Section endpoints (3 files)
+
+**Entity Rendering:**
+- `src/components/entity/entity-list-view.astro` — List page component
+- `src/components/entity/entity-detail-view.astro` — Detail page component
+- `src/pages/e/[entityType]/index.astro` — Dynamic list route
+- `src/pages/e/[entityType]/[slug].astro` — Dynamic detail route
+
+### Architecture
+- Product-scoped: All endpoints validate product slug and filter content
+- Backward compatible: Global `/api/goclaw/*` endpoints unchanged
+- Feature gating: Respects product feature toggles
+- SEO-friendly: Entity pages leverage existing `BaseHead` infrastructure
 
 ---
 
@@ -537,11 +589,13 @@ AI-assisted feature module generator. Enables non-technical users to create cust
 | 8 — Product Modules | 2026-03-26 | 6h | HieuSpace | ✓ Complete |
 | 9 — Landing Builder v2 | 2026-03-26 | 10h | HieuSpace | ✓ Complete |
 | 9.5 — v2.4.1 Enhancements | 2026-03-27 | 4h | HieuSpace | ✓ Complete |
-| 10 — Feature Builder | 2026-03-27+ | 16h | — | Planning |
-| 11A — Landing Analytics | TBD | 12h | — | Proposed |
-| 11B — Analytics Dashboard | TBD | 12h | — | Proposed |
-| 11C — Media+ | TBD | 8h | — | Proposed |
-| 11D — Collaboration | TBD | 20h | — | Proposed |
+| 10 — Feature Builder Phase 1 | 2026-03-27 | 4h | HieuSpace | ✓ Complete |
+| 10.5 — Product-Scoped API + Entity Rendering | 2026-03-27 | 6h | HieuSpace | ✓ Complete |
+| 11 — Feature Builder Phases 2-4 | 2026-Q2 | 12h | — | Backlog |
+| 12A — Landing Analytics | TBD | 12h | — | Proposed |
+| 12B — Analytics Dashboard | TBD | 12h | — | Proposed |
+| 12C — Media+ | TBD | 8h | — | Proposed |
+| 12D — Collaboration | TBD | 20h | — | Proposed |
 
 ---
 
@@ -549,9 +603,9 @@ AI-assisted feature module generator. Enables non-technical users to create cust
 
 | Release | Version | Target Date | Focus | Status |
 |---------|---------|-------------|-------|--------|
-| Current | v2.4.1 | 2026-03-27 | Accessibility/SEO + Product Admin + Landing v2 Phase 2 + Entity Fixes | Complete |
-| In Progress | v2.5.0 | 2026-Q2 | Feature Builder System (AI-assisted feature generation) | Planning |
-| Planned | v2.6.0 | 2026-Q2 | Landing Advanced (A/B testing, email capture, form analytics) | Backlog |
+| Current | v2.5.0 | 2026-03-27 | Feature Builder Phase 1 + Product-Scoped GoClaw API + Public Entity Rendering | Complete |
+| Planned | v2.6.0 | 2026-Q2 | Feature Builder Phases 2-4 (schema builder, component generator, integration) | Backlog |
+| Planned | v2.7.0 | 2026-Q2 | Landing Advanced (A/B testing, email capture, form analytics) | Backlog |
 | Planned | v3.0.0 | 2026-Q3 | Analytics Dashboard + Media Features | Backlog |
 | Planned | v4.0.0 | 2026-Q4 | Extended i18n + Plugin System | Backlog |
 
@@ -568,4 +622,5 @@ AI-assisted feature module generator. Enables non-technical users to create cust
 ---
 
 **Last updated:** 2026-03-27
-**Next review:** 2026-04-15
+**Next review:** 2026-04-10
+**Next phase:** Feature Builder Phases 2-4 (schema builder + component generator + integration)

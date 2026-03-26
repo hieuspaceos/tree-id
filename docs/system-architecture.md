@@ -375,6 +375,13 @@ Themes are **CSS variable tokens** injected at build time.
 - Update definition API endpoint
 - Fixed route ordering via wouter Switch
 
+**Public Entity Rendering (v2.5+):**
+- Entity definitions support public config: `enabled`, `path`, `listTitle`, `listFields`
+- Static pages at `/e/{path}/` (list) and `/e/{path}/{slug}` (detail)
+- Components: `entity-list-view.astro`, `entity-detail-view.astro`
+- SEO via `BaseHead` (OG/Twitter meta tags)
+- Example: Customer entity configured at `/e/customers/`
+
 **Admin UI:**
 - Enhanced field editor with property controls
 - Type selector for each field (text, textarea, number, date, select, etc.)
@@ -1448,4 +1455,172 @@ metadata:
 
 ---
 
-**Last updated:** 2026-03-26
+## Feature Builder Phase 1 (2026-03-27)
+
+AI-assisted feature module generator. First phase focuses on natural language prompts and AI clarification.
+
+### Define + AI Clarify Steps
+
+**Wizard Page:** `/admin/feature-builder` (requires `GEMINI_API_KEY`)
+
+**Phase 1 Steps:**
+1. **Define Step** — User enters feature description + domain (text input)
+2. **AI Clarify Step** — Gemini Flash asks clarification questions (max 3-5 follow-ups)
+3. Result: Structured feature spec ready for implementation
+
+### Files Created
+
+**Lib:**
+- `src/lib/admin/feature-builder-ai.ts` — Gemini Flash integration for clarification generation
+
+**Components:**
+- `src/components/admin/feature-builder/feature-builder-wizard.tsx` — Multi-step wizard shell
+- `src/components/admin/feature-builder/feature-builder-define-step.tsx` — Description input
+- `src/components/admin/feature-builder/feature-builder-clarify-step.tsx` — Q&A interface
+
+**API:**
+- `POST /api/admin/feature-builder/clarify` — Calls Gemini to generate follow-up questions
+
+### Registration
+
+Feature registered as optional system section:
+- Module: `feature-builder`
+- Requires: `GEMINI_API_KEY`
+- AI: Gemini Flash for clarification
+- Status: Opt-in via feature registry (disabled by default)
+
+### Next Phases (Backlog)
+
+- Phase 2: Visual schema builder (drag-drop field type selector)
+- Phase 3: Component generator (auto-generate React/Astro components)
+- Phase 4: Integration + testing (feature registry installation)
+
+---
+
+## Product-Scoped GoClaw API (2026-03-27)
+
+Extended GoClaw endpoints with product filtering and feature gating.
+
+### Architecture
+
+**15 new endpoints at:** `/api/goclaw/[product]/...`
+
+**Auth:** Bearer token (`GOCLAW_API_KEY`) + product slug validation
+
+**Content Filtering:** All responses filtered by `product.coreCollections`
+
+**Feature Gating:** Endpoints respect `product.features` enabled status
+
+### New Auth Module
+
+**File:** `src/lib/goclaw/product-scope.ts`
+
+**Functions:**
+- `extractProductFromRequest(context)` — Parse product slug from URL
+- `validateProductAccess(productSlug)` — Verify product exists
+- `filterContentByProduct(content, product)` — Filter collections by `coreCollections`
+- `checkFeatureGate(product, feature)` — Verify feature is enabled for product
+
+### Endpoints (15 Total)
+
+**Landing Endpoints:**
+- `GET /api/goclaw/[product]/landing/config` — Get landing YAML config
+- `POST /api/goclaw/[product]/landing/config` — Create landing (force draft)
+- `PUT /api/goclaw/[product]/landing/config` — Update landing (draft only)
+- `GET /api/goclaw/[product]/landing/sections` — List sections
+- `POST /api/goclaw/[product]/landing/sections` — Add section
+- `PUT /api/goclaw/[product]/landing/sections/[id]` — Update section
+- `DELETE /api/goclaw/[product]/landing/sections/[id]` — Remove section
+
+**Content Endpoints:**
+- `GET /api/goclaw/[product]/content/[collection]` — List collection items (filtered)
+- `GET /api/goclaw/[product]/content/[collection]/[slug]` — Get item detail
+
+**Setup Endpoint:**
+- `POST /api/goclaw/[product]/setup` — AI generates landing from description
+
+**Voice Endpoints:**
+- `GET /api/goclaw/[product]/voices` — List voice profiles (filtered)
+- `GET /api/goclaw/[product]/voices/[slug]` — Get voice detail
+
+**Template Endpoints:**
+- `GET /api/goclaw/[product]/templates` — List available templates
+
+### Backward Compatibility
+
+Global `/api/goclaw/*` endpoints unchanged. Product-scoped endpoints are **additive only**.
+
+---
+
+## Public Entity Rendering (2026-03-27)
+
+Entity definitions with public configuration enable static page generation at `/e/{path}/`.
+
+### Configuration
+
+**Entity Definition Fields (New):**
+```yaml
+id: customer
+name: Customers
+public:
+  enabled: true
+  path: customers          # Route prefix
+  listTitle: "Our Customers"
+  listFields:
+    - name
+    - company
+    - testimonial
+fields:
+  - name: name
+    type: text
+  - name: company
+    type: text
+  - name: testimonial
+    type: textarea
+```
+
+### Routes
+
+**List Page:** `/e/{path}/`
+- Component: `entity-list-view.astro`
+- Displays: Configurable fields from entity instances
+- SEO: Uses `BaseHead` for OG/Twitter meta tags
+
+**Detail Page:** `/e/{path}/{slug}`
+- Component: `entity-detail-view.astro`
+- Displays: Full entity record
+- SEO: Dynamic OG image, structured data
+
+### Components
+
+**Files:**
+- `src/components/entity/entity-list-view.astro` — Renders entity list pages
+- `src/components/entity/entity-detail-view.astro` — Renders entity detail pages
+
+**Features:**
+- Pagination on list pages (configurable limit)
+- Search/filter on list pages
+- Responsive grid layout
+- SEO metadata injection via `BaseHead`
+
+### Example Configuration
+
+Customer entity at `/e/customers/`:
+```yaml
+id: customer
+name: Customer Testimonials
+public:
+  enabled: true
+  path: customers
+  listTitle: "Meet Our Happy Customers"
+  listFields: [name, company, testimonial]
+```
+
+Result:
+- List: `/e/customers/` (all customer testimonials)
+- Detail: `/e/customers/john-doe` (individual testimonial page)
+
+---
+
+**Last updated:** 2026-03-27
+**Version:** v2.5.0

@@ -4,6 +4,39 @@ All notable changes to Tree Identity are documented here.
 
 ## Releases
 
+### v2.5.0 — Feature Builder Phase 1 + Product-Scoped API + Public Entity Rendering (2026-03-27)
+
+**Status:** Complete
+
+Three major features released: AI-assisted feature builder, product-scoped GoClaw API, and public entity page rendering.
+
+#### Feature Builder Phase 1 (New)
+- **Wizard UI:** `/admin/feature-builder` with Define + AI Clarify steps
+- **AI Clarification:** Gemini Flash generates follow-up questions (3-5 max) to refine feature spec
+- **Components:** Define step (description input), Clarify step (Q&A interface)
+- **API endpoint:** `POST /api/admin/feature-builder/clarify` — Calls Gemini
+- **Feature registration:** System section, requires `GEMINI_API_KEY`, opt-in via feature registry
+- **Files added:** `feature-builder-ai.ts`, 3 React components, 1 API route
+
+#### Product-Scoped GoClaw API (New)
+- **15 new endpoints:** `/api/goclaw/[product]/*` (landing, content, setup, voices, templates, entities, sections)
+- **Auth:** Bearer token (`GOCLAW_API_KEY`) + product slug validation
+- **Content filtering:** All responses filtered by `product.coreCollections` (per-product content access)
+- **Feature gating:** Endpoints respect `product.features` enabled status
+- **Auth module:** `src/lib/goclaw/product-scope.ts` with product validation + filtering
+- **Backward compatible:** Global `/api/goclaw/*` endpoints remain unchanged
+- **Files added:** Product-scoped auth module + 14 new API route files
+
+#### Public Entity Rendering (New)
+- **Configuration:** Entity definitions support new `public` config block: `enabled`, `path`, `listTitle`, `listFields`
+- **Static pages:** Routes at `/e/{path}/` (list view) and `/e/{path}/{slug}` (detail view)
+- **Components:** `entity-list-view.astro`, `entity-detail-view.astro` for dynamic rendering
+- **SEO:** Dynamic OG/Twitter meta tags via existing `BaseHead` component
+- **Example:** Customer entity configured as test case at `/e/customers/`
+- **Files added:** 2 entity view components + 2 dynamic route pages
+
+---
+
 ### v2.4.1 — Accessibility, SEO & Landing Builder Enhancements (2026-03-27)
 
 **Status:** Complete
@@ -429,3 +462,4 @@ All partials imported in `admin.css` for single stylesheet generation.
 ---
 
 **Last updated:** 2026-03-27
+**Version:** v2.5.0
