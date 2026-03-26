@@ -4,6 +4,36 @@ All notable changes to Tree Identity are documented here.
 
 ## Releases
 
+### v2.2.0 — Feature Module System (2026-03-26)
+
+**Status:** Complete
+
+Registry-driven feature toggle system for optional modules. Enables/disables features via admin settings without code changes.
+
+#### Feature Module System (2026-03-26)
+- **Feature Registry:** Static registry with 7 optional features (email, goclaw, distribution, analytics, media, voices, translations)
+- **Registry Core:** `FeatureModule` interface, lazy-loading helpers, getEnabledFeatures() function
+- **Dynamic Admin Layout:** Sidebar nav items and lazy-loaded routes rendered from registry based on enabled state
+- **Settings UI:** Feature Modules section in admin settings with toggle switches per feature
+- **API Guards:** All 20 feature endpoints protected with `checkFeatureEnabled()`, returns 403 when disabled
+- **Public Guards:** Email subscribe form and GA4 analytics script conditionally rendered based on feature toggles
+- **Caching:** 5s cache of settings file to minimize disk reads
+- **Testing:** 60 new unit + integration tests, feature-registry.test.ts + feature-guard.test.ts
+
+**Architecture:**
+- 3-layer gating: UI (sidebar + routes), API (request guards), public (component rendering)
+- Backward compatible: missing enabledFeatures key defaults all to true
+- Tree-shakeable: unused feature pages only loaded when navigated to
+- No env vars needed: toggled via admin settings UI
+
+**Key Benefits:**
+- Cleaner codebase: optional features now declarative in registry
+- Simplified feature management: no scattered feature flags or env checks
+- Settings-driven: toggle features without code or env var changes
+- Security: disabled API endpoints return 403, not silently accepted
+
+---
+
 ### v2.1.0 — Voice Profiles + i18n System + Admin UI Redesign (2026-03-12 → 2026-03-19)
 
 **Status:** Complete

@@ -144,6 +144,39 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
+## Phase 5.5 — Feature Module System ✓ COMPLETE
+
+**Timeline:** 2026-03-26
+**Status:** Complete
+**Effort:** 8 hours
+
+### Deliverables
+- [x] Feature Registry Core: static registry with 7 optional features
+- [x] Dynamic Admin Layout: lazy-loaded feature routes, conditional nav rendering
+- [x] Settings Feature Toggles: UI for enabling/disabling features in admin
+- [x] API Route Guards: all 20 feature endpoints guarded with 403 responses
+- [x] Public Component Guards: email subscribe form and GA4 script conditionally rendered
+- [x] Testing: 60 new tests, 148 total pass, build clean
+
+**Architecture:**
+- 3-layer gating: UI (sidebar + routes), API (request guard), public (component rendering)
+- Settings file-based: no env vars needed, toggle via admin UI
+- Backward compatible: missing toggles default to enabled
+- Tree-shakeable: unused pages only load when navigated to
+
+**Files Created:**
+- `src/lib/admin/feature-registry.ts` — Feature definitions, helpers
+- `src/lib/admin/feature-guard.ts` — Server-side checks with caching
+- `src/components/admin/feature-toggles-panel.tsx` — Settings UI
+
+**Files Modified:**
+- `src/components/admin/admin-app.tsx`, `admin-layout.tsx`, `admin-sidebar.tsx` (20 feature API routes)
+- `src/pages/api/admin/*`, `/api/goclaw/*`, `/api/distribute/*` (guarded)
+- `src/components/subscribe-form.astro`, `layouts/base-layout.astro` (public guards)
+- `src/content.config.ts` (enabledFeatures schema)
+
+---
+
 ## Phase 6 — GoClaw API Adapter ✓ COMPLETE (Phase 1)
 
 **Timeline:** 2026-03-25

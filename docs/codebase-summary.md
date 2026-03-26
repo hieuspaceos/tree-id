@@ -415,6 +415,28 @@ Voice analysis and preview features disabled if not set (graceful degradation).
 
 GoClaw integration disabled (returns 503) if `GOCLAW_API_KEY` not set.
 
+## Feature Module System (2026-03-26)
+
+Optional features managed via a registry-based toggle system. Features can be enabled/disabled in admin settings without code changes.
+
+**Files:**
+- `src/lib/admin/feature-registry.ts` — Feature definitions (7 modules: email, goclaw, distribution, analytics, media, voices, translations)
+- `src/lib/admin/feature-guard.ts` — Server-side feature guard with caching
+- `src/components/admin/feature-toggles-panel.tsx` — Admin UI for feature toggles
+
+**How it works:**
+1. **Registry** defines feature metadata (id, label, icon, routes, section)
+2. **Settings** (`site-settings.yaml`) stores `enabledFeatures` toggles
+3. **UI Layer** — sidebar nav and routes rendered conditionally from `getFeaturesBySection()`
+4. **API Layer** — all 20 feature endpoints guarded with `checkFeatureEnabled()` returning 403 when disabled
+5. **Public Layer** — email subscribe form and GA4 script hidden when features disabled
+
+**Backward Compatibility:**
+- Missing `enabledFeatures` in settings defaults all to enabled (no breaking change)
+- Pure functions in registry — easy to test
+
+---
+
 ## GoClaw API Adapter Architecture (Phase 1)
 
 External AI agents (orchestration systems like GoClaw) integrate via authenticated REST API:

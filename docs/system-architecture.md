@@ -630,6 +630,47 @@ TreeID prioritizes **simplicity, speed, and maintainability** over feature richn
 
 ---
 
+## Feature Module System (2026-03-26)
+
+### Registry-Based Feature Toggling
+
+Dynamic admin UI and API gating system for optional features. Registry-driven approach with zero runtime cost when features are enabled.
+
+**Architecture:**
+- `src/lib/admin/feature-registry.ts` — Static registry with 7 optional features (email, goclaw, distribution, analytics, media, voices, translations)
+- `src/lib/admin/feature-guard.ts` — Server-side feature checks with 5s caching of settings file
+- `src/components/admin/feature-toggles-panel.tsx` — Settings UI for feature toggles
+
+**Three-Layer Gating:**
+1. **Admin Sidebar** — Dynamic nav items from `getFeaturesBySection()`, lazy-loaded route pages
+2. **API Routes** — All 20 feature-specific endpoints guarded with `checkFeatureEnabled()` returning 403 when disabled
+3. **Public Components** — Email subscribe form and GA4 script conditionally rendered via `isFeatureEnabledServer()`
+
+**Data Structure:**
+```yaml
+# src/content/site-settings/index.yaml
+enabledFeatures:
+  email: true
+  goclaw: true
+  distribution: true
+  analytics: true
+  media: true
+  voices: true
+  translations: true
+```
+
+**Backward Compatibility:**
+- Missing `enabledFeatures` key defaults all features to `true` (same as current behavior)
+- No visual change when all features enabled — identical to hardcoded UI before refactor
+
+**Key Benefits:**
+- Cleaner codebase: no scattered feature flags or env var checks for optional features
+- Settings-driven: toggle features without code changes via admin UI
+- Security: disabled features return 403 API responses, not silently accepted
+- Tree-shakeable: unused feature pages only load when navigated to
+
+---
+
 ## GoClaw External Agent Integration (Phase 1 — 2026-03-25)
 
 ### Architecture
