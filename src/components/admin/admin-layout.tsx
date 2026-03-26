@@ -12,6 +12,7 @@ import { AdminDashboard } from './admin-dashboard'
 import { ContentList } from './content-list'
 import { ContentEditor } from './content-editor'
 import { SettingsEditor } from './settings-editor'
+import { FeaturesHub } from './features-hub'
 import { CategoriesList } from './categories-list'
 import { CategoryEditor } from './category-editor'
 import { isFeatureEnabled, isFeatureInProduct, isCollectionInProduct, getProductCoreCollections, type EnabledFeaturesMap } from '@/lib/admin/feature-registry'
@@ -92,6 +93,13 @@ export function AdminLayout({ siteName, onLogout, user, enabledFeatures, product
           ) : (
             <Route path="/">
               {() => { window.location.replace(`/${productConfig.slug}/admin/settings`); return null }}
+            </Route>
+          )}
+
+          {/* Features hub — core admin only */}
+          {!productConfig && (
+            <Route path="/features">
+              <FeaturesHub enabledFeatures={ef} />
             </Route>
           )}
 

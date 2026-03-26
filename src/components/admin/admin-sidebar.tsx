@@ -233,20 +233,27 @@ export function AdminSidebar({ siteName, open, collapsed, onClose, onLogout, onT
 
         {!productConfig && <NavItem href="/" icon={icons.home} label="Dashboard" collapsed={collapsed} />}
 
-        {/* Content — core items from registry (filtered by product), feature items from sections */}
-        <SectionHeader label={sectionLabel('content', 'Content')} collapsed={collapsed} show={hasCoreContent} />
-        {coreCollections.map((col) => (
-          <NavItem key={col.id} href={col.routes.list} icon={icons[col.iconKey] || icons.folder} label={col.label} collapsed={collapsed} />
-        ))}
-        <FeatureNavItems features={sections.content} collapsed={collapsed} />
+        {/* Core admin: single "Features" entry point for all modules */}
+        {!productConfig && (
+          <NavItem href="/features" icon={icons.sparkles} label="Features" collapsed={collapsed} />
+        )}
 
-        {/* Assets — only show section if features enabled */}
-        <SectionHeader label={sectionLabel('assets', 'Assets')} collapsed={collapsed} show={sections.assets.length > 0} />
-        <FeatureNavItems features={sections.assets} collapsed={collapsed} />
+        {/* Product admin: show individual content/feature items */}
+        {productConfig && (
+          <>
+            <SectionHeader label={sectionLabel('content', 'Content')} collapsed={collapsed} show={hasCoreContent} />
+            {coreCollections.map((col) => (
+              <NavItem key={col.id} href={col.routes.list} icon={icons[col.iconKey] || icons.folder} label={col.label} collapsed={collapsed} />
+            ))}
+            <FeatureNavItems features={sections.content} collapsed={collapsed} />
 
-        {/* Marketing — only show section if features enabled */}
-        <SectionHeader label={sectionLabel('marketing', 'Marketing')} collapsed={collapsed} show={sections.marketing.length > 0} />
-        <FeatureNavItems features={sections.marketing} collapsed={collapsed} />
+            <SectionHeader label={sectionLabel('assets', 'Assets')} collapsed={collapsed} show={sections.assets.length > 0} />
+            <FeatureNavItems features={sections.assets} collapsed={collapsed} />
+
+            <SectionHeader label={sectionLabel('marketing', 'Marketing')} collapsed={collapsed} show={sections.marketing.length > 0} />
+            <FeatureNavItems features={sections.marketing} collapsed={collapsed} />
+          </>
+        )}
 
         {/* Product landing page — always shown if product has landingPage, even without landing module */}
         {productConfig?.landingPage && !sections.content.some(f => f.id === 'landing') && (
