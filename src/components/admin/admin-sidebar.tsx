@@ -3,9 +3,11 @@
  * Collapsible on desktop (icon-only mode), mobile overlay via hamburger.
  * Feature nav items rendered dynamically from feature registry.
  */
+import { useState } from 'react'
 import type React from 'react'
 import { useLocation, Link } from 'wouter'
 import {
+  CORE_COLLECTIONS,
   getFeaturesBySection,
   getProductFeaturesBySection,
   getProductCoreCollections,
@@ -133,6 +135,20 @@ const icons: Record<string, React.ReactNode> = {
       <path d="M19 15l.75 2.25L22 18l-2.25.75L19 21l-.75-2.25L16 18l2.25-.75z" />
     </svg>
   ),
+  /* Grid icon — represents modules/features hub */
+  grid: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
+      <rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" />
+    </svg>
+  ),
+  /* Package icon — represents products */
+  package: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+      <polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" />
+    </svg>
+  ),
 }
 
 interface Props {
@@ -180,6 +196,83 @@ function FeatureNavItems({ features, collapsed }: { features: ReturnType<typeof 
         ))
       )}
     </>
+  )
+}
+
+/** Features nav item with hover submenu — groups modules by section */
+function FeaturesNavMenu({ collapsed, enabledFeatures }: { collapsed: boolean; enabledFeatures?: EnabledFeaturesMap }) {
+  const [location] = useLocation()
+  const [open, setOpen] = useState(false)
+  const isActive = location === '/features' || location.startsWith('/features')
+
+  // Build grouped items
+  const coreItems = CORE_COLLECTIONS.filter(c => c.id !== 'categories').map(c => ({
+    label: c.label, href: c.routes.list, icon: icons[c.iconKey] || icons.folder,
+  }))
+  const sections = getFeaturesBySection(enabledFeatures)
+  const featureItems = (section: keyof typeof sections) =>
+    sections[section].flatMap(f => f.navItems.map(n => ({
+      label: n.label, href: n.href, icon: icons[n.iconKey] || icons.folder,
+    })))
+
+  const groups = [
+    { label: 'Content', items: [...coreItems, ...featureItems('content')] },
+    { label: 'Assets', items: featureItems('assets') },
+    { label: 'Marketing', items: featureItems('marketing') },
+  ].filter(g => g.items.length > 0)
+
+  return (
+    <div
+      style={{ position: 'relative' }}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <Link
+        href="/features"
+        className={`admin-nav-item ${isActive ? 'active' : ''}`}
+        title={collapsed ? 'Features' : undefined}
+      >
+        {icons.grid}
+        {!collapsed && 'Features'}
+      </Link>
+
+      {/* Hover submenu flyout */}
+      {open && (
+        <div style={{
+          position: 'absolute',
+          left: '100%',
+          top: 0,
+          marginLeft: '4px',
+          background: 'rgba(255,255,255,0.95)',
+          backdropFilter: 'blur(16px)',
+          borderRadius: '12px',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+          padding: '0.5rem',
+          minWidth: '180px',
+          zIndex: 100,
+        }}>
+          {groups.map((group) => (
+            <div key={group.label}>
+              <div style={{ fontSize: '0.6rem', fontWeight: 600, textTransform: 'uppercase', color: '#94a3b8', padding: '0.4rem 0.6rem 0.2rem', letterSpacing: '0.05em' }}>
+                {group.label}
+              </div>
+              {group.items.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="admin-nav-item"
+                  style={{ fontSize: '0.8rem', padding: '0.35rem 0.6rem', gap: '0.4rem', borderRadius: '8px' }}
+                  onClick={() => setOpen(false)}
+                >
+                  {item.icon}
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -233,9 +326,9 @@ export function AdminSidebar({ siteName, open, collapsed, onClose, onLogout, onT
 
         {!productConfig && <NavItem href="/" icon={icons.home} label="Dashboard" collapsed={collapsed} />}
 
-        {/* Core admin: single "Features" entry point for all modules */}
+        {/* Core admin: Features with hover submenu for quick access */}
         {!productConfig && (
-          <NavItem href="/features" icon={icons.sparkles} label="Features" collapsed={collapsed} />
+          <FeaturesNavMenu collapsed={collapsed} enabledFeatures={enabledFeatures} />
         )}
 
         {/* Product admin: show individual content/feature items */}
@@ -266,7 +359,7 @@ export function AdminSidebar({ siteName, open, collapsed, onClose, onLogout, onT
         {/* System — settings always shown, products only in core admin */}
         <SectionHeader label={sectionLabel('system', 'System')} collapsed={collapsed} show />
         {!productConfig && (
-          <NavItem href="/products" icon={icons.sparkles} label="Products" collapsed={collapsed} />
+          <NavItem href="/products" icon={icons.package} label="Products" collapsed={collapsed} />
         )}
         <NavItem href="/settings" icon={icons.settings} label="Settings" collapsed={collapsed} />
 
