@@ -1,4 +1,11 @@
 label: customer
+public:
+  enabled: true
+  path: customers
+  listTitle: Our Customers
+  detailTitleField: name
+  listFields: [name, email]
+  description: Browse our customer directory
 fields:
   - name: email
     type: text

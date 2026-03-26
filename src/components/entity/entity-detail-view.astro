@@ -1,0 +1,46 @@
+---
+/**
+ * Entity detail view — renders all fields of a single instance as label/value pairs.
+ * Uses glass-panel styling consistent with site design.
+ * Includes back link to the entity list page.
+ */
+import type { EntityDefinition, EntityInstance } from '@/lib/admin/entity-io'
+
+interface Props {
+  def: EntityDefinition
+  instance: EntityInstance
+}
+
+const { def, instance } = Astro.props
+const publicPath = def.public!.path
+
+function renderValue(value: unknown, type: string): string {
+  if (value === undefined || value === null || value === '') return '—'
+  if (type === 'boolean') return value ? 'Yes' : 'No'
+  if (type === 'date') return new Date(String(value)).toLocaleDateString()
+  if (type === 'array' && Array.isArray(value)) return value.join(', ')
+  return String(value)
+}
+---
+
+<div style="margin-bottom: 1.5rem;">
+  <a href={`/e/${publicPath}`}
+     style="font-size:0.875rem; color: var(--t-muted); text-decoration:none;">
+    ← Back to {def.public?.listTitle ?? def.label}
+  </a>
+</div>
+
+<div class="glass-panel rounded-2xl" style="padding: 2rem;">
+  <dl style="display: grid; gap: 1.25rem;">
+    {def.fields.map(f => (
+      <div style="display: grid; grid-template-columns: 10rem 1fr; gap: 1rem; align-items: baseline; padding-bottom: 1rem; border-bottom: 1px solid var(--t-glass-border);">
+        <dt style="font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color: var(--t-muted);">
+          {f.label}
+        </dt>
+        <dd style="font-size:0.95rem; margin:0;">
+          {renderValue(instance[f.name], f.type)}
+        </dd>
+      </div>
+    ))}
+  </dl>
+</div>

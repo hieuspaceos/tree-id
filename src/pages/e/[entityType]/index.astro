@@ -1,0 +1,34 @@
+---
+/**
+ * Public entity list page — /e/{entityType}/
+ * Generates one static page per public entity definition.
+ */
+import BaseLayout from '@/layouts/base-layout.astro'
+import EntityListView from '@/components/entity/entity-list-view.astro'
+import { listPublicEntityDefinitions, listEntityInstances } from '@/lib/admin/entity-io'
+
+export function getStaticPaths() {
+  const defs = listPublicEntityDefinitions()
+  return defs.map(def => ({
+    params: { entityType: def.public!.path },
+    props: {
+      def,
+      instances: listEntityInstances(def.name),
+    },
+  }))
+}
+
+const { def, instances } = Astro.props
+const title = def.public?.listTitle || def.label
+const description = def.public?.description
+---
+
+<BaseLayout title={title} description={description}>
+  <div style="margin-bottom: 2rem;">
+    <h1 style="font-size: 2rem; font-weight: 700; margin: 0 0 0.5rem;">{title}</h1>
+    {description && (
+      <p style="color: var(--t-muted); margin: 0;">{description}</p>
+    )}
+  </div>
+  <EntityListView def={def} instances={instances} />
+</BaseLayout>

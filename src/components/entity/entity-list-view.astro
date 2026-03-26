@@ -1,0 +1,67 @@
+---
+/**
+ * Entity list view — renders instances as a responsive table.
+ * Columns determined by public.listFields (or all fields if not set).
+ * Each row links to the detail page at /e/{publicPath}/{slug}.
+ */
+import type { EntityDefinition, EntityInstance } from '@/lib/admin/entity-io'
+
+interface Props {
+  def: EntityDefinition
+  instances: EntityInstance[]
+}
+
+const { def, instances } = Astro.props
+
+const publicPath = def.public!.path
+const listFields = def.public?.listFields ?? def.fields.map(f => f.name)
+const visibleFields = def.fields.filter(f => listFields.includes(f.name))
+
+function renderValue(value: unknown, type: string): string {
+  if (value === undefined || value === null || value === '') return '—'
+  if (type === 'boolean') return value ? 'Yes' : 'No'
+  if (type === 'date') return new Date(String(value)).toLocaleDateString()
+  if (type === 'array' && Array.isArray(value)) return value.join(', ')
+  return String(value)
+}
+---
+
+{instances.length === 0 ? (
+  <div class="glass-panel rounded-2xl p-8 text-center" style="color: var(--t-muted)">
+    No entries yet.
+  </div>
+) : (
+  <div class="glass-panel rounded-2xl overflow-hidden">
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr style="border-bottom: 1px solid var(--t-glass-border);">
+          {visibleFields.map(f => (
+            <th style="padding: 0.75rem 1rem; text-align:left; font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color: var(--t-muted);">
+              {f.label}
+            </th>
+          ))}
+          <th style="padding: 0.75rem 1rem; width: 80px;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {instances.map(inst => (
+          <tr style="border-bottom: 1px solid var(--t-glass-border); transition: background 0.15s;"
+              onmouseover="this.style.background='rgba(0,0,0,0.03)'"
+              onmouseout="this.style.background=''">
+            {visibleFields.map(f => (
+              <td style="padding: 0.75rem 1rem; font-size: 0.9rem;">
+                {renderValue(inst[f.name], f.type)}
+              </td>
+            ))}
+            <td style="padding: 0.75rem 1rem; text-align:right;">
+              <a href={`/e/${publicPath}/${inst.slug}`}
+                 style="font-size:0.8rem; font-weight:500; color: var(--t-accent, #6366f1); text-decoration:none;">
+                View →
+              </a>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+)}

@@ -1,0 +1,30 @@
+---
+/**
+ * Public entity detail page — /e/{entityType}/{slug}
+ * Generates one static page per instance of each public entity.
+ */
+import BaseLayout from '@/layouts/base-layout.astro'
+import EntityDetailView from '@/components/entity/entity-detail-view.astro'
+import { listPublicEntityDefinitions, listEntityInstances } from '@/lib/admin/entity-io'
+
+export function getStaticPaths() {
+  const defs = listPublicEntityDefinitions()
+  return defs.flatMap(def => {
+    const instances = listEntityInstances(def.name)
+    return instances.map(inst => ({
+      params: { entityType: def.public!.path, slug: inst.slug },
+      props: { def, instance: inst },
+    }))
+  })
+}
+
+const { def, instance } = Astro.props
+const titleField = def.public?.detailTitleField || 'slug'
+const pageTitle = String(instance[titleField] ?? instance.slug)
+const description = def.public?.description
+---
+
+<BaseLayout title={pageTitle} description={description}>
+  <h1 style="font-size: 2rem; font-weight: 700; margin: 0 0 1.5rem;">{pageTitle}</h1>
+  <EntityDetailView def={def} instance={instance} />
+</BaseLayout>

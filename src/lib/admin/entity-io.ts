@@ -18,11 +18,21 @@ export interface EntityFieldDef {
   options?: string[]
 }
 
+export interface EntityPublicConfig {
+  enabled: boolean
+  path: string              // URL segment, e.g. "customers" → /e/customers
+  listTitle?: string        // fallback: capitalized entity name
+  detailTitleField?: string // fallback: first text field or 'slug'
+  listFields?: string[]     // fallback: all fields
+  description?: string      // meta description for list page
+}
+
 export interface EntityDefinition {
   name: string
   label: string
   description?: string
   fields: EntityFieldDef[]
+  public?: EntityPublicConfig
 }
 
 export interface EntityInstance {
@@ -65,6 +75,17 @@ export function deleteEntityDefinition(name: string, basePath = process.cwd()): 
   if (!fs.existsSync(filePath)) return false
   fs.unlinkSync(filePath)
   return true
+}
+
+/** Returns only entity definitions with public.enabled === true */
+export function listPublicEntityDefinitions(basePath = process.cwd()): EntityDefinition[] {
+  return listEntityDefinitions(basePath).filter(d => d.public?.enabled === true)
+}
+
+/** Returns public config for a specific entity type, or null if not public */
+export function getPublicConfig(name: string, basePath = process.cwd()): EntityPublicConfig | null {
+  const def = getEntityDefinition(name, basePath)
+  return def?.public?.enabled ? def.public : null
 }
 
 // ── Instances ──
