@@ -200,8 +200,8 @@ export function AdminSidebar({ siteName, open, collapsed, onClose, onLogout, onT
   // Display name: product name in product admin, site name in core admin
   const displayName = productConfig ? productConfig.name : siteName
 
-  // "Back to site" target: product landing page or site root
-  const backHref = '/'
+  // "Back to site" target: product's landing page if set, otherwise site root
+  const backHref = productConfig?.landingPage ? `/${productConfig.landingPage}` : '/'
 
   // Section labels: allow product to override default labels
   const sectionLabel = (key: string, defaultLabel: string) =>
