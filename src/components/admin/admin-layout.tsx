@@ -175,6 +175,12 @@ export function AdminLayout({ siteName, onLogout, user, enabledFeatures, product
               <Suspense fallback={<RouteLoading />}><LazyLandingList /></Suspense>
             </Route>
           )}
+          {/* Product's own landing page — always accessible if product has landingPage set */}
+          {productConfig?.landingPage && !isFeatureInProduct('landing', productConfig) && (
+            <Route path="/landing">
+              <Suspense fallback={<RouteLoading />}><LazyLandingEditor slug={productConfig.landingPage} /></Suspense>
+            </Route>
+          )}
           {isFeatureEnabled('landing', ef) && isFeatureInProduct('landing', productConfig) && (
             <Route path="/landing/wizard">
               <Suspense fallback={<RouteLoading />}><LazySetupWizard /></Suspense>

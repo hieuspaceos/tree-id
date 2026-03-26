@@ -22,7 +22,9 @@ async function authGuard(request: Request, slug: string | undefined, page: strin
   const auth = await validateProductAccess(request, slug)
   if (!auth.ok) return { err: json({ ok: false, error: auth.error }, auth.status ?? 401) }
 
-  if (!isFeatureAllowed(auth.product!, 'landing')) {
+  // Allow access if 'landing' feature enabled OR editing product's own landing page
+  const isOwnLandingPage = auth.product!.landingPage === page
+  if (!isOwnLandingPage && !isFeatureAllowed(auth.product!, 'landing')) {
     return { err: json({ ok: false, error: 'Feature "landing" not enabled for this product' }, 403) }
   }
 

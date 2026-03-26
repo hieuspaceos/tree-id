@@ -248,6 +248,14 @@ export function AdminSidebar({ siteName, open, collapsed, onClose, onLogout, onT
         <SectionHeader label={sectionLabel('marketing', 'Marketing')} collapsed={collapsed} show={sections.marketing.length > 0} />
         <FeatureNavItems features={sections.marketing} collapsed={collapsed} />
 
+        {/* Product landing page — always shown if product has landingPage, even without landing module */}
+        {productConfig?.landingPage && !sections.content.some(f => f.id === 'landing') && (
+          <>
+            <SectionHeader label="Landing Page" collapsed={collapsed} show />
+            <NavItem href="/landing" icon={icons.layout} label="Edit Landing" collapsed={collapsed} />
+          </>
+        )}
+
         {/* System — settings always shown, products only in core admin */}
         <SectionHeader label={sectionLabel('system', 'System')} collapsed={collapsed} show />
         {!productConfig && (

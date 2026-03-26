@@ -24,12 +24,20 @@ export const GET: APIRoute = async ({ params, request }) => {
   const auth = await validateProductAccess(request, slug)
   if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status ?? 401)
 
-  if (!isFeatureAllowed(auth.product!, 'landing')) {
-    return json({ ok: false, error: 'Feature "landing" not enabled for this product' }, 403)
+  const hasLandingFeature = isFeatureAllowed(auth.product!, 'landing')
+
+  if (hasLandingFeature) {
+    // Full landing module — list all pages
+    const pages = listLandingConfigs()
+    return json({ ok: true, data: { entries: pages, total: pages.length } })
   }
 
-  const pages = listLandingConfigs()
-  return json({ ok: true, data: { entries: pages, total: pages.length } })
+  // No landing module — only return product's own landing page
+  const ownSlug = auth.product!.landingPage
+  if (!ownSlug) return json({ ok: true, data: { entries: [], total: 0 } })
+  const own = readLandingConfig(ownSlug)
+  const entries = own ? [{ slug: ownSlug, title: own.title, sectionCount: own.sections?.length ?? 0 }] : []
+  return json({ ok: true, data: { entries, total: entries.length } })
 }
 
 /** POST /api/products/[slug]/landing — create landing page */
@@ -41,7 +49,7 @@ export const POST: APIRoute = async ({ params, request }) => {
   if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status ?? 401)
 
   if (!isFeatureAllowed(auth.product!, 'landing')) {
-    return json({ ok: false, error: 'Feature "landing" not enabled for this product' }, 403)
+    return json({ ok: false, error: 'Enable "landing" feature to create additional pages' }, 403)
   }
 
   try {

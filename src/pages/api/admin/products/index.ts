@@ -42,9 +42,8 @@ export const POST: APIRoute = async ({ request }) => {
       } as any)
     }
 
-    // Link landing page and ensure 'landing' feature is included
+    // Link product to its auto-created landing page
     body.landingPage = lpSlug
-    if (!body.features.includes('landing')) body.features.push('landing')
 
     writeProduct(body.slug, body)
     return json({ ok: true, data: { slug: body.slug } }, 201)
