@@ -13,7 +13,22 @@ import { LandingLivePreview } from './landing-live-preview'
 
 interface Props { slug?: string }
 
-const SECTION_TYPES: SectionType[] = ['nav', 'hero', 'features', 'pricing', 'testimonials', 'faq', 'cta', 'stats', 'how-it-works', 'team', 'logo-wall', 'footer']
+/** Section type metadata for the visual picker grid */
+const SECTION_CATALOG: Array<{ type: SectionType; label: string; icon: string; desc: string }> = [
+  { type: 'nav', label: 'Nav', icon: '🧭', desc: 'Sticky navigation bar' },
+  { type: 'hero', label: 'Hero', icon: '🎯', desc: 'Main headline + CTA' },
+  { type: 'features', label: 'Features', icon: '✨', desc: 'Feature grid cards' },
+  { type: 'pricing', label: 'Pricing', icon: '💰', desc: 'Pricing plans' },
+  { type: 'testimonials', label: 'Testimonials', icon: '💬', desc: 'Customer quotes' },
+  { type: 'faq', label: 'FAQ', icon: '❓', desc: 'Questions & answers' },
+  { type: 'cta', label: 'CTA', icon: '🚀', desc: 'Call to action banner' },
+  { type: 'stats', label: 'Stats', icon: '📊', desc: 'Key numbers' },
+  { type: 'how-it-works', label: 'How It Works', icon: '🔄', desc: 'Step-by-step process' },
+  { type: 'team', label: 'Team', icon: '👥', desc: 'Team members' },
+  { type: 'logo-wall', label: 'Logo Wall', icon: '🏢', desc: 'Partner/client logos' },
+  { type: 'footer', label: 'Footer', icon: '📄', desc: 'Page footer' },
+]
+const SECTION_TYPES: SectionType[] = SECTION_CATALOG.map(s => s.type)
 
 function defaultSectionData(type: SectionType): SectionData {
   const defaults: Record<string, SectionData> = {
@@ -91,8 +106,9 @@ export function LandingPageEditor({ slug }: Props) {
     })
   }
 
-  function addSection() {
-    const section: LandingSection = { type: newType, order: config.sections.length, enabled: true, data: defaultSectionData(newType) }
+  function addSection(type?: SectionType) {
+    const t = type || newType
+    const section: LandingSection = { type: t, order: config.sections.length, enabled: true, data: defaultSectionData(t) }
     setConfig((c) => ({ ...c, sections: [...c.sections, section] }))
   }
 
@@ -177,7 +193,7 @@ export function LandingPageEditor({ slug }: Props) {
 
       {/* Sections — drag-and-drop sortable */}
       <div style={{ marginBottom: '1rem' }}>
-        <h2 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#475569', marginBottom: '0.75rem' }}>
+        <h2 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#475569', marginBottom: '0.75rem', position: 'sticky', top: 0, background: 'var(--t-bg-base, #f8fafc)', padding: '0.5rem 0', zIndex: 5 }}>
           Sections ({config.sections.length})
         </h2>
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -193,13 +209,29 @@ export function LandingPageEditor({ slug }: Props) {
         </DndContext>
       </div>
 
-      {/* Add section */}
-      <div className="glass-card" style={{ padding: '1rem', borderRadius: '10px', display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-        <select value={newType} onChange={(e) => setNewType(e.target.value as SectionType)}
-          style={{ flex: 1, padding: '6px 10px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '0.85rem' }}>
-          {SECTION_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-        </select>
-        <button className="admin-btn admin-btn-primary" onClick={addSection}>+ Add Section</button>
+      {/* Add section — visual grid picker */}
+      <div className="glass-panel" style={{ padding: '1rem', borderRadius: '12px' }}>
+        <h3 style={{ fontSize: '0.8rem', fontWeight: 600, color: '#475569', marginBottom: '0.75rem' }}>+ Add Section</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem' }}>
+          {SECTION_CATALOG.map((s) => (
+            <button
+              key={s.type}
+              onClick={() => addSection(s.type)}
+              style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem',
+                padding: '0.6rem 0.25rem', border: '1px solid #e2e8f0', borderRadius: '8px',
+                background: 'white', cursor: 'pointer', transition: 'all 0.15s',
+                fontSize: '0.7rem', color: '#475569',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.background = '#eff6ff' }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = 'white' }}
+              title={s.desc}
+            >
+              <span style={{ fontSize: '1.2rem' }}>{s.icon}</span>
+              <span style={{ fontWeight: 500 }}>{s.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   )
