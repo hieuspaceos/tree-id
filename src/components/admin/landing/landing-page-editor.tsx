@@ -211,6 +211,14 @@ export function LandingPageEditor({ slug }: Props) {
     </div>
   )
 
+  // Preview device width presets
+  const DEVICE_PRESETS = [
+    { label: '📱', width: 375, title: 'Mobile (375px)' },
+    { label: '📱', width: 768, title: 'Tablet (768px)' },
+    { label: '🖥', width: '100%', title: 'Desktop (full)' },
+  ] as const
+  const [previewWidth, setPreviewWidth] = useState<string | number>('100%')
+
   // Split view: editor left + live React preview right (real-time, no save needed)
   if (splitView) {
     return (
@@ -218,11 +226,30 @@ export function LandingPageEditor({ slug }: Props) {
         <div style={{ flex: 1, minWidth: 0, overflowY: 'auto' }}>
           {editorContent}
         </div>
-        <div style={{ flex: 1, minWidth: 0, borderLeft: '1px solid #e2e8f0', position: 'relative' }}>
-          <div style={{ position: 'absolute', top: 8, right: 8, zIndex: 10, background: '#dcfce7', color: '#166534', fontSize: '0.7rem', padding: '2px 8px', borderRadius: '4px' }}>
-            Live Preview
+        <div style={{ flex: 1, minWidth: 0, borderLeft: '1px solid #e2e8f0', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+          {/* Device toggle bar */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '6px 12px', borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
+            {DEVICE_PRESETS.map((d) => (
+              <button
+                key={String(d.width)}
+                onClick={() => setPreviewWidth(d.width)}
+                title={d.title}
+                style={{
+                  padding: '2px 8px', fontSize: '0.75rem', border: 'none', borderRadius: '4px', cursor: 'pointer',
+                  background: previewWidth === d.width ? '#1e293b' : 'transparent',
+                  color: previewWidth === d.width ? 'white' : '#64748b',
+                }}
+              >{d.label} {typeof d.width === 'number' ? `${d.width}` : 'Full'}</button>
+            ))}
+            <span style={{ flex: 1 }} />
+            <span style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Live Preview</span>
           </div>
-          <LandingLivePreview sections={config.sections} pageTitle={config.title} />
+          {/* Preview container with device width */}
+          <div style={{ flex: 1, overflow: 'auto', display: 'flex', justifyContent: 'center', background: '#e2e8f0', padding: typeof previewWidth === 'number' ? '1rem' : 0 }}>
+            <div style={{ width: typeof previewWidth === 'number' ? `${previewWidth}px` : '100%', maxWidth: '100%', background: 'white', height: 'fit-content', minHeight: '100%' }}>
+              <LandingLivePreview sections={config.sections} pageTitle={config.title} />
+            </div>
+          </div>
         </div>
       </div>
     )
