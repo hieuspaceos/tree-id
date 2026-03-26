@@ -3,7 +3,7 @@
  * Dynamic landing page route — renders YAML-configured landing pages.
  * Each landing page config in src/content/landing-pages/*.yaml becomes a static page.
  * The 'home' slug is excluded (handled by index.astro).
- * Uses LandingLayout (standalone nav) instead of BaseLayout (core site nav).
+ * Nav and footer are rendered as sections (not from layout) so users can toggle them.
  */
 import { getCollection } from 'astro:content'
 import LandingLayout from '@/layouts/landing-layout.astro'
@@ -16,24 +16,25 @@ export async function getStaticPaths() {
   return pages
     .filter(p => p.id !== 'home')
     .map(p => {
-      // Find product that references this landing page
       const product = products.find(pr => pr.data.landingPage === p.id)
       return { params: { landing: p.id }, props: { page: p, product: product ?? null } }
     })
 }
 
 const { page, product } = Astro.props
-// If a product references this page, show its admin CTA in the navbar
-const ctaText = product ? 'Open Dashboard' : undefined
-const ctaHref = product ? `/${product.data.slug}/admin` : undefined
+const sections = page.data.sections as unknown as LandingSection[]
+const hasNav = sections.some(s => s.type === 'nav' && s.enabled !== false)
+const hasFooter = sections.some(s => s.type === 'footer' && s.enabled !== false)
 ---
 
 <LandingLayout
   title={page.data.title}
   description={page.data.description}
-  brandName={page.data.title}
-  ctaText={ctaText}
-  ctaHref={ctaHref}
+  brandName={hasNav ? undefined : page.data.title}
+  ctaText={!hasNav && product ? 'Open Dashboard' : undefined}
+  ctaHref={!hasNav && product ? `/${product.data.slug}/admin` : undefined}
+  hideNav={hasNav}
+  hideFooter={hasFooter}
 >
-  <LandingSectionRenderer sections={page.data.sections as unknown as LandingSection[]} />
+  <LandingSectionRenderer sections={sections} pageTitle={page.data.title} />
 </LandingLayout>

@@ -3,7 +3,7 @@
  * Each form renders inputs for its typed section data.
  * Dynamic array support: items[] with add/remove.
  */
-import type { SectionData, HeroData, FeaturesData, PricingData, TestimonialsData, FaqData, CtaData, StatsData, HowItWorksData, TeamData, LogoWallData } from '@/lib/landing/landing-types'
+import type { SectionData, HeroData, FeaturesData, PricingData, TestimonialsData, FaqData, CtaData, StatsData, HowItWorksData, TeamData, LogoWallData, NavData, FooterData } from '@/lib/landing/landing-types'
 
 type FormProps<T extends SectionData> = { data: T; onChange: (data: T) => void }
 
@@ -232,8 +232,59 @@ export function LogoWallSectionForm({ data, onChange }: FormProps<LogoWallData>)
   )
 }
 
+/** Nav section form — brand name and optional custom links */
+function NavSectionForm({ data, onChange }: FormProps<NavData>) {
+  const set = (k: keyof NavData, v: unknown) => onChange({ ...data, [k]: v })
+  const links = data.links || []
+  return (
+    <>
+      <Field label="Brand Name"><input style={inputStyle} value={data.brandName || ''} onChange={(e) => set('brandName', e.target.value)} placeholder="Auto-uses page title if empty" /></Field>
+      <Field label="Nav Links (leave empty to auto-generate from sections)">
+        {links.map((link, i) => (
+          <div key={i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.25rem' }}>
+            <input style={{ ...inputStyle, flex: 1 }} value={link.label} placeholder="Label"
+              onChange={(e) => { const n = [...links]; n[i] = { ...n[i], label: e.target.value }; set('links', n) }} />
+            <input style={{ ...inputStyle, flex: 1 }} value={link.href} placeholder="#section-features"
+              onChange={(e) => { const n = [...links]; n[i] = { ...n[i], href: e.target.value }; set('links', n) }} />
+            <button type="button" onClick={() => set('links', links.filter((_, j) => j !== i))}
+              style={{ padding: '4px 8px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>×</button>
+          </div>
+        ))}
+        <button type="button" onClick={() => set('links', [...links, { label: '', href: '' }])}
+          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add link</button>
+      </Field>
+    </>
+  )
+}
+
+/** Footer section form — text and optional links */
+function FooterSectionForm({ data, onChange }: FormProps<FooterData>) {
+  const set = (k: keyof FooterData, v: unknown) => onChange({ ...data, [k]: v })
+  const links = data.links || []
+  return (
+    <>
+      <Field label="Footer Text"><input style={inputStyle} value={data.text || ''} onChange={(e) => set('text', e.target.value)} placeholder="© 2026 Your Brand" /></Field>
+      <Field label="Footer Links">
+        {links.map((link, i) => (
+          <div key={i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.25rem' }}>
+            <input style={{ ...inputStyle, flex: 1 }} value={link.label} placeholder="Label"
+              onChange={(e) => { const n = [...links]; n[i] = { ...n[i], label: e.target.value }; set('links', n) }} />
+            <input style={{ ...inputStyle, flex: 1 }} value={link.href} placeholder="/privacy"
+              onChange={(e) => { const n = [...links]; n[i] = { ...n[i], href: e.target.value }; set('links', n) }} />
+            <button type="button" onClick={() => set('links', links.filter((_, j) => j !== i))}
+              style={{ padding: '4px 8px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>×</button>
+          </div>
+        ))}
+        <button type="button" onClick={() => set('links', [...links, { label: '', href: '' }])}
+          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add link</button>
+      </Field>
+    </>
+  )
+}
+
 /** Maps section type to its form component */
 export const sectionFormMap: Record<string, React.ComponentType<FormProps<any>>> = {
+  nav: NavSectionForm,
   hero: HeroSectionForm,
   features: FeaturesSectionForm,
   pricing: PricingSectionForm,
@@ -244,4 +295,5 @@ export const sectionFormMap: Record<string, React.ComponentType<FormProps<any>>>
   'how-it-works': HowItWorksSectionForm,
   team: TeamSectionForm,
   'logo-wall': LogoWallSectionForm,
+  footer: FooterSectionForm,
 }

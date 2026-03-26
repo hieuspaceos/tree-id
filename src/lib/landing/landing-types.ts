@@ -107,11 +107,22 @@ export interface LogoWallData {
   logos: Array<{ name: string; url?: string; image: string }>
 }
 
+export interface NavData {
+  brandName?: string
+  /** Custom nav links — if empty, auto-generated from enabled sections */
+  links?: Array<{ label: string; href: string }>
+}
+
+export interface FooterData {
+  text?: string
+  links?: Array<{ label: string; href: string }>
+}
+
 /** All possible section type identifiers */
-export type SectionType = 'hero' | 'features' | 'pricing' | 'testimonials' | 'faq' | 'cta' | 'stats' | 'how-it-works' | 'team' | 'logo-wall'
+export type SectionType = 'hero' | 'features' | 'pricing' | 'testimonials' | 'faq' | 'cta' | 'stats' | 'how-it-works' | 'team' | 'logo-wall' | 'nav' | 'footer'
 
 /** Union of all section data types */
-export type SectionData = HeroData | FeaturesData | PricingData | TestimonialsData | FaqData | CtaData | StatsData | HowItWorksData | TeamData | LogoWallData
+export type SectionData = HeroData | FeaturesData | PricingData | TestimonialsData | FaqData | CtaData | StatsData | HowItWorksData | TeamData | LogoWallData | NavData | FooterData
 
 export interface LandingSection {
   type: SectionType

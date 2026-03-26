@@ -2,6 +2,8 @@
 /**
  * Section renderer — maps section type string to Astro component,
  * sorts by order, filters disabled sections, renders in sequence.
+ * Nav renders at top, footer at bottom, both receive all sections for context.
+ * Each section gets id="section-{type}" for anchor link navigation.
  */
 import LandingHero from './landing-hero.astro'
 import LandingFeatures from './landing-features.astro'
@@ -13,17 +15,27 @@ import LandingStats from './landing-stats.astro'
 import LandingHowItWorks from './landing-how-it-works.astro'
 import LandingTeam from './landing-team.astro'
 import LandingLogoWall from './landing-logo-wall.astro'
+import LandingNav from './landing-nav.astro'
+import LandingFooter from './landing-footer.astro'
 import type { LandingSection } from '@/lib/landing/landing-types'
 
 import '@/styles/landing.css'
 
 interface Props {
   sections: LandingSection[]
+  pageTitle?: string
 }
 
-const { sections } = Astro.props
-const sorted = sections
-  .filter(s => s.enabled !== false)
+const { sections, pageTitle } = Astro.props
+const enabled = sections.filter(s => s.enabled !== false)
+
+// Nav and footer are special — rendered outside the main sections flow
+const navSection = enabled.find(s => s.type === 'nav')
+const footerSection = enabled.find(s => s.type === 'footer')
+
+// Body sections — everything except nav and footer, sorted by order
+const bodySections = enabled
+  .filter(s => s.type !== 'nav' && s.type !== 'footer')
   .sort((a, b) => a.order - b.order)
 
 const componentMap: Record<string, any> = {
@@ -40,9 +52,19 @@ const componentMap: Record<string, any> = {
 }
 ---
 
+{/* Nav at top — receives all sections for auto-generating anchor links */}
+{navSection && <LandingNav {...navSection.data as any} sections={enabled} pageTitle={pageTitle} />}
+
 <div class="landing-sections">
-  {sorted.map(section => {
+  {bodySections.map(section => {
     const Component = componentMap[section.type]
-    return Component ? <Component {...section.data as any} /> : null
+    return Component ? (
+      <div id={`section-${section.type}`}>
+        <Component {...section.data as any} />
+      </div>
+    ) : null
   })}
 </div>
+
+{/* Footer at bottom */}
+{footerSection && <LandingFooter {...footerSection.data as any} pageTitle={pageTitle} />}

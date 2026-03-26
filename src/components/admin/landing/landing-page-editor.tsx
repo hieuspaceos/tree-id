@@ -10,10 +10,11 @@ import { LandingSectionCard } from './landing-section-card'
 
 interface Props { slug?: string }
 
-const SECTION_TYPES: SectionType[] = ['hero', 'features', 'pricing', 'testimonials', 'faq', 'cta', 'stats', 'how-it-works', 'team', 'logo-wall']
+const SECTION_TYPES: SectionType[] = ['nav', 'hero', 'features', 'pricing', 'testimonials', 'faq', 'cta', 'stats', 'how-it-works', 'team', 'logo-wall', 'footer']
 
 function defaultSectionData(type: SectionType): SectionData {
   const defaults: Record<string, SectionData> = {
+    nav: { brandName: '', links: [] },
     hero: { headline: 'Your Headline Here', subheadline: 'A short description', cta: { text: 'Get Started', url: '#' } },
     features: { heading: 'Features', items: [{ title: 'Feature 1', description: 'Description' }] },
     pricing: { heading: 'Pricing', plans: [] },
@@ -24,13 +25,20 @@ function defaultSectionData(type: SectionType): SectionData {
     'how-it-works': { heading: 'How It Works', items: [] },
     team: { heading: 'Meet the team', members: [] },
     'logo-wall': { logos: [] },
+    footer: { text: '', links: [] },
   }
   return defaults[type] || {} as SectionData
 }
 
+/** Default sections for new landing pages — nav at top, footer at bottom */
+const DEFAULT_NEW_SECTIONS: LandingSection[] = [
+  { type: 'nav', order: -1, enabled: true, data: defaultSectionData('nav') },
+  { type: 'footer', order: 999, enabled: true, data: defaultSectionData('footer') },
+]
+
 export function LandingPageEditor({ slug }: Props) {
   const [, navigate] = useLocation()
-  const [config, setConfig] = useState<LandingPageConfig>({ slug: '', title: '', sections: [] })
+  const [config, setConfig] = useState<LandingPageConfig>({ slug: '', title: '', sections: isNew ? [...DEFAULT_NEW_SECTIONS] : [] })
   const [loading, setLoading] = useState(!!slug)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')

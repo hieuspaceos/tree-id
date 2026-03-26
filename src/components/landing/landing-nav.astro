@@ -1,0 +1,61 @@
+---
+/**
+ * Landing page nav section — sticky top nav with brand name and anchor links.
+ * Links auto-generated from sibling sections if not provided in data.
+ * Each link scrolls to the corresponding section via #section-{type} anchors.
+ */
+import type { NavData, LandingSection } from '@/lib/landing/landing-types'
+
+interface Props extends NavData {
+  /** All enabled sections on the page — used to auto-generate nav links */
+  sections?: LandingSection[]
+  /** Page title fallback for brand name */
+  pageTitle?: string
+}
+
+const { brandName, links, sections = [], pageTitle } = Astro.props
+
+/** Section type to readable label for auto-generated links */
+const sectionLabels: Record<string, string> = {
+  features: 'Features',
+  pricing: 'Pricing',
+  testimonials: 'Testimonials',
+  faq: 'FAQ',
+  stats: 'Stats',
+  'how-it-works': 'How It Works',
+  team: 'Team',
+  'logo-wall': 'Partners',
+}
+
+// Auto-generate links from enabled sections (skip hero, nav, footer, cta)
+const skipTypes = new Set(['hero', 'nav', 'footer', 'cta'])
+const autoLinks = links && links.length > 0
+  ? links
+  : sections
+      .filter(s => s.enabled !== false && !skipTypes.has(s.type))
+      .sort((a, b) => a.order - b.order)
+      .map(s => ({
+        label: sectionLabels[s.type] || s.type,
+        href: `#section-${s.type}`,
+      }))
+---
+
+<nav class="landing-nav glass-nav sticky top-0 z-50">
+  <div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
+    <a href="#" class="text-lg font-semibold tracking-tight text-slate-900">
+      {brandName || pageTitle || 'Home'}
+    </a>
+    {autoLinks.length > 0 && (
+      <div class="hidden items-center gap-1 sm:flex">
+        {autoLinks.map(link => (
+          <a
+            href={link.href}
+            class="rounded-full px-3 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-black/[0.04] hover:text-slate-900"
+          >
+            {link.label}
+          </a>
+        ))}
+      </div>
+    )}
+  </div>
+</nav>
