@@ -11,6 +11,7 @@ import type { LandingPageConfig, LandingSection, LandingDesign, SectionType, Sec
 import { LandingSectionCard } from './landing-section-card'
 import { LandingLivePreview } from './landing-live-preview'
 import { LandingDesignPanel } from './landing-design-panel'
+import { LandingCloneModal } from './landing-clone-modal'
 
 interface Props { slug?: string }
 
@@ -101,6 +102,7 @@ export function LandingPageEditor({ slug }: Props) {
   const [previewWidth, setPreviewWidth] = useState<string | number>('100%')
   const [settingsOpen, setSettingsOpen] = useState(true)
   const [pickerGroup, setPickerGroup] = useState(-1)
+  const [cloneOpen, setCloneOpen] = useState(false)
 
   useEffect(() => {
     if (!slug) return
@@ -224,10 +226,30 @@ export function LandingPageEditor({ slug }: Props) {
           >{splitView ? '✕ Close Preview' : '⊞ Split Preview'}</button>
         )}
         {!isNew && !splitView && <a href={`/${slug}`} target="_blank" rel="noopener noreferrer" className="admin-btn" style={{ fontSize: '0.8rem' }}>Preview</a>}
+        <button className="admin-btn" onClick={() => setCloneOpen(true)} style={{ fontSize: '0.8rem' }} title="Clone from URL">
+          Clone URL
+        </button>
         <button className="admin-btn admin-btn-primary" onClick={handleSave} disabled={saving}>
           {saving ? 'Saving…' : 'Save'}
         </button>
       </div>
+
+      {/* Clone modal */}
+      {cloneOpen && (
+        <LandingCloneModal
+          onClose={() => setCloneOpen(false)}
+          onCloned={(cloned) => {
+            setConfig(c => ({
+              ...c,
+              title: cloned.title || c.title,
+              description: cloned.description || c.description,
+              design: cloned.design as LandingDesign,
+              sections: cloned.sections as LandingSection[],
+            }))
+            setCloneOpen(false)
+          }}
+        />
+      )}
 
       {error && <div style={{ background: '#fee2e2', color: '#dc2626', padding: '0.75rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.85rem' }}>{error}</div>}
       {success && <div style={{ background: '#dcfce7', color: '#16a34a', padding: '0.75rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.85rem' }}>{success}</div>}
