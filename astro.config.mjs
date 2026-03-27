@@ -8,7 +8,7 @@ import pagefind from 'astro-pagefind'
 
 export default defineConfig({
   site: process.env.PUBLIC_SITE_URL || 'http://localhost:4321',
-  output: 'static',        // SSG default; per-page `export const prerender = false` enables SSR
+  output: 'server',        // Hybrid mode: SSR default; static pages opt-in via `export const prerender = true`
   adapter: vercel(),
   integrations: [
     react(),               // React islands (Toc)
