@@ -40,19 +40,33 @@ function ArrayField({ label, items, onChange }: { label: string; items: string[]
   )
 }
 
+/** Reusable multi-CTA buttons editor — add/remove/edit buttons with variant */
+function CtaListEditor({ cta, onChange }: { cta: unknown; onChange: (v: Array<{ text: string; url: string; variant?: string }>) => void }) {
+  const list: Array<{ text: string; url: string; variant?: string }> = Array.isArray(cta) ? cta : cta ? [cta as { text: string; url: string }] : []
+  const update = (i: number, patch: Record<string, string>) => { const n = [...list]; n[i] = { ...n[i], ...patch }; onChange(n) }
+  return (
+    <Field label="CTA Buttons">
+      {list.map((item, i) => (
+        <div key={i} style={{ display: 'flex', gap: '0.35rem', marginBottom: '0.35rem', alignItems: 'center' }}>
+          <input style={{ ...inputStyle, flex: 2 }} value={item.text} placeholder="Button text" onChange={(e) => update(i, { text: e.target.value })} />
+          <input style={{ ...inputStyle, flex: 2 }} value={item.url} placeholder="/page or #section" onChange={(e) => update(i, { url: e.target.value })} />
+          <select style={{ ...inputStyle, flex: 1 }} value={item.variant || (i === 0 ? 'primary' : 'secondary')} onChange={(e) => update(i, { variant: e.target.value })}>
+            <option value="primary">Primary</option>
+            <option value="secondary">Secondary</option>
+            <option value="outline">Outline</option>
+          </select>
+          <button type="button" onClick={() => onChange(list.filter((_, j) => j !== i))}
+            style={{ padding: '2px 6px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>×</button>
+        </div>
+      ))}
+      <button type="button" onClick={() => onChange([...list, { text: 'Button', url: '#', variant: list.length === 0 ? 'primary' : 'secondary' }])}
+        style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add button</button>
+    </Field>
+  )
+}
+
 export function HeroSectionForm({ data, onChange }: FormProps<HeroData>) {
   const set = (k: keyof HeroData, v: unknown) => onChange({ ...data, [k]: v })
-  // Normalize cta: support both single object and array — edit first item only in admin
-  const ctaItem = Array.isArray(data.cta) ? data.cta[0] : data.cta
-  const setCta = (patch: Partial<{ text: string; url: string }>) => {
-    if (Array.isArray(data.cta)) {
-      const updated = [...data.cta]
-      updated[0] = { ...updated[0], ...patch }
-      set('cta', updated)
-    } else {
-      set('cta', { ...(data.cta || {}), ...patch })
-    }
-  }
   return (
     <>
       <Field label="Layout Variant">
@@ -65,10 +79,9 @@ export function HeroSectionForm({ data, onChange }: FormProps<HeroData>) {
       </Field>
       <Field label="Headline"><input style={inputStyle} value={data.headline || ''} onChange={(e) => set('headline', e.target.value)} /></Field>
       <Field label="Subheadline"><textarea style={textareaStyle} value={data.subheadline || ''} onChange={(e) => set('subheadline', e.target.value)} /></Field>
-      {data.variant !== 'minimal' && <>
-        <Field label="CTA Text"><input style={inputStyle} value={ctaItem?.text || ''} onChange={(e) => setCta({ text: e.target.value, url: ctaItem?.url || '#' })} /></Field>
-        <Field label="CTA URL"><input style={inputStyle} value={ctaItem?.url || ''} onChange={(e) => setCta({ url: e.target.value, text: ctaItem?.text || 'Get Started' })} /></Field>
-      </>}
+      {data.variant !== 'minimal' && (
+        <CtaListEditor cta={data.cta} onChange={(v) => set('cta', v)} />
+      )}
       {(data.variant === 'video-bg' || data.variant === 'split') && (
         <Field label="Background Image URL"><input style={inputStyle} value={data.backgroundImage || ''} onChange={(e) => set('backgroundImage', e.target.value)} placeholder="https://..." /></Field>
       )}
@@ -202,17 +215,6 @@ export function FaqSectionForm({ data, onChange }: FormProps<FaqData>) {
 
 export function CtaSectionForm({ data, onChange }: FormProps<CtaData>) {
   const set = (k: keyof CtaData, v: unknown) => onChange({ ...data, [k]: v })
-  // Normalize cta: support both single object and array — edit first item only in admin
-  const ctaItem = Array.isArray(data.cta) ? data.cta[0] : data.cta
-  const setCta = (patch: Partial<{ text: string; url: string }>) => {
-    if (Array.isArray(data.cta)) {
-      const updated = [...data.cta]
-      updated[0] = { ...updated[0], ...patch }
-      set('cta', updated)
-    } else {
-      set('cta', { ...(data.cta || {}), ...patch })
-    }
-  }
   return (
     <>
       <Field label="Layout Variant">
@@ -226,8 +228,7 @@ export function CtaSectionForm({ data, onChange }: FormProps<CtaData>) {
       </Field>
       <Field label="Headline"><input style={inputStyle} value={data.headline || ''} onChange={(e) => set('headline', e.target.value)} /></Field>
       <Field label="Subheadline"><input style={inputStyle} value={data.subheadline || ''} onChange={(e) => set('subheadline', e.target.value)} /></Field>
-      <Field label="CTA Text"><input style={inputStyle} value={ctaItem?.text || ''} onChange={(e) => setCta({ text: e.target.value, url: ctaItem?.url || '#' })} /></Field>
-      <Field label="CTA URL"><input style={inputStyle} value={ctaItem?.url || ''} onChange={(e) => setCta({ url: e.target.value, text: ctaItem?.text || 'Get Started' })} /></Field>
+      <CtaListEditor cta={data.cta} onChange={(v) => set('cta', v)} />
       {data.variant === 'with-image' && (
         <Field label="Background Image URL"><input style={inputStyle} value={data.backgroundImage || ''} onChange={(e) => set('backgroundImage', e.target.value)} placeholder="https://..." /></Field>
       )}
