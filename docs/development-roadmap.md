@@ -2,20 +2,23 @@
 
 Strategic roadmap for Tree Identity. Tracks active work, completed milestones, and future directions.
 
-## Current Status (2026-03-27)
+## Current Status (2026-03-28)
 
-**Phase:** v2.6.0 — Landing Design System + AI Clone + Feature Builder Phase 3
-**Completion:** v2.5.0 complete + landing design system + AI clone + feature builder phases 2-3
+**Phase:** v2.7.0 — Landing Page v2 Upgrades
+**Completion:** v2.6.0 complete + 3 new section types + enhanced admin features
 **Active Team:** Solo (HieuSpace)
-**Key Features Added (v2.6.0):**
-- Landing Design System: 6 presets, per-page customization, CSS variables, Google Fonts auto-load
-- Section Layout Variants: 36 total variants across 11 section types (hero, cta, features, pricing, testimonials, faq, stats, how-it-works, team, nav, footer)
-- Tabbed Section Picker: Admin UI filters sections by category (All/Structure/Content/Conversion/Media)
-- AI Landing Clone: Paste URL → AI extracts sections + design → generates landing config
-- Feature Builder Phase 3: Hybrid code generation (AI + templates), categorized output, code review step
-- Gemini 2.5-flash: Updated all AI calls from 2.0-flash → 2.5-flash
-- Admin UX: Dashboard redirects to features, split preview default, thin scrollbars
-- AI Fill: Auto-populate descriptions in feature builder
+**Key Features Added (v2.7.0):**
+- New Section Types: social-proof, comparison, ai-search (25 total)
+- Icon Picker: Browse/select icons for nav and footer items
+- Multi-CTA Buttons: Support multiple buttons per section with individual styles
+- Testimonials Carousel: Auto-rotating carousel with pagination
+- Footer Columns Editor: Visual multi-column footer builder
+- Pricing Badges: Support for badge labels (Popular, Best Value, etc.)
+- Rich Text Markdown: Full Markdown support in rich text sections
+- Video Auto-Detect: YouTube/Vimeo/custom URL auto-embedding
+- Design Token Enhancements: glass-card, btn-secondary, btn-outline, gradient-text
+- Scroll-to-Highlight: Auto-highlight sections during page scroll
+- AI Clone Improvements: Anti-duplication rules + better design inference
 
 ---
 
@@ -403,6 +406,71 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
+## Phase 12 — Landing Page v2 Upgrades ✓ COMPLETE
+
+**Timeline:** 2026-03-28
+**Status:** Complete
+**Effort:** 8 hours
+
+### Deliverables
+
+**New Section Types (25 Total):**
+- [x] social-proof: Customer testimonials with avatars and ratings grid
+- [x] comparison: Feature/pricing comparison side-by-side table layout
+- [x] ai-search: AI-powered search with autocomplete interface
+
+**Admin Editor Enhancements:**
+- [x] Icon picker: Material Icons / Feather Icons browser for nav + footer
+- [x] Multi-CTA buttons: Multiple buttons per section with individual link/style/size
+- [x] Testimonials carousel variant: Auto-rotating with pagination + pause-on-hover
+- [x] Footer columns editor: Drag-drop multi-column builder (1-4 columns)
+- [x] Pricing badges: Support for badge labels (Popular, Best Value, Limited Offer)
+- [x] Scroll-to-highlight: Auto-highlight active section during scroll
+
+**Rich Text & Video Enhancements:**
+- [x] Markdown support: Rich text component accepts Markdown syntax
+- [x] Markdown → HTML: Build-time conversion, zero runtime overhead
+- [x] Video auto-detect: YouTube, Vimeo, custom URL auto-embedding detection
+
+**Design Token Enhancements:**
+- [x] glass-card: Landing page glass-morphism card override
+- [x] btn-secondary: Secondary button variant (lighter contrast)
+- [x] btn-outline: Outline button variant (border-only)
+- [x] gradient-text: Text gradient utility class for hero sections
+
+**AI Clone Improvements:**
+- [x] Anti-duplication rules: Improved Gemini prompts to avoid duplicate extractions
+- [x] Better design inference: Enhanced color/font/spacing detection
+- [x] Schema validation: Stricter validation on cloned configs
+
+### Files Created/Modified
+
+**New Components:**
+- `src/components/admin/landing/icon-picker.tsx` — Icon browser + selector
+- `src/components/admin/landing/multi-cta-editor.tsx` — Multi-button CTA editor
+- `src/components/admin/landing/testimonial-carousel.tsx` — Carousel variant
+- `src/components/admin/landing/footer-columns-editor.tsx` — Multi-column builder
+- `src/components/landing/social-proof.astro` — Social proof section
+- `src/components/landing/comparison.astro` — Comparison table section
+- `src/components/landing/ai-search.astro` — AI search component
+
+**Updated Components:**
+- `src/components/landing/rich-text.astro` — Added Markdown parsing
+- `src/components/landing/video.astro` — Added auto-detect logic
+- Various landing sections updated with new design tokens
+
+**Styling:**
+- New CSS classes: `.glass-card`, `.btn-secondary`, `.btn-outline`, `.gradient-text`
+- Enhanced landing design system with expanded token set
+
+### Architecture
+- Section types: Now 25 total, organized by Structure/Content/Conversion/Media
+- Rich text: Markdown parsing at build time, HTML output at runtime
+- Video: Smart detection of platform from URL, fallback for custom sources
+- Design tokens: Extended CSS variable set scoped to landing pages
+
+---
+
 ## Phase 11 — Landing Design System + AI Clone + Feature Builder Phase 3 ✓ COMPLETE
 
 **Timeline:** 2026-03-27
@@ -669,11 +737,12 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 | 10 — Feature Builder Phase 1 | 2026-03-27 | 4h | HieuSpace | ✓ Complete |
 | 10.5 — Product-Scoped API + Entity Rendering | 2026-03-27 | 6h | HieuSpace | ✓ Complete |
 | 11 — Landing Design System + AI Clone + FB Phase 3 | 2026-03-27 | 12h | HieuSpace | ✓ Complete |
-| 12 — Feature Builder Phase 4 | 2026-Q2 | 8h | — | Backlog |
-| 13A — Landing Advanced | TBD | 12h | — | Proposed |
-| 13B — Analytics Dashboard | TBD | 12h | — | Proposed |
-| 13C — Media+ | TBD | 8h | — | Proposed |
-| 13D — Collaboration | TBD | 20h | — | Proposed |
+| 12 — Landing Page v2 Upgrades | 2026-03-28 | 8h | HieuSpace | ✓ Complete |
+| 13 — Feature Builder Phase 4 | 2026-Q2 | 8h | — | Backlog |
+| 14A — Landing Advanced | TBD | 12h | — | Proposed |
+| 14B — Analytics Dashboard | TBD | 12h | — | Proposed |
+| 14C — Media+ | TBD | 8h | — | Proposed |
+| 14D — Collaboration | TBD | 20h | — | Proposed |
 
 ---
 
@@ -681,9 +750,9 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 | Release | Version | Target Date | Focus | Status |
 |---------|---------|-------------|-------|--------|
-| Current | v2.6.0 | 2026-03-27 | Landing Design System + AI Clone + Feature Builder Phase 3 | Complete |
-| Planned | v2.7.0 | 2026-Q2 | Feature Builder Phase 4 (integration + module installation) | Backlog |
-| Planned | v2.8.0 | 2026-Q2 | Landing Advanced (A/B testing, email capture, form analytics) | Backlog |
+| Current | v2.7.0 | 2026-03-28 | Landing Page v2 Upgrades (3 new sections, icon picker, multi-CTA, carousel, Markdown, video auto-detect) | Complete |
+| Planned | v2.8.0 | 2026-Q2 | Feature Builder Phase 4 (integration + module installation) | Backlog |
+| Planned | v2.9.0 | 2026-Q2 | Landing Advanced (A/B testing, email capture, form analytics) | Backlog |
 | Planned | v3.0.0 | 2026-Q3 | Analytics Dashboard + Content Versioning + Media Features | Backlog |
 | Planned | v4.0.0 | 2026-Q4 | Extended i18n + Plugin System | Backlog |
 
@@ -699,6 +768,6 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 
 ---
 
-**Last updated:** 2026-03-27
+**Last updated:** 2026-03-28
 **Next review:** 2026-04-10
 **Next phase:** Feature Builder Phase 4 (integration + module installation) + Landing Advanced Features

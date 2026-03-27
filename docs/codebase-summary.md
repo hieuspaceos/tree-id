@@ -37,7 +37,7 @@ Tree Identity is a personal content engine with optional landing page builder �
 - **Custom admin dashboard** — Full-featured React UI at `/admin`, not Keystatic
 - **Theme system** — CSS variables (`--t-*`) for glass morphism UI
 - **Island architecture** — Astro by default, React only for interactive components
-- **Landing page system** — YAML-driven modular sections, 11 section types (36 layout variants), D&D editor, design system (6 presets + custom colors/fonts)
+- **Landing page system** — YAML-driven modular sections, 25 section types (50+ layout variants), D&D editor, design system (6 presets + custom colors/fonts)
 - **AI landing cloner** — Paste URL, AI extracts sections + design, auto-generates landing config
 - **Feature builder** — AI-assisted feature generation with hybrid code generation engine (Gemini + templates)
 - **Multi-tenant products** — Per-product admin, scoped API, feature toggles per product
@@ -120,29 +120,39 @@ tree-id/
 │   ├── layouts/
 │   │   └── base-layout.astro       # Root layout with nav + footer
 │   ├── components/
-│   │   ├── landing/                # Landing page sections (23 types)
+│   │   ├── landing/                # Landing page sections (25 types)
 │   │   │   ├── nav.astro           # NEW v2.4.0
 │   │   │   ├── footer.astro        # NEW v2.4.0
 │   │   │   ├── layout.astro        # NEW v2.4.0
 │   │   │   ├── divider.astro       # NEW v2.4.0
-│   │   │   ├── rich-text.astro     # NEW v2.4.0
+│   │   │   ├── rich-text.astro     # NEW v2.4.0: Markdown support added v2.7.0
 │   │   │   ├── banner.astro        # NEW v2.4.0
 │   │   │   ├── map.astro           # NEW v2.4.0
 │   │   │   ├── gallery.astro       # NEW v2.4.0
-│   │   │   ├── video.astro         # NEW v2.4.0
+│   │   │   ├── video.astro         # NEW v2.4.0: Auto-detect embed added v2.7.0
 │   │   │   ├── image.astro         # NEW v2.4.0
 │   │   │   ├── image-text.astro    # NEW v2.4.0
 │   │   │   ├── countdown.astro     # NEW v2.4.0
 │   │   │   ├── contact-form.astro  # NEW v2.4.0
-│   │   │   ├── (10 v2.3 sections)
+│   │   │   ├── social-proof.astro  # NEW v2.7.0
+│   │   │   ├── comparison.astro    # NEW v2.7.0
+│   │   │   ├── ai-search.astro     # NEW v2.7.0
+│   │   │   ├── (9 v2.3-v2.4 sections)
 │   │   ├── admin/
 │   │   │   ├── landing/
 │   │   │   │   ├── landing-dnd-editor.tsx    # NEW v2.4.0: D&D reorder
 │   │   │   │   ├── landing-live-preview.tsx  # NEW v2.4.0: Real-time preview
 │   │   │   │   ├── device-toggle.tsx         # NEW v2.4.0: Mobile/tablet/desktop
-│   │   │   │   ├── section-picker-toolbar.tsx # NEW v2.4.0: 23-section picker
+│   │   │   │   ├── section-picker-toolbar.tsx # NEW v2.4.0: 25-section picker
 │   │   │   │   ├── page-settings-panel.tsx   # NEW v2.4.0: Metadata editor
-│   │   │   │   └── (v2.3.0 components)
+│   │   │   │   ├── landing-design-panel.tsx  # NEW v2.6.0: Design system + presets
+│   │   │   │   ├── landing-clone-modal.tsx   # NEW v2.6.0: Clone landing from URL
+│   │   │   │   ├── icon-picker.tsx           # NEW v2.7.0: Icon picker for nav/footer
+│   │   │   │   ├── multi-cta-editor.tsx      # NEW v2.7.0: Multi-button CTA editor
+│   │   │   │   ├── testimonial-carousel.tsx  # NEW v2.7.0: Carousel variant
+│   │   │   │   ├── footer-columns-editor.tsx # NEW v2.7.0: Multi-column builder
+│   │   │   │   ├── scroll-to-highlight.tsx   # NEW v2.7.0: Highlight on scroll
+│   │   │   │   └── (v2.3-v2.6 components)
 │   │   │   ├── entities/
 │   │   │   ├── templates/
 │   │   │   ├── setup/
@@ -553,7 +563,39 @@ See `.env.example` for full details.
 - **Accessibility:** Aria-labels on all interactive elements, form labels required, unique heading IDs
 - **SEO:** Iframe titles required, section IDs for anchor linking, JSON-LD metadata injection
 
-## Recent Changes (2026-03-27)
+## Recent Changes (2026-03-28)
+
+### v2.7.0 — Landing Page v2 Upgrades (2026-03-28)
+
+#### New Section Types (25 Total)
+- Added `social-proof` — Customer testimonials with avatar grid
+- Added `comparison` — Feature comparison charts (side-by-side tables)
+- Added `ai-search` — AI-powered search component
+
+#### Admin Features (Enhanced)
+- **Icon picker:** Browse/select icons for nav links and footer items
+- **Multi-CTA buttons:** Support multiple CTA buttons per section with individual links/styles
+- **Testimonials carousel variant:** Auto-rotating carousel with pagination controls
+- **Footer columns editor:** Visual builder for multi-column footer layouts
+- **Pricing badges:** Support for "Popular", "Best Value", "On Sale" badges
+- **Scroll-to-highlight:** Auto-highlight sections as user scrolls past them
+
+#### Rich Text Enhancements
+- **Markdown support:** Rich text sections now accept Markdown in addition to HTML
+- **Automatic parsing:** Markdown → HTML conversion at build time
+
+#### Video Embedding (Enhanced)
+- **Auto-detect:** Video component auto-detects YouTube/Vimeo/custom URLs and renders appropriate embed
+
+#### Design Tokens (Enhanced)
+- **Glass-card override:** Landing page context override for glass-morphism card styling
+- **btn-secondary:** Secondary button variant for CTAs
+- **btn-outline:** Outline button variant
+- **gradient-text:** Text gradient CSS class for hero sections
+
+#### AI Clone (Enhanced)
+- **Anti-duplication rules:** Improved AI analysis to avoid duplicate section extraction
+- **Better design inference:** More accurate color/font/spacing extraction from source sites
 
 ### v2.6.0 — Landing Design System + AI Clone + Feature Builder Phase 3
 
@@ -619,5 +661,5 @@ See git log for full history. Key components:
 
 ---
 
-**Last updated:** 2026-03-27
-**Version:** v2.6.0
+**Last updated:** 2026-03-28
+**Version:** v2.7.0

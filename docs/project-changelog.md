@@ -4,6 +4,48 @@ All notable changes to Tree Identity are documented here.
 
 ## Releases
 
+### v2.7.0 — Landing Page v2 Upgrades (2026-03-28)
+
+**Status:** Complete
+
+Landing page section types expanded to 25 with new `social-proof`, `comparison`, and `ai-search` components. Admin enhanced with icon picker, multi-CTA buttons, testimonials carousel, footer columns editor, and scroll-to-highlight. Rich text now supports Markdown. Video embedding auto-detects platforms. Design tokens improved with glass-card override, secondary/outline button variants, and gradient-text class. AI clone improved with anti-duplication rules.
+
+#### Section Types Expanded (25 Total - New)
+- **social-proof:** Customer testimonials grid with avatars, ratings, company logos
+- **comparison:** Feature/pricing comparison with side-by-side table layout
+- **ai-search:** AI-powered search interface with autocomplete
+
+#### Admin Editor Enhancements (New)
+- **Icon picker:** Browse Material Icons / Feather Icons for nav items and footer links
+- **Multi-CTA buttons:** Add multiple buttons per section (link, style, size per button)
+- **Testimonials carousel variant:** Auto-rotate with pagination + pause-on-hover
+- **Footer columns editor:** Drag-drop column builder (1-4 columns, link groups)
+- **Pricing badges:** Support badge icons (Popular, Best Value, Limited Offer, etc.)
+- **Scroll-to-highlight:** Auto-detect scroll position, highlight active section in nav
+
+#### Rich Text System (Enhanced)
+- **Markdown support:** Rich text component now accepts Markdown syntax (in addition to HTML)
+- **Markdown → HTML:** Build-time conversion, no runtime parsing overhead
+- **Example:** Links, emphasis, code blocks, blockquotes all render correctly
+
+#### Video Component (Enhanced)
+- **Auto-detect embedding:** Recognize YouTube, Vimeo, custom URLs and render native embeds
+- **Fallback:** Graceful fallback for unsupported video sources
+
+#### Design Tokens (Enhanced)
+- **glass-card:** Landing page override for glass-morphism cards (primary-accent blend)
+- **btn-secondary:** Secondary button variant (lighter contrast, hover state)
+- **btn-outline:** Outline button variant (border-only, background on hover)
+- **gradient-text:** Text gradient utility class (vibrant animated gradients for hero text)
+- **All tokens:** Respect per-landing design system values (colors, fonts, radius)
+
+#### AI Landing Clone (Enhanced)
+- **Anti-duplication:** Improved Gemini prompts to avoid extracting duplicate sections
+- **Design inference:** Better color/font/spacing detection from source HTML
+- **Schema validation:** Stricter schema validation before saving cloned configs
+
+---
+
 ### v2.6.0 — Landing Design System + AI Clone + Feature Builder Phase 3 (2026-03-27)
 
 **Status:** Complete
@@ -521,5 +563,5 @@ All partials imported in `admin.css` for single stylesheet generation.
 
 ---
 
-**Last updated:** 2026-03-27
-**Version:** v2.6.0
+**Last updated:** 2026-03-28
+**Version:** v2.7.0
