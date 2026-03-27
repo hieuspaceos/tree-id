@@ -5,7 +5,7 @@
  */
 
 const GEMINI_API_URL =
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
+  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
 
 /** Section types and variants available in the landing page builder */
 const SECTION_SCHEMA = `

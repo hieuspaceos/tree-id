@@ -5,7 +5,7 @@
  */
 
 const GEMINI_API_URL =
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'
+  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
 
 const SYSTEM_PROMPT = `You are a senior software architect helping a developer clarify a new feature module specification.
 
