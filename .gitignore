@@ -94,3 +94,6 @@ external/
 
 # Git worktrees (local development only)
 worktrees/
+
+# Release manifest
+release-manifest.json
