@@ -225,6 +225,11 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ spec }),
       }),
+    generate: (spec: unknown) =>
+      adminFetch<{ files: string[]; registrySnippet: string; warnings: string[] }>(
+        '/api/admin/feature-builder/generate',
+        { method: 'POST', body: JSON.stringify({ spec }) },
+      ),
   },
 
   products: {

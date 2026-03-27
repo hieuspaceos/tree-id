@@ -11,6 +11,7 @@ import { FeatureBuilderDefineStep } from './feature-builder-define-step'
 import { FeatureBuilderClarifyStep } from './feature-builder-clarify-step'
 import { FeatureBuilderPlanStep } from './feature-builder-plan-step'
 import { FeatureBuilderReviewStep } from './feature-builder-review-step'
+import { FeatureBuilderGenerateStep } from './feature-builder-generate-step'
 
 type Step = 'define' | 'clarify' | 'plan' | 'review' | 'generate'
 
@@ -147,24 +148,12 @@ export function FeatureBuilderWizard() {
         </div>
       )}
 
-      {step === 'generate' && savedPath && (
-        <div className="glass-panel" style={{ padding: '2rem', borderRadius: '14px' }}>
-          <h2 style={{ fontSize: '1rem', fontWeight: 700, color: '#16a34a', margin: '0 0 0.75rem' }}>
-            Spec Saved
-          </h2>
-          <p style={{ fontSize: '0.85rem', color: '#475569', margin: '0 0 0.5rem' }}>
-            Saved to: <code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', fontSize: '0.8rem' }}>{savedPath}</code>
-          </p>
-          <p style={{ fontSize: '0.85rem', color: '#475569', margin: '0 0 1rem' }}>
-            Next: Run <code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', fontSize: '0.8rem' }}>/skill-creator</code> in Claude Code to generate the skill from this spec.
-          </p>
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <button className="admin-btn" onClick={handleReset}>Create Another</button>
-            <button className="admin-btn admin-btn-primary" onClick={() => navigate('/settings')}>
-              Back to Admin
-            </button>
-          </div>
-        </div>
+      {step === 'generate' && spec && savedPath && (
+        <FeatureBuilderGenerateStep
+          spec={spec}
+          savedPath={savedPath}
+          onReset={handleReset}
+        />
       )}
     </div>
   )
