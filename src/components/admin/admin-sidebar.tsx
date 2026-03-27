@@ -329,11 +329,13 @@ export function AdminSidebar({ siteName, open, collapsed, onClose, onLogout, onT
 
         <div className="admin-nav-divider" />
 
-        {!productConfig && <NavItem href="/" icon={icons.home} label="Dashboard" collapsed={collapsed} />}
-
         {/* Core admin: Features with hover submenu for quick access */}
         {!productConfig && (
           <FeaturesNavMenu collapsed={collapsed} enabledFeatures={enabledFeatures} />
+        )}
+        {/* Builder — create new feature modules, core admin only */}
+        {!productConfig && (
+          <NavItem href="/feature-builder" icon={icons.sparkles} label="Builder" collapsed={collapsed} />
         )}
 
         {/* Product admin: show individual content/feature items */}

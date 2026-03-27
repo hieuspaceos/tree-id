@@ -39,6 +39,9 @@ const LazyEntityEditor = lazy(() => import('./entities/entity-editor-page').then
 const LazyProductList = lazy(() => import('./products/product-list-page').then((m) => ({ default: m.ProductListPage })))
 const LazyProductEditor = lazy(() => import('./products/product-editor-page').then((m) => ({ default: m.ProductEditorPage })))
 
+// Feature Builder — lazy, core admin only
+const LazyFeatureBuilderWizard = lazy(() => import('./feature-builder/feature-builder-wizard').then((m) => ({ default: m.FeatureBuilderWizard })))
+
 interface Props {
   siteName: string
   onLogout: () => void
@@ -87,9 +90,11 @@ export function AdminLayout({ siteName, onLogout, user, enabledFeatures, product
         <AdminTopbar onToggleSidebar={() => setSidebarOpen((s) => !s)} user={user} />
 
         <Switch>
-          {/* Dashboard — core admin only; product admin redirects to settings */}
+          {/* Root redirect — core admin goes to features, product admin to settings */}
           {!productConfig ? (
-            <Route path="/" component={AdminDashboard} />
+            <Route path="/">
+              {() => { window.location.replace('/admin/features'); return null }}
+            </Route>
           ) : (
             <Route path="/">
               {() => { window.location.replace(`/${productConfig.slug}/admin/settings`); return null }}
@@ -100,6 +105,13 @@ export function AdminLayout({ siteName, onLogout, user, enabledFeatures, product
           {!productConfig && (
             <Route path="/features">
               <FeaturesHub enabledFeatures={ef} />
+            </Route>
+          )}
+
+          {/* Feature Builder — core admin only */}
+          {!productConfig && (
+            <Route path="/feature-builder">
+              <Suspense fallback={<RouteLoading />}><LazyFeatureBuilderWizard /></Suspense>
             </Route>
           )}
 
