@@ -29,6 +29,7 @@ function PreviewNav({ data, sections, pageTitle }: { data: NavData; sections: La
     .map(s => ({ label: sectionLabels[s.type] || s.type, href: `#preview-${s.type}` }))
   const brand = data.brandName || pageTitle || 'Home'
   const v = data.variant || 'default'
+  const socialLinks = data.socialLinks || []
 
   if (v === 'centered') return (
     <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'var(--lp-bg, #f8fafc)', backdropFilter: 'blur(8px)', borderBottom: '1px solid var(--lp-text-muted, #94a3b8)', padding: '0.75rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -36,16 +37,18 @@ function PreviewNav({ data, sections, pageTitle }: { data: NavData; sections: La
         {links.slice(0, Math.ceil(links.length / 2)).map((l, i) => <span key={i} style={{ fontSize: '0.8rem', color: 'var(--lp-text-muted)' }}>{l.label}</span>)}
       </div>
       <strong style={{ fontSize: '1rem', color: 'var(--lp-text)', padding: '0 1rem' }}>{brand}</strong>
-      <div style={{ display: 'flex', gap: '0.5rem', flex: 1, justifyContent: 'flex-end' }}>
+      <div style={{ display: 'flex', gap: '0.5rem', flex: 1, justifyContent: 'flex-end', alignItems: 'center' }}>
         {links.slice(Math.ceil(links.length / 2)).map((l, i) => <span key={i} style={{ fontSize: '0.8rem', color: 'var(--lp-text-muted)' }}>{l.label}</span>)}
+        {socialLinks.map((sl, i) => <span key={i} title={sl.label || sl.icon} style={{ fontSize: '1rem' }}>{sl.icon}</span>)}
       </div>
     </div>
   )
   if (v === 'transparent') return (
     <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'transparent', padding: '0.75rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
       <strong style={{ fontSize: '1rem', color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}>{brand}</strong>
-      <div style={{ display: 'flex', gap: '0.5rem' }}>
+      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
         {links.map((l, i) => <span key={i} style={{ fontSize: '0.8rem', color: 'var(--lp-bg, #f8fafc)' }}>{l.label}</span>)}
+        {socialLinks.map((sl, i) => <span key={i} title={sl.label || sl.icon} style={{ fontSize: '1rem', opacity: 0.85 }}>{sl.icon}</span>)}
       </div>
     </div>
   )
@@ -53,8 +56,9 @@ function PreviewNav({ data, sections, pageTitle }: { data: NavData; sections: La
   return (
     <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'var(--lp-bg, #f8fafc)', backdropFilter: 'blur(8px)', borderBottom: '1px solid var(--lp-text-muted, #94a3b8)', padding: '0.75rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
       <strong style={{ fontSize: '1rem', color: 'var(--lp-text)' }}>{brand}</strong>
-      <div style={{ display: 'flex', gap: '0.5rem' }}>
+      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
         {links.map((l, i) => <span key={i} style={{ fontSize: '0.8rem', color: 'var(--lp-text-muted)' }}>{l.label}</span>)}
+        {socialLinks.map((sl, i) => <span key={i} title={sl.label || sl.icon} style={{ fontSize: '1rem' }}>{sl.icon}</span>)}
       </div>
     </div>
   )
@@ -68,7 +72,7 @@ function PreviewHero({ data }: { data: HeroData }) {
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '1rem', justifyContent: v === 'split' ? 'flex-start' : 'center' }}>
       {ctaList.map((item, i) => (
         <span key={i} style={{
-          display: 'inline-block', padding: '0.4rem 1.25rem', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600,
+          display: 'inline-block', padding: '0.4rem 1.25rem', borderRadius: 'var(--lp-radius, 8px)', fontSize: '0.85rem', fontWeight: 600,
           ...(item.variant === 'outline' ? { border: '2px solid var(--lp-primary)', color: 'var(--lp-primary)', background: 'transparent' }
             : item.variant === 'secondary' || i > 0 ? { background: 'rgba(0,0,0,0.08)', color: 'var(--lp-text)' }
             : { background: 'var(--lp-primary)', color: 'white' })
@@ -87,18 +91,18 @@ function PreviewHero({ data }: { data: HeroData }) {
           {data.subheadline && <p style={{ color: 'var(--lp-text-muted)', fontSize: '0.85rem', marginBottom: '0.5rem' }}>{data.subheadline}</p>}
           {ctaButtons}
         </div>
-        <div style={{ flex: 1, minWidth: '120px', borderRadius: '10px', overflow: 'hidden', aspectRatio: '16/9' }}>
+        <div style={{ flex: 1, minWidth: '120px', borderRadius: 'var(--lp-radius, 10px)', overflow: 'hidden', aspectRatio: '16/9' }}>
           {isVideo
-            ? <video src={embedUrl} autoPlay muted loop playsInline poster={data.backgroundImage || undefined} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '10px' }} />
+            ? <video src={embedUrl} autoPlay muted loop playsInline poster={data.backgroundImage || undefined} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--lp-radius, 10px)' }} />
             : data.backgroundImage
-              ? <img src={data.backgroundImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '10px' }} />
-              : <div style={{ width: '100%', height: '100%', background: 'rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--lp-text-muted)', fontSize: '0.7rem', borderRadius: '10px' }}>Media</div>}
+              ? <img src={data.backgroundImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--lp-radius, 10px)' }} />
+              : <div style={{ width: '100%', height: '100%', background: 'rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--lp-text-muted)', fontSize: '0.7rem', borderRadius: 'var(--lp-radius, 10px)' }}>Media</div>}
         </div>
       </div>
     )
   }
   if (v === 'video-bg') return (
-    <div style={{ textAlign: 'center', padding: '3rem 2rem', borderRadius: '14px', position: 'relative', overflow: 'hidden', background: data.backgroundImage ? `url(${data.backgroundImage}) center/cover` : '#1e293b' }}>
+    <div style={{ textAlign: 'center', padding: '3rem 2rem', borderRadius: 'var(--lp-radius, 14px)', position: 'relative', overflow: 'hidden', background: data.backgroundImage ? `url(${data.backgroundImage}) center/cover` : '#1e293b' }}>
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)' }} />
       <div style={{ position: 'relative', zIndex: 1 }}>
         <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#fff', marginBottom: '0.5rem' }}>{data.headline}</h1>
@@ -116,7 +120,7 @@ function PreviewHero({ data }: { data: HeroData }) {
   )
   // centered (default)
   return (
-    <div style={{ textAlign: 'center', padding: '3rem 2rem', background: 'var(--lp-surface, #f8fafc)', borderRadius: '16px' }}>
+    <div style={{ textAlign: 'center', padding: '3rem 2rem', background: 'var(--lp-surface, #f8fafc)', borderRadius: 'var(--lp-radius, 16px)' }}>
       <h1 style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--lp-text)', marginBottom: '0.5rem' }}>{data.headline}</h1>
       {data.subheadline && <p style={{ color: 'var(--lp-text-muted)', fontSize: '1rem', marginBottom: '0.5rem' }}>{data.subheadline}</p>}
       {ctaButtons}
@@ -132,7 +136,7 @@ function PreviewFeatures({ data }: { data: FeaturesData }) {
       {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text)', marginBottom: '1rem' }}>{data.heading}</h2>}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         {data.items?.map((item, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', background: 'var(--lp-surface, #f8fafc)', borderRadius: '10px', padding: '0.75rem' }}>
+          <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', background: 'var(--lp-surface, #f8fafc)', borderRadius: 'var(--lp-radius, 10px)', padding: '0.75rem' }}>
             <span style={{ fontSize: '1.25rem', flexShrink: 0 }}>{item.icon || '✓'}</span>
             <div>
               <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--lp-text)' }}>{item.title}</p>
@@ -149,7 +153,7 @@ function PreviewFeatures({ data }: { data: FeaturesData }) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {data.items?.map((item, i) => (
           <div key={i} style={{ display: 'flex', gap: '1rem', flexDirection: i % 2 === 1 ? 'row-reverse' : 'row', alignItems: 'center', flexWrap: 'wrap' }}>
-            <div style={{ flex: '0 0 3rem', height: '3rem', background: 'var(--lp-surface, #f8fafc)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>{item.icon || '✦'}</div>
+            <div style={{ flex: '0 0 3rem', height: '3rem', background: 'var(--lp-surface, #f8fafc)', borderRadius: 'var(--lp-radius, 10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>{item.icon || '✦'}</div>
             <div style={{ flex: 1 }}>
               <p style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--lp-text)' }}>{item.title}</p>
               <p style={{ fontSize: '0.75rem', color: 'var(--lp-text-muted)' }}>{item.description}</p>
@@ -165,7 +169,7 @@ function PreviewFeatures({ data }: { data: FeaturesData }) {
       {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: 700, color: 'var(--lp-text)', marginBottom: '1rem' }}>{data.heading}</h2>}
       <div style={{ display: 'grid', gridTemplateColumns: `repeat(${data.columns || 3}, 1fr)`, gap: '1rem' }}>
         {data.items?.map((item, i) => (
-          <div key={i} style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: '12px', padding: '1rem' }}>
+          <div key={i} style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: 'var(--lp-radius, 12px)', padding: '1rem' }}>
             {item.icon && <span style={{ fontSize: '1.5rem' }}>{item.icon}</span>}
             <h3 style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--lp-text)', margin: '0.5rem 0 0.25rem' }}>{item.title}</h3>
             <p style={{ fontSize: '0.8rem', color: 'var(--lp-text-muted)' }}>{item.description}</p>
@@ -187,7 +191,7 @@ function PreviewPricing({ data }: { data: PricingData }) {
       {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text)', marginBottom: '1rem' }}>{data.heading}</h2>}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         {data.plans?.map((plan, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', background: 'var(--lp-surface, #f8fafc)', borderRadius: '10px', padding: '0.75rem 1rem', border: plan.highlighted ? '1.5px solid var(--lp-primary)' : '1px solid var(--lp-text-muted, #94a3b8)' }}>
+          <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', background: 'var(--lp-surface, #f8fafc)', borderRadius: 'var(--lp-radius, 10px)', padding: '0.75rem 1rem', border: plan.highlighted ? '1.5px solid var(--lp-primary)' : '1px solid var(--lp-text-muted, #94a3b8)' }}>
             <span style={{ fontWeight: 600, fontSize: '0.85rem', color: 'var(--lp-text)' }}>{plan.name}</span>
             <span style={{ fontWeight: 700, color: 'var(--lp-text)' }}>{plan.price}</span>
             <span style={{ fontSize: '0.75rem', background: plan.highlighted ? 'var(--lp-primary)' : 'var(--lp-text-muted, #94a3b8)', color: plan.highlighted ? '#fff' : '#475569', padding: '0.2rem 0.6rem', borderRadius: '6px' }}>{plan.cta?.text}</span>
@@ -203,7 +207,7 @@ function PreviewPricing({ data }: { data: PricingData }) {
         {data.plans?.map((plan, i) => {
           const isCenter = i === Math.floor((data.plans?.length || 0) / 2) || plan.highlighted
           return (
-            <div key={i} style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: '12px', padding: isCenter ? '1.5rem' : '1rem', minWidth: isCenter ? '160px' : '130px', border: isCenter ? '2px solid var(--lp-primary)' : '1px solid var(--lp-text-muted, #94a3b8)', transform: isCenter ? 'scale(1.05)' : 'none' }}>
+            <div key={i} style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: 'var(--lp-radius, 12px)', padding: isCenter ? '1.5rem' : '1rem', minWidth: isCenter ? '160px' : '130px', border: isCenter ? '2px solid var(--lp-primary)' : '1px solid var(--lp-text-muted, #94a3b8)', transform: isCenter ? 'scale(1.05)' : 'none' }}>
               <h3 style={{ fontWeight: 600, fontSize: isCenter ? '1rem' : '0.85rem', color: 'var(--lp-text)' }}>{plan.name}</h3>
               <p style={{ fontSize: isCenter ? '1.5rem' : '1.1rem', fontWeight: 700, color: 'var(--lp-text)' }}>{plan.price}</p>
             </div>
@@ -218,7 +222,7 @@ function PreviewPricing({ data }: { data: PricingData }) {
       {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: 700, color: 'var(--lp-text)', marginBottom: '1rem' }}>{data.heading}</h2>}
       <div style={{ display: 'grid', gridTemplateColumns: gridCols, gap: '1rem', ...gridConstraint }}>
         {plans.map((plan, i) => (
-          <div key={i} style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: '12px', padding: '1.5rem', border: plan.highlighted ? '2px solid var(--lp-primary)' : '1px solid var(--lp-text-muted, #94a3b8)', display: 'flex', flexDirection: 'column' }}>
+          <div key={i} style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: 'var(--lp-radius, 12px)', padding: '1.5rem', border: plan.highlighted ? '2px solid var(--lp-primary)' : '1px solid var(--lp-text-muted, #94a3b8)', display: 'flex', flexDirection: 'column' }}>
             {plan.badge && <span style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--lp-primary)', padding: '0.15rem 0.5rem', background: 'rgba(59,130,246,0.12)', borderRadius: '999px', marginBottom: '0.5rem', display: 'inline-block', alignSelf: 'flex-start' }}>{plan.badge}</span>}
             <h3 style={{ fontWeight: 600, color: 'var(--lp-text)' }}>{plan.name}</h3>
             <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--lp-text)' }}>{plan.price}<span style={{ fontSize: '0.8rem', color: 'var(--lp-text-muted)' }}>{plan.period}</span></p>
@@ -238,7 +242,7 @@ function PreviewTestimonials({ data }: { data: TestimonialsData }) {
     <div style={{ padding: '2rem 1rem', textAlign: 'center' }}>
       {data.heading && <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text)', marginBottom: '1rem' }}>{data.heading}</h2>}
       {data.items?.[0] && (
-        <div style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: '12px', padding: '1.5rem', maxWidth: '420px', margin: '0 auto' }}>
+        <div style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: 'var(--lp-radius, 12px)', padding: '1.5rem', maxWidth: '420px', margin: '0 auto' }}>
           <p style={{ fontStyle: 'italic', fontSize: '0.95rem', color: 'var(--lp-text)', marginBottom: '1rem' }}>"{data.items[0].quote}"</p>
           <p style={{ fontWeight: 600, fontSize: '0.85rem' }}>{data.items[0].name}</p>
         </div>
@@ -261,7 +265,7 @@ function PreviewTestimonials({ data }: { data: TestimonialsData }) {
       {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text)', marginBottom: '1rem' }}>{data.heading}</h2>}
       <div style={{ display: 'flex', gap: '0.75rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
         {data.items?.map((t, i) => (
-          <div key={i} style={{ flexShrink: 0, width: '220px', background: 'var(--lp-surface, #f8fafc)', borderRadius: '10px', overflow: 'hidden' }}>
+          <div key={i} style={{ flexShrink: 0, width: '220px', background: 'var(--lp-surface, #f8fafc)', borderRadius: 'var(--lp-radius, 10px)', overflow: 'hidden' }}>
             {t.image && <img src={t.image} alt={t.name} style={{ width: '100%', height: '100px', objectFit: 'cover' }} />}
             <div style={{ padding: '0.5rem' }}>
               <p style={{ fontSize: '0.7rem', fontStyle: 'italic', color: 'var(--lp-text-muted)', marginBottom: '0.25rem' }}>"{t.quote}"</p>
@@ -283,7 +287,7 @@ function PreviewTestimonials({ data }: { data: TestimonialsData }) {
       {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text)', marginBottom: '1rem' }}>{data.heading}</h2>}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
         {data.items?.map((t, i) => (
-          <div key={i} style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: '10px', overflow: 'hidden' }}>
+          <div key={i} style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: 'var(--lp-radius, 10px)', overflow: 'hidden' }}>
             {t.image && <img src={t.image} alt={t.name} style={{ width: '100%', height: '80px', objectFit: 'cover' }} />}
             <div style={{ padding: '0.75rem' }}>
               <p style={{ fontStyle: 'italic', fontSize: '0.78rem', color: 'var(--lp-text-muted)', marginBottom: '0.5rem' }}>"{t.quote}"</p>
@@ -302,7 +306,7 @@ function PreviewFaq({ data }: { data: FaqData }) {
     <div style={{ padding: '2rem 1rem' }}>
       {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text)', marginBottom: '1rem' }}>{data.heading}</h2>}
       {data.items?.map((faq, i) => (
-        <div key={i} style={{ display: 'flex', gap: '0', marginBottom: '0.25rem', border: '1px solid var(--lp-text-muted, #94a3b8)', borderRadius: '8px', overflow: 'hidden' }}>
+        <div key={i} style={{ display: 'flex', gap: '0', marginBottom: '0.25rem', border: '1px solid var(--lp-text-muted, #94a3b8)', borderRadius: 'var(--lp-radius, 8px)', overflow: 'hidden' }}>
           <div style={{ flex: 1, padding: '0.6rem 0.75rem', background: 'var(--lp-surface, #f8fafc)', borderRight: '1px solid var(--lp-text-muted, #94a3b8)' }}>
             <p style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--lp-text)' }}>{faq.question}</p>
           </div>
@@ -329,7 +333,7 @@ function PreviewFaq({ data }: { data: FaqData }) {
     <div style={{ padding: '2rem 1rem' }}>
       {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text)', marginBottom: '1rem' }}>{data.heading}</h2>}
       {data.items?.map((faq, i) => (
-        <div key={i} style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: '10px', padding: '0.75rem 1rem', marginBottom: '0.4rem' }}>
+        <div key={i} style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: 'var(--lp-radius, 10px)', padding: '0.75rem 1rem', marginBottom: '0.4rem' }}>
           <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--lp-text)' }}>▸ {faq.question}</p>
         </div>
       ))}
@@ -357,7 +361,7 @@ function PreviewHowItWorks({ data }: { data: HowItWorksData }) {
       {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text)', marginBottom: '1rem' }}>{data.heading}</h2>}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
         {data.items?.map((step, i) => (
-          <div key={i} style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: '10px', padding: '0.75rem', border: '1px solid var(--lp-text-muted)' }}>
+          <div key={i} style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: 'var(--lp-radius, 10px)', padding: '0.75rem', border: '1px solid var(--lp-text-muted)' }}>
             <div style={{ fontSize: '1.25rem', marginBottom: '0.4rem' }}>{step.icon || `${i + 1}️⃣`}</div>
             <p style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--lp-text)' }}>{step.title}</p>
           </div>
@@ -371,7 +375,7 @@ function PreviewHowItWorks({ data }: { data: HowItWorksData }) {
       {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text)', marginBottom: '1rem' }}>{data.heading}</h2>}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
         {data.items?.map((step, i) => (
-          <div key={i} style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: '10px', padding: '0.75rem', textAlign: 'center' }}>
+          <div key={i} style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: 'var(--lp-radius, 10px)', padding: '0.75rem', textAlign: 'center' }}>
             <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', background: 'rgba(22,163,74,0.12)', color: 'var(--lp-primary)', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.5rem', fontSize: '0.85rem' }}>{step.number ?? i + 1}</div>
             <p style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--lp-text)' }}>{step.title}</p>
           </div>
@@ -387,7 +391,7 @@ function PreviewTeam({ data }: { data: TeamData }) {
     <div style={{ padding: '2rem 1rem' }}>
       {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text)', marginBottom: '1rem' }}>{data.heading}</h2>}
       {data.members?.map((m, i) => (
-        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'var(--lp-surface, #f8fafc)', borderRadius: '10px', padding: '0.6rem 0.75rem', marginBottom: '0.4rem' }}>
+        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'var(--lp-surface, #f8fafc)', borderRadius: 'var(--lp-radius, 10px)', padding: '0.6rem 0.75rem', marginBottom: '0.4rem' }}>
           <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', background: 'var(--lp-text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.8rem', color: 'var(--lp-primary)', flexShrink: 0 }}>{m.name?.charAt(0)}</div>
           <div>
             <p style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--lp-text)' }}>{m.name}</p>
@@ -402,7 +406,7 @@ function PreviewTeam({ data }: { data: TeamData }) {
       {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text)', marginBottom: '1rem' }}>{data.heading}</h2>}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center' }}>
         {data.members?.map((m, i) => (
-          <div key={i} style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: '8px', padding: '0.4rem 0.75rem', textAlign: 'center' }}>
+          <div key={i} style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: 'var(--lp-radius, 8px)', padding: '0.4rem 0.75rem', textAlign: 'center' }}>
             <p style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--lp-text)' }}>{m.name}</p>
             <p style={{ fontSize: '0.7rem', color: 'var(--lp-text-muted)' }}>{m.role}</p>
           </div>
@@ -416,7 +420,7 @@ function PreviewTeam({ data }: { data: TeamData }) {
       {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text)', marginBottom: '1rem' }}>{data.heading}</h2>}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
         {data.members?.map((m, i) => (
-          <div key={i} style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: '10px', padding: '0.75rem', textAlign: 'center' }}>
+          <div key={i} style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: 'var(--lp-radius, 10px)', padding: '0.75rem', textAlign: 'center' }}>
             <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '50%', background: 'rgba(22,163,74,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '1rem', color: 'var(--lp-primary)', margin: '0 auto 0.5rem' }}>{m.name?.charAt(0)}</div>
             <p style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--lp-text)' }}>{m.name}</p>
             <p style={{ fontSize: '0.72rem', color: 'var(--lp-text-muted)' }}>{m.role}</p>
@@ -436,7 +440,7 @@ function PreviewCta({ data }: { data: CtaData }) {
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center', marginTop: '1rem' }}>
       {ctaList.map((item, i) => (
         <span key={i} style={{
-          display: 'inline-block', padding: '0.5rem 1.5rem', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 600,
+          display: 'inline-block', padding: '0.5rem 1.5rem', borderRadius: 'var(--lp-radius, 10px)', fontSize: '0.85rem', fontWeight: 600,
           ...(item.variant === 'outline' ? { border: '2px solid var(--lp-primary)', color: 'var(--lp-primary)', background: 'transparent' }
             : item.variant === 'secondary' || i > 0 ? { background: 'rgba(0,0,0,0.08)', color: 'var(--lp-text)' }
             : { background: 'var(--lp-primary)', color: '#fff' })
@@ -446,7 +450,7 @@ function PreviewCta({ data }: { data: CtaData }) {
   )
 
   if (v === 'split') return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1.5rem', padding: '2rem', background: 'var(--lp-surface)', borderRadius: '14px', flexWrap: 'wrap' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1.5rem', padding: '2rem', background: 'var(--lp-surface)', borderRadius: 'var(--lp-radius, 14px)', flexWrap: 'wrap' }}>
       <div>
         <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--lp-text)' }}>{data.headline}</h2>
         {data.subheadline && <p style={{ color: 'var(--lp-text-muted)', fontSize: '0.85rem', marginTop: '0.25rem' }}>{data.subheadline}</p>}
@@ -454,7 +458,7 @@ function PreviewCta({ data }: { data: CtaData }) {
       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
         {ctaList.map((item, i) => (
           <span key={i} style={{
-            display: 'inline-block', padding: '0.5rem 1.5rem', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 600,
+            display: 'inline-block', padding: '0.5rem 1.5rem', borderRadius: 'var(--lp-radius, 10px)', fontSize: '0.85rem', fontWeight: 600,
             ...(i > 0 ? { background: 'rgba(0,0,0,0.08)', color: 'var(--lp-text)' } : { background: 'var(--lp-primary)', color: '#fff' })
           }}>{item.text}</span>
         ))}
@@ -462,12 +466,12 @@ function PreviewCta({ data }: { data: CtaData }) {
     </div>
   )
   if (v === 'banner') return (
-    <div style={{ textAlign: 'center', padding: '3rem 2rem', background: 'linear-gradient(135deg, var(--lp-primary), var(--lp-secondary))', borderRadius: '14px' }}>
+    <div style={{ textAlign: 'center', padding: '3rem 2rem', background: 'linear-gradient(135deg, var(--lp-primary), var(--lp-secondary))', borderRadius: 'var(--lp-radius, 14px)' }}>
       <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#fff', marginBottom: '0.5rem' }}>{data.headline}</h2>
       {data.subheadline && <p style={{ color: 'var(--lp-bg, #f8fafc)', marginBottom: '0.5rem' }}>{data.subheadline}</p>}
       <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '1rem' }}>
         {ctaList.map((item, i) => (
-          <span key={i} style={{ display: 'inline-block', background: i === 0 ? '#fff' : 'rgba(255,255,255,0.2)', color: i === 0 ? 'var(--lp-primary)' : '#fff', padding: '0.5rem 1.5rem', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 700 }}>{item.text}</span>
+          <span key={i} style={{ display: 'inline-block', background: i === 0 ? '#fff' : 'rgba(255,255,255,0.2)', color: i === 0 ? 'var(--lp-primary)' : '#fff', padding: '0.5rem 1.5rem', borderRadius: 'var(--lp-radius, 10px)', fontSize: '0.85rem', fontWeight: 700 }}>{item.text}</span>
         ))}
       </div>
     </div>
@@ -481,7 +485,7 @@ function PreviewCta({ data }: { data: CtaData }) {
     </div>
   )
   if (v === 'with-image') return (
-    <div style={{ textAlign: 'center', padding: '3rem 2rem', borderRadius: '14px', position: 'relative', overflow: 'hidden', background: data.backgroundImage ? `url(${data.backgroundImage}) center/cover` : 'var(--lp-surface)' }}>
+    <div style={{ textAlign: 'center', padding: '3rem 2rem', borderRadius: 'var(--lp-radius, 14px)', position: 'relative', overflow: 'hidden', background: data.backgroundImage ? `url(${data.backgroundImage}) center/cover` : 'var(--lp-surface)' }}>
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)' }} />
       <div style={{ position: 'relative', zIndex: 1 }}>
         <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#fff', marginBottom: '0.5rem' }}>{data.headline}</h2>
@@ -492,7 +496,7 @@ function PreviewCta({ data }: { data: CtaData }) {
   )
   // default
   return (
-    <div style={{ textAlign: 'center', padding: '2.5rem 2rem', background: 'var(--lp-surface)', borderRadius: '14px' }}>
+    <div style={{ textAlign: 'center', padding: '2.5rem 2rem', background: 'var(--lp-surface)', borderRadius: 'var(--lp-radius, 14px)' }}>
       <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text)', marginBottom: '0.5rem' }}>{data.headline}</h2>
       {data.subheadline && <p style={{ color: 'var(--lp-text-muted)', marginBottom: '0.5rem' }}>{data.subheadline}</p>}
       {ctaButtons}
@@ -510,7 +514,7 @@ function PreviewStats({ data }: { data: StatsData }) {
       {data.heading && <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 700, color: 'var(--lp-text)', marginBottom: '1rem' }}>{data.heading}</h2>}
       <div style={{ display: 'grid', gridTemplateColumns: gridCols, gap: '0.75rem', ...gridConstraint }}>
         {items.map((s, i) => (
-          <div key={i} style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: '10px', padding: '0.75rem', textAlign: 'center', border: '1px solid var(--lp-text-muted)' }}>
+          <div key={i} style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: 'var(--lp-radius, 10px)', padding: '0.75rem', textAlign: 'center', border: '1px solid var(--lp-text-muted)' }}>
             <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--lp-primary)' }}>{s.prefix}{s.value}{s.suffix}</div>
             <div style={{ fontSize: '0.72rem', color: 'var(--lp-text-muted)' }}>{s.label}</div>
           </div>
@@ -545,11 +549,11 @@ function PreviewStats({ data }: { data: StatsData }) {
 function PreviewFooter({ data, pageTitle }: { data: FooterData; pageTitle?: string }) {
   const copyright = data.text || `© ${new Date().getFullYear()} ${pageTitle || ''}`
   const v = data.variant || 'simple'
+  const socialLinks = data.socialLinks || []
 
   if (v === 'columns') return (
     <div style={{ borderTop: '1px solid var(--lp-text-muted, #94a3b8)', padding: '1.5rem', fontSize: '0.75rem' }}>
       <div style={{ display: 'flex', gap: '2rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-        {/* Link columns */}
         {data.columns && data.columns.length > 0 && (
           <div style={{ display: 'grid', gridTemplateColumns: `repeat(${data.columns.length}, 1fr)`, gap: '0.75rem', flex: 1, minWidth: 0 }}>
             {data.columns.map((col, i) => (
@@ -561,11 +565,21 @@ function PreviewFooter({ data, pageTitle }: { data: FooterData; pageTitle?: stri
           </div>
         )}
       </div>
-      <p style={{ color: 'var(--lp-text-muted)', borderTop: '1px solid var(--lp-text-muted, #94a3b8)', paddingTop: '0.75rem', textAlign: 'center' }}>{copyright}</p>
+      <div style={{ borderTop: '1px solid var(--lp-text-muted, #94a3b8)', paddingTop: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <p style={{ color: 'var(--lp-text-muted)' }}>{copyright}</p>
+        {socialLinks.map((sl, i) => <span key={i} title={sl.label || sl.icon} style={{ fontSize: '1.1rem' }}>{sl.icon}</span>)}
+      </div>
     </div>
   )
   if (v === 'minimal') return (
-    <div style={{ padding: '0.75rem', textAlign: 'center', color: 'var(--lp-text-muted)', fontSize: '0.7rem' }}>{copyright}</div>
+    <div style={{ padding: '0.75rem', textAlign: 'center', color: 'var(--lp-text-muted)', fontSize: '0.7rem' }}>
+      {socialLinks.length > 0 && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+          {socialLinks.map((sl, i) => <span key={i} title={sl.label || sl.icon} style={{ fontSize: '1rem' }}>{sl.icon}</span>)}
+        </div>
+      )}
+      {copyright}
+    </div>
   )
   // simple (default)
   return (
@@ -573,6 +587,11 @@ function PreviewFooter({ data, pageTitle }: { data: FooterData; pageTitle?: stri
       {data.links && data.links.length > 0 && (
         <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
           {data.links.map((l, i) => <span key={i} style={{ color: 'var(--lp-text-muted)' }}>{l.label}</span>)}
+        </div>
+      )}
+      {socialLinks.length > 0 && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
+          {socialLinks.map((sl, i) => <span key={i} title={sl.label || sl.icon} style={{ fontSize: '1.2rem' }}>{sl.icon}</span>)}
         </div>
       )}
       {copyright}
@@ -657,18 +676,30 @@ function PreviewDivider({ data }: { data: DividerData }) {
 }
 
 function PreviewCountdown({ data }: { data: CountdownData }) {
+  // Calculate static diff from targetDate for display (not ticking — just snapshot)
+  const units: { label: string; value: number }[] = (() => {
+    if (!data.targetDate) return [{ label: 'Days', value: 0 }, { label: 'Hours', value: 0 }, { label: 'Mins', value: 0 }, { label: 'Secs', value: 0 }]
+    const diff = Math.max(0, new Date(data.targetDate).getTime() - Date.now())
+    const secs = Math.floor(diff / 1000)
+    return [
+      { label: 'Days', value: Math.floor(secs / 86400) },
+      { label: 'Hours', value: Math.floor((secs % 86400) / 3600) },
+      { label: 'Mins', value: Math.floor((secs % 3600) / 60) },
+      { label: 'Secs', value: secs % 60 },
+    ]
+  })()
   return (
     <div style={{ padding: '1.5rem', textAlign: 'center' }}>
       {data.heading && <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--lp-text)', marginBottom: '0.75rem' }}>{data.heading}</p>}
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
-        {['DD','HH','MM','SS'].map((u) => (
-          <div key={u} style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--lp-accent, #16a34a)' }}>{u}</div>
-            <div style={{ fontSize: '0.6rem', color: 'var(--lp-text-muted)' }}>{u === 'DD' ? 'Days' : u === 'HH' ? 'Hours' : u === 'MM' ? 'Mins' : 'Secs'}</div>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem' }}>
+        {units.map((u) => (
+          <div key={u.label} style={{ textAlign: 'center', background: 'var(--lp-surface, #f8fafc)', borderRadius: 'var(--lp-radius, 10px)', padding: '0.5rem 0.75rem', minWidth: '3rem' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--lp-accent, var(--lp-primary, #16a34a))', lineHeight: 1 }}>{String(u.value).padStart(2, '0')}</div>
+            <div style={{ fontSize: '0.6rem', color: 'var(--lp-text-muted)', marginTop: '0.2rem' }}>{u.label}</div>
           </div>
         ))}
       </div>
-      {data.targetDate && <p style={{ fontSize: '0.7rem', color: 'var(--lp-text-muted)', marginTop: '0.5rem' }}>{data.targetDate}</p>}
+      {data.targetDate && <p style={{ fontSize: '0.7rem', color: 'var(--lp-text-muted)', marginTop: '0.5rem' }}>{new Date(data.targetDate).toLocaleDateString()}</p>}
     </div>
   )
 }
@@ -682,8 +713,8 @@ function PreviewContactForm({ data }: { data: ContactFormData }) {
         {fields.map((f, i) => (
           <div key={i} style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: '6px', padding: '0.5rem', fontSize: '0.75rem', color: 'var(--lp-text-muted)' }}>{f.label} ({f.type})</div>
         ))}
-        {fields.length === 0 && <div style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: '6px', padding: '0.5rem', fontSize: '0.75rem', color: 'var(--lp-text-muted)' }}>No fields configured</div>}
-        <div style={{ background: 'var(--lp-primary)', borderRadius: '6px', padding: '0.4rem 1rem', fontSize: '0.75rem', color: 'white', textAlign: 'center', alignSelf: 'flex-start' }}>{data.submitText || 'Send Message'}</div>
+        {fields.length === 0 && <div style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: 'var(--lp-radius, 6px)', padding: '0.5rem', fontSize: '0.75rem', color: 'var(--lp-text-muted)' }}>No fields configured</div>}
+        <div style={{ background: 'var(--lp-primary)', borderRadius: 'var(--lp-radius, 6px)', padding: '0.4rem 1rem', fontSize: '0.75rem', color: 'white', textAlign: 'center', alignSelf: 'flex-start' }}>{data.submitText || 'Send Message'}</div>
       </div>
     </div>
   )
@@ -697,7 +728,7 @@ function PreviewBanner({ data }: { data: BannerData }) {
   }
   const c = colors[data.variant || 'info']
   return (
-    <div style={{ background: c.bg, color: c.text, padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', fontSize: '0.8rem', borderRadius: '6px' }}>
+    <div style={{ background: c.bg, color: c.text, padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', fontSize: '0.8rem', borderRadius: 'var(--lp-radius, 6px)' }}>
       <span>{data.text}</span>
       {data.cta && <span style={{ fontWeight: 700, textDecoration: 'underline' }}>{data.cta.text}</span>}
     </div>
@@ -710,7 +741,7 @@ function PreviewSocialProof({ data }: { data: SocialProofData }) {
     <div style={{
       textAlign: 'center', padding: v === 'banner' ? '0.75rem 1rem' : '0.5rem 1rem',
       color: 'var(--lp-text-muted)', fontSize: '0.8rem',
-      ...(v === 'banner' ? { background: 'rgba(59,130,246,0.06)', borderRadius: '10px' } : {})
+      ...(v === 'banner' ? { background: 'rgba(59,130,246,0.06)', borderRadius: 'var(--lp-radius, 10px)' } : {})
     }}>
       {data.icon && <span style={{ marginRight: '0.35rem' }}>{data.icon}</span>}
       {data.text || 'Social proof text'}
@@ -765,7 +796,7 @@ function PreviewAiSearch({ data }: { data: AiSearchData }) {
   return (
     <div style={{ padding: '2rem 1rem', textAlign: 'center' }}>
       <div style={{ maxWidth: '400px', margin: '0 auto' }}>
-        <div style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: '12px', padding: '1rem', border: '1px solid var(--lp-text-muted)' }}>
+        <div style={{ background: 'var(--lp-surface, #f8fafc)', borderRadius: 'var(--lp-radius, 12px)', padding: '1rem', border: '1px solid var(--lp-text-muted)' }}>
           <p style={{ color: 'var(--lp-text-muted)', fontSize: '0.8rem' }}>{data.placeholder || 'Search...'}</p>
         </div>
         {data.hints && data.hints.length > 0 && (

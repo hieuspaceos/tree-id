@@ -140,6 +140,8 @@ export interface NavData {
   links?: Array<{ label: string; href: string }>
   /** Layout variant: default (logo left, links right), centered (logo center, links split), transparent (no background overlay) */
   variant?: 'default' | 'centered' | 'transparent'
+  /** Social media links shown in nav */
+  socialLinks?: Array<{ icon: string; url: string; label?: string }>
 }
 
 export interface FooterData {
@@ -149,6 +151,8 @@ export interface FooterData {
   variant?: 'simple' | 'columns' | 'minimal'
   /** Column groups for columns variant — array of { heading, links[] } */
   columns?: Array<{ heading: string; links: Array<{ label: string; href: string }> }>
+  /** Social media links shown in footer */
+  socialLinks?: Array<{ icon: string; url: string; label?: string }>
 }
 
 export interface VideoData {

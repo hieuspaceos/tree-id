@@ -1,11 +1,51 @@
 ---
+/**
+ * Rich text section — renders Content (Markdown or HTML).
+ * Auto-detects Markdown vs HTML: if content starts with '<' treat as HTML, otherwise parse as Markdown.
+ * Supports: headings (#), bold (**), italic (*), links ([text](url)), unordered/ordered lists, line breaks.
+ */
 import type { RichTextData } from '@/lib/landing/landing-types'
 
 interface Props extends RichTextData {}
 const { content } = Astro.props
 
+/** Minimal Markdown-to-HTML parser (no external deps) */
+function parseMarkdown(md: string): string {
+  return md
+    // Headings
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    // Bold + italic
+    .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    // Links
+    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>')
+    // Unordered lists (wrap with <ul>)
+    .replace(/^[\s]*[-*] (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
+    // Ordered lists
+    .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+    // Horizontal rules
+    .replace(/^---$/gm, '<hr />')
+    // Paragraphs (blank-line separated non-tag lines)
+    .replace(/^(?!<)(.+)$/gm, '<p>$1</p>')
+    // Clean up double-wrapped paragraphs
+    .replace(/<p>(<h[1-6]>)/g, '$1')
+    .replace(/(<\/h[1-6]>)<\/p>/g, '$1')
+    .replace(/<p>(<ul>)/g, '$1')
+    .replace(/(<\/ul>)<\/p>/g, '$1')
+    .replace(/<p>(<li>)/g, '$1')
+    .replace(/(<\/li>)<\/p>/g, '$1')
+    .replace(/<p>(<hr \/>)<\/p>/g, '$1')
+}
+
+const isHtml = content.trimStart().startsWith('<')
+const html = isHtml ? content : parseMarkdown(content)
+
 /** Strip script tags for basic XSS protection */
-const safe = content.replace(/<script[\s\S]*?<\/script>/gi, '')
+const safe = html.replace(/<script[\s\S]*?<\/script>/gi, '')
 ---
 
 <section class="landing-section">

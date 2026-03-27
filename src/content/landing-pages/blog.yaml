@@ -271,7 +271,7 @@ design:
   fonts:
     heading: Outfit
     body: Nunito
-  borderRadius: 14px
+  borderRadius: 2px
 description: >-
   Production-ready AI subagents, workflows, and integrations for software development and growth marketing. Built on
   Claude Code.

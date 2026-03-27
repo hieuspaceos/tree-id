@@ -1,0 +1,47 @@
+---
+/**
+ * Comparison table section — side-by-side feature/price comparison.
+ * Renders a responsive grid table with header row, data rows, and optional row highlighting.
+ * Values containing "✓" or "✗" render as colored check/cross icons.
+ */
+import type { ComparisonData } from '@/lib/landing/landing-types'
+
+interface Props extends ComparisonData {}
+const { heading, subheading, columns, rows } = Astro.props
+const gridCols = `1fr ${'1fr '.repeat(columns.length).trim()}`
+---
+
+<section class="landing-section">
+  {heading && <h2 class="mb-2 text-center text-3xl font-bold">{heading}</h2>}
+  {subheading && <p class="mx-auto mb-8 max-w-2xl text-center" style="color: var(--lp-text-muted)">{subheading}</p>}
+
+  <div style={`background: var(--lp-surface); border: 1px solid color-mix(in srgb, var(--lp-text) 7%, transparent); border-radius: var(--lp-radius); overflow: hidden`}>
+    {/* Header row */}
+    <div style={`display: grid; grid-template-columns: ${gridCols}; border-bottom: 1px solid color-mix(in srgb, var(--lp-text) 7%, transparent)`}>
+      <div style="padding: 1.125rem 1.5rem; font-size: 0.75rem; color: var(--lp-text-muted); letter-spacing: 0.06em; text-transform: uppercase; font-weight: 500; background: color-mix(in srgb, var(--lp-text) 2%, transparent)"></div>
+      {columns.map((col, i) => (
+        <div style={`padding: 1.125rem 1.5rem; font-size: 0.75rem; color: var(--lp-text-muted); letter-spacing: 0.06em; text-transform: uppercase; font-weight: 500; background: color-mix(in srgb, var(--lp-text) 2%, transparent)${i < columns.length - 1 ? '; border-right: 1px solid color-mix(in srgb, var(--lp-text) 7%, transparent)' : ''}`}>
+          {col.label}
+        </div>
+      ))}
+    </div>
+
+    {/* Data rows */}
+    {rows.map((row, rowIdx) => (
+      <div style={`display: grid; grid-template-columns: ${gridCols}${rowIdx < rows.length - 1 ? '; border-bottom: 1px solid color-mix(in srgb, var(--lp-text) 7%, transparent)' : ''}${row.highlight ? '; background: color-mix(in srgb, var(--lp-accent, var(--lp-primary)) 8%, transparent)' : ''}`}>
+        <div style={`padding: 1.125rem 1.5rem; font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem; font-weight: ${row.highlight ? '600' : '400'}${row.highlight ? '; color: var(--lp-accent, var(--lp-primary))' : ''}`}>
+          {row.label}
+        </div>
+        {row.values.map((val, i) => {
+          const isCheck = val === '✓'
+          const isCross = val === '✗'
+          return (
+            <div style={`padding: 1.125rem 1.5rem; font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem${i < row.values.length - 1 ? '; border-right: 1px solid color-mix(in srgb, var(--lp-text) 7%, transparent)' : ''}`}>
+              {isCheck ? <span style="color: #4ade80; font-size: 1rem">✓</span> : isCross ? <span style={`color: color-mix(in srgb, var(--lp-text) ${row.highlight ? '40' : '20'}%, transparent); font-size: 1rem`}>✗</span> : val}
+            </div>
+          )
+        })}
+      </div>
+    ))}
+  </div>
+</section>

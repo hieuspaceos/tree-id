@@ -11,7 +11,7 @@ interface Props extends FooterData {
   pageTitle?: string
 }
 
-const { text, links = [], columns = [], pageTitle, variant = 'simple' } = Astro.props
+const { text, links = [], columns = [], pageTitle, variant = 'simple', socialLinks = [] } = Astro.props
 const year = new Date().getFullYear()
 const copyright = text || `© ${year} ${pageTitle || ''}`
 ---
@@ -23,6 +23,15 @@ const copyright = text || `© ${year} ${pageTitle || ''}`
       <div class="mb-4 flex justify-center gap-4">
         {links.map(link => (
           <a href={link.href} class="transition-colors hover:opacity-70" style="color: var(--lp-text-muted)">{link.label}</a>
+        ))}
+      </div>
+    )}
+    {socialLinks.length > 0 && (
+      <div class="mb-3 flex justify-center gap-3">
+        {socialLinks.map(sl => (
+          <a href={sl.url} target="_blank" rel="noopener noreferrer" title={sl.label || sl.icon}
+            class="transition-opacity hover:opacity-70" style="font-size:1.3rem;color:var(--lp-text-muted)"
+            aria-label={sl.label || sl.icon}>{sl.icon}</a>
         ))}
       </div>
     )}
@@ -49,15 +58,18 @@ const copyright = text || `© ${year} ${pageTitle || ''}`
           </div>
         ))}
       </div>
-      <div style={`border-top: 1px solid color-mix(in srgb, var(--lp-text) 10%, transparent); padding-top: 1.5rem; display: flex; align-items: center; flex-wrap: wrap; gap: 1rem; ${links.length > 0 ? 'justify-content: space-between' : 'justify-content: center'}`}>
+      <div style={`border-top: 1px solid color-mix(in srgb, var(--lp-text) 10%, transparent); padding-top: 1.5rem; display: flex; align-items: center; flex-wrap: wrap; gap: 1rem; ${(links.length > 0 || socialLinks.length > 0) ? 'justify-content: space-between' : 'justify-content: center'}`}>
         <p style="color: var(--lp-text-muted)">{copyright}</p>
-        {links.length > 0 && (
-          <div class="flex gap-4">
-            {links.map(link => (
-              <a href={link.href} class="transition-colors hover:opacity-70" style="color: var(--lp-text-muted)">{link.label}</a>
-            ))}
-          </div>
-        )}
+        <div class="flex items-center gap-4">
+          {links.map(link => (
+            <a href={link.href} class="transition-colors hover:opacity-70" style="color: var(--lp-text-muted)">{link.label}</a>
+          ))}
+          {socialLinks.map(sl => (
+            <a href={sl.url} target="_blank" rel="noopener noreferrer" title={sl.label || sl.icon}
+              class="transition-opacity hover:opacity-70" style="font-size:1.2rem;color:var(--lp-text-muted)"
+              aria-label={sl.label || sl.icon}>{sl.icon}</a>
+          ))}
+        </div>
       </div>
     </div>
   </footer>
@@ -66,6 +78,15 @@ const copyright = text || `© ${year} ${pageTitle || ''}`
 {/* Minimal: just copyright line */}
 {variant === 'minimal' && (
   <footer class="landing-footer py-4 text-center text-xs" style="color: var(--lp-text-muted)">
+    {socialLinks.length > 0 && (
+      <div class="mb-2 flex justify-center gap-3">
+        {socialLinks.map(sl => (
+          <a href={sl.url} target="_blank" rel="noopener noreferrer" title={sl.label || sl.icon}
+            class="transition-opacity hover:opacity-70" style="font-size:1.1rem;color:var(--lp-text-muted)"
+            aria-label={sl.label || sl.icon}>{sl.icon}</a>
+        ))}
+      </div>
+    )}
     {copyright}
   </footer>
 )}

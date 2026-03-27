@@ -31,7 +31,7 @@ const SECTION_GROUPS: Array<{ group: string; items: SectionCatalogItem[] }> = [
     { type: 'stats', label: 'Stats', icon: '📊', desc: 'Key numbers' },
     { type: 'team', label: 'Team', icon: '👥', desc: 'Team members' },
     { type: 'faq', label: 'FAQ', icon: '❓', desc: 'Questions & answers' },
-    { type: 'rich-text', label: 'Rich Text', icon: '📝', desc: 'Free-form HTML content' },
+    { type: 'rich-text', label: 'Rich Text', icon: '📝', desc: 'Free-form Markdown or HTML content' },
   ]},
   { group: 'Conversion', items: [
     { type: 'cta', label: 'CTA', icon: '🚀', desc: 'Call to action banner' },
@@ -232,7 +232,7 @@ export function LandingPageEditor({ slug }: Props) {
             title="Toggle split preview"
           >{splitView ? '✕ Close Preview' : '⊞ Split Preview'}</button>
         )}
-        {!isNew && !splitView && <a href={`/${slug}`} target="_blank" rel="noopener noreferrer" className="admin-btn" style={{ fontSize: '0.8rem' }}>Preview</a>}
+        {!isNew && slug && <a href={`/${slug}`} target="_blank" rel="noopener" className="admin-btn" style={{ fontSize: '0.8rem' }}>View Page ↗</a>}
         <button className="admin-btn" onClick={() => setCloneOpen(true)} style={{ fontSize: '0.8rem' }} title="Clone from URL">
           Clone URL
         </button>

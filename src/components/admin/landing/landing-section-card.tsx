@@ -79,7 +79,7 @@ export function LandingSectionCard({ section, index, total, id, onChange, onMove
       <div
         style={{
           borderRadius: '10px',
-          marginBottom: '0.75rem',
+          marginBottom: '0.5rem',
           overflow: 'hidden',
           border: expanded ? '1px solid #3b82f6' : '1px solid transparent',
         }}
@@ -90,7 +90,7 @@ export function LandingSectionCard({ section, index, total, id, onChange, onMove
           display: 'flex',
           alignItems: 'center',
           gap: '0.75rem',
-          padding: '0.75rem 1rem',
+          padding: '0.5rem 0.75rem',
           cursor: 'pointer',
           userSelect: 'none',
         }}
@@ -107,7 +107,7 @@ export function LandingSectionCard({ section, index, total, id, onChange, onMove
         {/* Expand/collapse chevron */}
         <span style={{ color: '#94a3b8', fontSize: '0.8rem', transition: 'transform 0.15s', transform: expanded ? 'rotate(90deg)' : 'none' }}>▶</span>
 
-        <span style={{ flex: 1, fontWeight: 600, fontSize: '0.9rem', color: '#1e293b' }}>{label}</span>
+        <span style={{ flex: 1, fontWeight: 600, fontSize: '0.8rem', color: '#1e293b' }}>{label}</span>
 
         {/* Enabled toggle */}
         <label

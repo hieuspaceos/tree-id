@@ -4,6 +4,7 @@
  * Dynamic array support: items[] with add/remove.
  */
 import type { SectionData, HeroData, FeaturesData, PricingData, TestimonialsData, FaqData, CtaData, StatsData, HowItWorksData, TeamData, LogoWallData, NavData, FooterData, VideoData, ImageData, ImageTextData, GalleryData, MapData, RichTextData, DividerData, CountdownData, ContactFormData, BannerData, ContactFormField, LayoutData, LayoutChild, ComparisonData, AiSearchData, SocialProofData } from '@/lib/landing/landing-types'
+import { IconPicker } from './landing-icon-picker'
 
 type FormProps<T extends SectionData> = { data: T; onChange: (data: T) => void }
 
@@ -116,7 +117,7 @@ export function FeaturesSectionForm({ data, onChange }: FormProps<FeaturesData>)
       <Field label="Feature Items">
         {items.map((item, i) => (
           <div key={i} style={{ background: '#f8fafc', borderRadius: '8px', padding: '0.75rem', marginBottom: '0.5rem' }}>
-            <input placeholder="Icon (emoji or text)" style={{ ...inputStyle, marginBottom: '4px' }} value={item.icon || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], icon: e.target.value }; set('items', n) }} />
+            <div style={{ marginBottom: '4px' }}><IconPicker value={item.icon || ''} onChange={(v) => { const n = [...items]; n[i] = { ...n[i], icon: v }; set('items', n) }} placeholder="Icon (emoji or text)" /></div>
             <input placeholder="Title" style={{ ...inputStyle, marginBottom: '4px' }} value={item.title} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], title: e.target.value }; set('items', n) }} />
             <textarea placeholder="Description" style={{ ...textareaStyle, minHeight: '50px' }} value={item.description} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], description: e.target.value }; set('items', n) }} />
             <button type="button" onClick={() => set('items', items.filter((_, j) => j !== i))}
@@ -321,6 +322,7 @@ export function HowItWorksSectionForm({ data, onChange }: FormProps<HowItWorksDa
       <Field label="Steps">
         {items.map((item, i) => (
           <div key={i} style={{ background: '#f8fafc', borderRadius: '8px', padding: '0.75rem', marginBottom: '0.5rem' }}>
+            <div style={{ marginBottom: '4px' }}><IconPicker value={item.icon || ''} onChange={(v) => { const n = [...items]; n[i] = { ...n[i], icon: v }; set('items', n) }} placeholder="Icon (emoji or text)" /></div>
             <input placeholder="Step title" style={{ ...inputStyle, marginBottom: '4px' }} value={item.title} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], title: e.target.value }; set('items', n) }} />
             <textarea placeholder="Description" style={{ ...textareaStyle, minHeight: '50px' }} value={item.description} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], description: e.target.value }; set('items', n) }} />
             <button type="button" onClick={() => set('items', items.filter((_, j) => j !== i))}
@@ -419,6 +421,18 @@ function NavSectionForm({ data, onChange }: FormProps<NavData>) {
         <button type="button" onClick={() => set('links', [...links, { label: '', href: '' }])}
           style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add link</button>
       </Field>
+      <Field label="Social Links">
+        {(data.socialLinks || []).map((sl, i) => (
+          <div key={i} style={{ display: 'flex', gap: '0.35rem', marginBottom: '0.35rem', alignItems: 'center' }}>
+            <div style={{ width: '140px', flexShrink: 0 }}><IconPicker value={sl.icon} onChange={(v) => { const n = [...(data.socialLinks || [])]; n[i] = { ...n[i], icon: v }; set('socialLinks', n) }} placeholder="Icon" /></div>
+            <input style={{ ...inputStyle, flex: 1 }} value={sl.url} placeholder="https://twitter.com/..." onChange={(e) => { const n = [...(data.socialLinks || [])]; n[i] = { ...n[i], url: e.target.value }; set('socialLinks', n) }} />
+            <button type="button" onClick={() => set('socialLinks', (data.socialLinks || []).filter((_, j) => j !== i))}
+              style={{ padding: '4px 8px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>×</button>
+          </div>
+        ))}
+        <button type="button" onClick={() => set('socialLinks', [...(data.socialLinks || []), { icon: '', url: '' }])}
+          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add social link</button>
+      </Field>
     </>
   )
 }
@@ -482,6 +496,18 @@ function FooterSectionForm({ data, onChange }: FormProps<FooterData>) {
         ))}
         <button type="button" onClick={() => set('links', [...links, { label: '', href: '' }])}
           style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add link</button>
+      </Field>
+      <Field label="Social Links">
+        {(data.socialLinks || []).map((sl, i) => (
+          <div key={i} style={{ display: 'flex', gap: '0.35rem', marginBottom: '0.35rem', alignItems: 'center' }}>
+            <div style={{ width: '140px', flexShrink: 0 }}><IconPicker value={sl.icon} onChange={(v) => { const n = [...(data.socialLinks || [])]; n[i] = { ...n[i], icon: v }; set('socialLinks', n) }} placeholder="Icon" /></div>
+            <input style={{ ...inputStyle, flex: 1 }} value={sl.url} placeholder="https://twitter.com/..." onChange={(e) => { const n = [...(data.socialLinks || [])]; n[i] = { ...n[i], url: e.target.value }; set('socialLinks', n) }} />
+            <button type="button" onClick={() => set('socialLinks', (data.socialLinks || []).filter((_, j) => j !== i))}
+              style={{ padding: '4px 8px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>×</button>
+          </div>
+        ))}
+        <button type="button" onClick={() => set('socialLinks', [...(data.socialLinks || []), { icon: '', url: '' }])}
+          style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add social link</button>
       </Field>
     </>
   )
@@ -573,8 +599,8 @@ export function MapSectionForm({ data, onChange }: FormProps<MapData>) {
 
 export function RichTextSectionForm({ data, onChange }: FormProps<RichTextData>) {
   return (
-    <Field label="HTML Content">
-      <textarea style={{ ...textareaStyle, minHeight: '120px', fontFamily: 'monospace' }} value={data.content || ''} onChange={(e) => onChange({ ...data, content: e.target.value }) } placeholder="<p>Your content here...</p>" />
+    <Field label="Content (Markdown or HTML)">
+      <textarea style={{ ...textareaStyle, minHeight: '120px', fontFamily: 'monospace' }} value={data.content || ''} onChange={(e) => onChange({ ...data, content: e.target.value }) } placeholder="<p>HTML content</p> or **Markdown** text" />
     </Field>
   )
 }
@@ -865,7 +891,7 @@ export function SocialProofSectionForm({ data, onChange }: FormProps<SocialProof
   return (
     <>
       <Field label="Text"><input style={inputStyle} value={data.text || ''} onChange={(e) => set('text', e.target.value)} placeholder="Trusted by 100+ businesses" /></Field>
-      <Field label="Icon (emoji or text)"><input style={inputStyle} value={data.icon || ''} onChange={(e) => set('icon', e.target.value)} placeholder="🚀" /></Field>
+      <Field label="Icon"><IconPicker value={data.icon || ''} onChange={(v) => set('icon', v)} placeholder="🚀" /></Field>
       <Field label="Link URL (optional)"><input style={inputStyle} value={data.link || ''} onChange={(e) => set('link', e.target.value)} placeholder="https://..." /></Field>
       <Field label="Variant">
         <select style={inputStyle} value={data.variant || 'inline'} onChange={(e) => set('variant', e.target.value)}>

@@ -12,7 +12,7 @@ interface Props extends NavData {
   pageTitle?: string
 }
 
-const { brandName, links, sections = [], pageTitle, variant = 'default' } = Astro.props
+const { brandName, links, sections = [], pageTitle, variant = 'default', socialLinks = [] } = Astro.props
 
 const sectionLabels: Record<string, string> = {
   features: 'Features', pricing: 'Pricing', testimonials: 'Testimonials',
@@ -36,13 +36,20 @@ const brand = brandName || pageTitle || 'Home'
   <nav class="landing-nav sticky top-0 z-50" aria-label="Landing page navigation">
     <div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
       <a href="#" class="text-lg font-semibold tracking-tight" style="color: var(--lp-text)">{brand}</a>
-      {autoLinks.length > 0 && (
-        <div class="hidden items-center gap-1 sm:flex">
-          {autoLinks.map(link => (
-            <a href={link.href} class="rounded-full px-3 py-1.5 text-sm font-medium transition-colors" style="color: var(--lp-text-muted)">{link.label}</a>
-          ))}
-        </div>
-      )}
+      <div class="hidden items-center gap-1 sm:flex">
+        {autoLinks.map(link => (
+          <a href={link.href} class="rounded-full px-3 py-1.5 text-sm font-medium transition-colors" style="color: var(--lp-text-muted)">{link.label}</a>
+        ))}
+        {socialLinks.length > 0 && (
+          <span style="display:inline-flex;gap:0.25rem;margin-left:0.5rem">
+            {socialLinks.map(sl => (
+              <a href={sl.url} target="_blank" rel="noopener noreferrer" title={sl.label || sl.icon}
+                style="font-size:1.1rem;line-height:1;padding:4px;border-radius:6px;transition:opacity 0.2s;color:var(--lp-text-muted)"
+                aria-label={sl.label || sl.icon}>{sl.icon}</a>
+            ))}
+          </span>
+        )}
+      </div>
     </div>
   </nav>
 )}
@@ -59,10 +66,15 @@ const brand = brandName || pageTitle || 'Home'
       </div>
       {/* Center brand */}
       <a href="#" class="text-lg font-semibold tracking-tight" style="color: var(--lp-text); flex-shrink: 0; padding: 0 1rem">{brand}</a>
-      {/* Right links (second half) */}
+      {/* Right links (second half) + social links */}
       <div class="hidden items-center gap-1 sm:flex" style="flex: 1; justify-content: flex-end">
         {autoLinks.slice(Math.ceil(autoLinks.length / 2)).map(link => (
           <a href={link.href} class="rounded-full px-3 py-1.5 text-sm font-medium transition-colors" style="color: var(--lp-text-muted)">{link.label}</a>
+        ))}
+        {socialLinks.map(sl => (
+          <a href={sl.url} target="_blank" rel="noopener noreferrer" title={sl.label || sl.icon}
+            style="font-size:1.1rem;line-height:1;padding:4px;border-radius:6px;transition:opacity 0.2s;color:var(--lp-text-muted)"
+            aria-label={sl.label || sl.icon}>{sl.icon}</a>
         ))}
       </div>
     </div>
@@ -74,13 +86,16 @@ const brand = brandName || pageTitle || 'Home'
   <nav class="sticky top-0 z-50" style="background: transparent; border-bottom: none" aria-label="Landing page navigation">
     <div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
       <a href="#" class="text-lg font-semibold tracking-tight" style="color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.4)">{brand}</a>
-      {autoLinks.length > 0 && (
-        <div class="hidden items-center gap-1 sm:flex">
-          {autoLinks.map(link => (
-            <a href={link.href} class="rounded-full px-3 py-1.5 text-sm font-medium transition-colors" style="color: rgba(255,255,255,0.85)">{link.label}</a>
-          ))}
-        </div>
-      )}
+      <div class="hidden items-center gap-1 sm:flex">
+        {autoLinks.map(link => (
+          <a href={link.href} class="rounded-full px-3 py-1.5 text-sm font-medium transition-colors" style="color: rgba(255,255,255,0.85)">{link.label}</a>
+        ))}
+        {socialLinks.map(sl => (
+          <a href={sl.url} target="_blank" rel="noopener noreferrer" title={sl.label || sl.icon}
+            style="font-size:1.1rem;line-height:1;padding:4px;border-radius:6px;transition:opacity 0.2s;color:rgba(255,255,255,0.85)"
+            aria-label={sl.label || sl.icon}>{sl.icon}</a>
+        ))}
+      </div>
     </div>
   </nav>
 )}
