@@ -5,6 +5,10 @@
  */
 import type { SectionData, HeroData, FeaturesData, PricingData, TestimonialsData, FaqData, CtaData, StatsData, HowItWorksData, TeamData, LogoWallData, NavData, FooterData, VideoData, ImageData, ImageTextData, GalleryData, MapData, RichTextData, DividerData, CountdownData, ContactFormData, BannerData, ContactFormField, LayoutData, LayoutChild, ComparisonData, AiSearchData, SocialProofData } from '@/lib/landing/landing-types'
 import { IconPicker } from './landing-icon-picker'
+import { lazy, Suspense } from 'react'
+
+/** Lazy-load MarkdocEditor (CodeMirror) to avoid bundling in main chunk */
+const MarkdocEditor = lazy(() => import('../field-renderers/markdoc-editor'))
 
 type FormProps<T extends SectionData> = { data: T; onChange: (data: T) => void }
 
@@ -599,8 +603,10 @@ export function MapSectionForm({ data, onChange }: FormProps<MapData>) {
 
 export function RichTextSectionForm({ data, onChange }: FormProps<RichTextData>) {
   return (
-    <Field label="Content (Markdown or HTML)">
-      <textarea style={{ ...textareaStyle, minHeight: '120px', fontFamily: 'monospace' }} value={data.content || ''} onChange={(e) => onChange({ ...data, content: e.target.value }) } placeholder="<p>HTML content</p> or **Markdown** text" />
+    <Field label="Content (Markdown)">
+      <Suspense fallback={<textarea style={{ ...textareaStyle, minHeight: '120px', fontFamily: 'monospace' }} value={data.content || ''} onChange={(e) => onChange({ ...data, content: e.target.value })} placeholder="Loading editor..." />}>
+        <MarkdocEditor value={data.content || ''} onChange={(v) => onChange({ ...data, content: v })} />
+      </Suspense>
     </Field>
   )
 }
