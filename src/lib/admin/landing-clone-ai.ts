@@ -82,6 +82,11 @@ Rules:
 - Extract colors from the page's CSS/inline styles — find the dominant brand color
 - Keep content in the ORIGINAL language of the page
 
+ICON HANDLING:
+- SVG icons CANNOT be extracted. When you see SVG elements in HTML, replace them with a matching EMOJI character instead.
+- For icon fields, ALWAYS use emoji (e.g. ✨ 🚀 🔒 ⚡ 💡 🛡️ ✅ 📦 🎯 💰 ☁️ 📧 🔧 📊 🏆 ❤️). NEVER output "[SVG]" or raw SVG markup.
+- For rich-text sections with inline SVG icons, replace each SVG with the closest emoji.
+
 CRITICAL — avoid these common mistakes:
 - hero.cta and cta.cta are ALWAYS arrays: [{text, url, variant}], never a single object
 - PRICING: Count the actual pricing CARDS on the page. Do NOT create extra plans from CTA buttons, bundle links, or upsell text that appear elsewhere (hero, footer, CTA sections). If the page shows 2 pricing cards, output exactly 2 plans.
