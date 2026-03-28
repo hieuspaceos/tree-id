@@ -97,6 +97,9 @@ CRITICAL — avoid these common mistakes:
 - TESTIMONIALS: If testimonials scroll/slide horizontally, use variant "carousel". The "image" field is for screenshots of the original post, NOT avatar/profile pictures.
 - SOCIAL PROOF: Short trust lines like "Join 500+ happy customers" between sections should be "social-proof" type, NOT part of other sections.
 - Do NOT duplicate content across sections. Each piece of content belongs to exactly one section.
+- Keep rich-text content SHORT — summarize long HTML blocks instead of copying entire page source. Max 500 chars per rich-text content field.
+- For all text fields: extract the meaningful text only, not raw HTML markup. Clean up any HTML tags in text fields.
+- Keep JSON output compact — no unnecessary whitespace in string values.
 
 Return ONLY valid JSON (no markdown, no code blocks):
 {
@@ -161,8 +164,8 @@ async function fetchPageHtml(url: string): Promise<string> {
     })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const html = await res.text()
-    // Limit to ~100K chars to stay within Gemini context
-    return html.slice(0, 100_000)
+    // Limit to ~50K chars — keeps prompt smaller for faster/cheaper response
+    return html.slice(0, 50_000)
   } finally {
     clearTimeout(timeout)
   }
@@ -254,7 +257,7 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
       contents: [{ parts: [{ text: `Analyze this landing page HTML and decompose into sections:${intentContext}\n\nURL: ${url}\n\n${html}` }] }],
       generationConfig: {
         temperature: 0.2,
-        maxOutputTokens: 16384,
+        maxOutputTokens: 32768,
         responseMimeType: 'application/json',
       },
     }),
