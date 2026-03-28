@@ -65,8 +65,9 @@ export interface CloneResult {
   chunks?: number
 }
 
-/** Fetch HTML from URL with timeout */
+/** Fetch HTML from URL — tries direct fetch first, falls back to Jina Reader for JS-rendered pages */
 async function fetchPageHtml(url: string): Promise<string> {
+  // Try direct fetch first
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), 15000)
   try {
@@ -75,6 +76,34 @@ async function fetchPageHtml(url: string): Promise<string> {
       headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36' },
     })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const html = await res.text()
+
+    // Check if direct fetch has enough content
+    const cleaned = html.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '')
+    const words = cleaned.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(w => w.length > 2)
+    if (words.length >= 30) return html.slice(0, MAX_HTML)
+
+    // Not enough content — try Jina Reader for JS-rendered pages
+    return await fetchViaJina(url)
+  } catch (e) {
+    // Direct fetch failed — try Jina as fallback
+    try { return await fetchViaJina(url) } catch {}
+    throw e
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
+/** Fetch rendered HTML via Jina Reader API (handles SPA/JS sites) */
+async function fetchViaJina(url: string): Promise<string> {
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 30000)
+  try {
+    const res = await fetch(`https://r.jina.ai/${url}`, {
+      signal: controller.signal,
+      headers: { Accept: 'text/html', 'X-Return-Format': 'html' },
+    })
+    if (!res.ok) throw new Error(`Jina Reader error: ${res.status}`)
     const html = await res.text()
     return html.slice(0, MAX_HTML)
   } finally {
