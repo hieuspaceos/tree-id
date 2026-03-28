@@ -279,35 +279,118 @@ function repairJson(text: string): string {
   return json
 }
 
-/** Main entry — chunked analysis */
+/** Capture viewport screenshots using thum.io, split into sections */
+async function captureScreenshots(url: string): Promise<Buffer[]> {
+  const screenshots: Buffer[] = []
+  const domain = url.replace(/^https?:\/\//, '')
+
+  // Capture 4 viewport sections (top, upper-mid, lower-mid, bottom)
+  for (let i = 0; i < 4; i++) {
+    const cropUrl = i === 0
+      ? `https://image.thum.io/get/width/1280/crop/900/https://${domain}`
+      : `https://image.thum.io/get/width/1280/crop/900/viewportHeight/900/scrollTo/${i * 800}/https://${domain}`
+
+    try {
+      const res = await fetch(cropUrl, { signal: AbortSignal.timeout(20000) })
+      if (res.ok) {
+        const buf = Buffer.from(await res.arrayBuffer())
+        if (buf.length > 1000) screenshots.push(buf) // skip empty/error images
+      }
+    } catch {}
+  }
+  return screenshots
+}
+
+/** Analyze screenshots with Gemini Vision */
+async function analyzeScreenshots(apiKey: string, screenshots: Buffer[], intent: string, url: string): Promise<CloneResult> {
+  const imageParts = screenshots.map(buf => ({
+    inlineData: { mimeType: 'image/png' as const, data: buf.toString('base64') }
+  }))
+
+  const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      system_instruction: { parts: [{ text: 'You are a web design expert. Analyze screenshots of a website and extract sections for a landing page builder. Return ONLY valid JSON.' }] },
+      contents: [{
+        parts: [
+          ...imageParts,
+          { text: `Analyze these ${screenshots.length} screenshots of ${url} and create a landing page structure.
+
+${SECTION_SCHEMA}
+
+User intent: ${intent || 'Clone this landing page'}
+
+Extract: title, description, design (colors from the screenshots, fonts, borderRadius), and all visible sections.
+Each section needs: type, order (0,1,2...), enabled:true, data:{...fields}.
+
+Return JSON: { "title":"...", "description":"...", "design":{...}, "sections":[...] }` }
+        ]
+      }],
+      generationConfig: { temperature: 0.15, maxOutputTokens: 16384, responseMimeType: 'application/json' },
+    }),
+  })
+
+  if (!res.ok) throw new Error(`Gemini Vision error: ${res.status}`)
+
+  const data = await res.json()
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
+  if (!text) throw new Error('Empty Vision response')
+
+  const usage = data?.usageMetadata
+  const promptTokens = usage?.promptTokenCount || 0
+  const outputTokens = usage?.candidatesTokenCount || 0
+  const totalTokens = promptTokens + outputTokens
+
+  const result = JSON.parse(repairJson(text)) as CloneResult
+  result.usage = { promptTokens, outputTokens, totalTokens, estimatedCostUsd: (promptTokens * 0.00000015) + (outputTokens * 0.0000006) }
+  return result
+}
+
+/** Main entry — tries HTML chunked analysis first, falls back to screenshot-based */
 export async function cloneLandingPage(url: string, intent?: string): Promise<CloneResult> {
   const apiKey = import.meta.env.GEMINI_API_KEY
   if (!apiKey) throw new Error('GEMINI_API_KEY not configured')
 
-  // Fetch and clean HTML
-  const rawHtml = url.startsWith('data:text/html,')
-    ? decodeURIComponent(url.slice('data:text/html,'.length))
-    : await fetchPageHtml(url)
-  const html = cleanHtml(rawHtml)
+  const isDataUrl = url.startsWith('data:text/html,')
 
-  // Detect SPA/loading pages — check for real content, not just length
-  const textContent = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
-  const wordCount = textContent.split(' ').filter(w => w.length > 2).length
-  if (html.length < 500 || wordCount < 30) {
-    throw new Error(`Page has too little visible content (${wordCount} words found) — this site renders via JavaScript and cannot be cloned by URL. Use "📋 Paste Code" mode instead: open in Chrome → right-click → Inspect → select the <body> tag → right-click → Copy → Copy outerHTML → paste into Code tab.`)
+  // For pasted code — always use HTML analysis
+  if (isDataUrl) {
+    const html = cleanHtml(decodeURIComponent(url.slice('data:text/html,'.length)))
+    if (html.length < 100) throw new Error('Pasted code is too short')
+    return await htmlChunkedAnalysis(apiKey, html, intent || '', url)
   }
 
-  // Split into chunks
-  const chunks = splitIntoChunks(html)
+  // For URLs — try HTML first, fallback to screenshot
+  const rawHtml = await fetchPageHtml(url)
+  const html = cleanHtml(rawHtml)
+  const wordCount = html.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(w => w.length > 2).length
 
-  // Analyze all chunks (sequentially to avoid rate limits)
+  // Try HTML analysis if enough content
+  if (wordCount >= 30) {
+    const result = await htmlChunkedAnalysis(apiKey, html, intent || '', url)
+    if (result.sections.length > 0) return result
+  }
+
+  // Fallback: screenshot-based analysis
+  const screenshots = await captureScreenshots(url)
+  if (screenshots.length === 0) {
+    throw new Error('Could not capture screenshots of this page. Try "📋 Paste Code" mode: open in Chrome → Inspect → select <body> → Copy outerHTML → paste.')
+  }
+
+  return await analyzeScreenshots(apiKey, screenshots, intent || '', url)
+}
+
+/** HTML chunked analysis (extracted from main function) */
+async function htmlChunkedAnalysis(apiKey: string, html: string, intent: string, url: string): Promise<CloneResult> {
+  const chunks = splitIntoChunks(html)
   let totalPrompt = 0, totalOutput = 0
   const allSections: CloneResult['sections'][] = []
   let design: CloneResult['design'] | undefined
   let title = '', description = ''
 
   for (let i = 0; i < chunks.length; i++) {
-    const result = await analyzeChunk(apiKey, chunks[i], i, chunks.length, intent || '', url)
+    const result = await analyzeChunk(apiKey, chunks[i], i, chunks.length, intent, url)
     allSections.push(result.sections)
     totalPrompt += result.promptTokens
     totalOutput += result.outputTokens
@@ -316,19 +399,12 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
     if (result.description) description = result.description
   }
 
-  // Merge and deduplicate sections
   const sections = mergeSections(allSections)
-
-  if (sections.length === 0) {
-    throw new Error('AI could not extract any sections from this page. Try "📋 Paste Code" mode with the rendered HTML.')
-  }
-
   const totalTokens = totalPrompt + totalOutput
-  const estimatedCostUsd = (totalPrompt * 0.00000015) + (totalOutput * 0.0000006)
 
   return {
     title, description, design, sections,
-    usage: { promptTokens: totalPrompt, outputTokens: totalOutput, totalTokens, estimatedCostUsd },
+    usage: { promptTokens: totalPrompt, outputTokens: totalOutput, totalTokens, estimatedCostUsd: (totalPrompt * 0.00000015) + (totalOutput * 0.0000006) },
     chunks: chunks.length,
   }
 }
