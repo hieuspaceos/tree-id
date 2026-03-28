@@ -720,7 +720,7 @@ function nestedSectionDefault(type: string): SectionData {
     'image-text': { image: { src: '' }, text: '', imagePosition: 'left' },
     gallery: { images: [] },
     map: { address: '' },
-    'rich-text': { content: '<p></p>' },
+    'rich-text': { content: '' },
     divider: { style: 'line', height: 40 },
     countdown: { targetDate: '', heading: '' },
     'contact-form': { heading: '', fields: [], submitText: 'Send' },

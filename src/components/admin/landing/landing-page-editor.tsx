@@ -75,7 +75,7 @@ function defaultSectionData(type: SectionType): SectionData {
     'image-text': { image: { src: '' }, text: '', imagePosition: 'left' },
     gallery: { images: [] },
     map: { address: '' },
-    'rich-text': { content: '<p>Your content here...</p>' },
+    'rich-text': { content: '## Your content here\n\nStart writing in Markdown...' },
     divider: { style: 'line', height: 40 },
     countdown: { targetDate: '', heading: 'Offer ends in' },
     'contact-form': { heading: 'Contact Us', fields: [{ label: 'Name', type: 'text' }, { label: 'Email', type: 'email' }, { label: 'Message', type: 'textarea' }], submitText: 'Send Message' },
