@@ -12,18 +12,31 @@ const CHUNK_SIZE = 20_000
 /** Max total HTML to process */
 const MAX_HTML = 100_000
 
-/** Section schema for Gemini prompt (kept concise to save tokens) */
-const SECTION_SCHEMA = `Section types: nav, hero, features, pricing, testimonials, faq, cta, stats, how-it-works, team, logo-wall, footer, video, image, image-text, gallery, map, rich-text, divider, countdown, contact-form, banner, comparison, ai-search, social-proof, layout.
+/** Section schema for Gemini prompt */
+const SECTION_SCHEMA = `Section types and their data fields:
+- nav: { brandName, links:[{label,href}], variant:"default"|"centered" }
+- hero: { headline, subheadline, cta:[{text,url}], backgroundImage, embed, variant:"centered"|"split" }
+- features: { heading, items:[{icon,title,description}], columns:3, variant:"grid"|"list" }
+- pricing: { heading, plans:[{name,price,period,features:[],cta:{text,url},highlighted,badge}] }
+- testimonials: { heading, items:[{quote,name,role,avatar,image}], variant:"cards"|"carousel" }
+- faq: { heading, items:[{question,answer}] }
+- cta: { headline, subheadline, cta:[{text,url}], variant:"default"|"banner" }
+- stats: { heading, items:[{value,label}] }
+- how-it-works: { heading, items:[{title,description,icon}] }
+- team: { heading, members:[{name,role,photo}] }
+- logo-wall: { heading, logos:[{name,image}] }
+- footer: { text, columns:[{heading,links:[{label,href}]}], variant:"columns" }
+- image: { src, alt, caption }
+- image-text: { image:{src,alt}, heading, text }
+- gallery: { heading, images:[{src,alt}] }
+- rich-text: { content:"short markdown text, max 300 chars" }
+- social-proof: { text, icon }
+- banner: { text, variant:"info" }
+- video: { url }
+- contact-form: { heading, fields:[{label,type}] }
+- divider: { style:"line" }
 
-Key rules:
-- hero.cta and cta.cta are ALWAYS arrays: [{text, url, variant}]
-- icons: use EMOJI only, never "[SVG]" or raw SVG
-- pricing: count actual plan CARDS only, not CTA buttons
-- testimonials: use "carousel" if they scroll horizontally
-- rich-text: max 300 chars, summarize, no raw HTML
-- All text fields: clean text only, no HTML tags, max 200 chars
-- Image URLs: keep absolute URLs as-is, decode /_next/image URLs
-- Keep JSON compact`
+Rules: icons=emoji only. cta=ALWAYS array. text fields=max 200 chars, no HTML. Keep JSON compact.`
 
 /** Prompt for analyzing a chunk of HTML */
 function buildChunkPrompt(chunkHtml: string, chunkIndex: number, totalChunks: number, intent: string, url: string, isDesignChunk: boolean): string {
@@ -178,7 +191,8 @@ async function analyzeChunk(apiKey: string, chunkHtml: string, chunkIndex: numbe
   const outputTokens = usage?.candidatesTokenCount || 0
 
   try {
-    const parsed = JSON.parse(repairJson(text))
+    const repaired = repairJson(text)
+    const parsed = JSON.parse(repaired)
     return {
       sections: parsed.sections || [],
       design: isFirst ? parsed.design : undefined,
@@ -187,6 +201,15 @@ async function analyzeChunk(apiKey: string, chunkHtml: string, chunkIndex: numbe
       promptTokens, outputTokens,
     }
   } catch {
+    // Try to extract sections array from partial/malformed JSON using regex
+    const sectionsMatch = text.match(/"sections"\s*:\s*\[([\s\S]*)/)?.[0]
+    if (sectionsMatch) {
+      try {
+        const wrapped = `{${sectionsMatch}}`
+        const fallback = JSON.parse(repairJson(wrapped))
+        if (fallback.sections?.length) return { sections: fallback.sections, promptTokens, outputTokens }
+      } catch {}
+    }
     return { sections: [], promptTokens, outputTokens }
   }
 }
