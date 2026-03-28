@@ -268,9 +268,29 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
     throw new Error(`Gemini API error: ${res.status} — ${err.slice(0, 200)}`)
   }
 
-  const data = await res.json()
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
+  let data = await res.json()
+  let text = data?.candidates?.[0]?.content?.parts?.[0]?.text
   if (!text) throw new Error('Empty response from Gemini')
+
+  // If JSON parse fails, retry with shorter HTML (25K instead of 50K)
+  try {
+    JSON.parse(repairJson(text))
+  } catch {
+    const shorterHtml = html.slice(0, 25_000)
+    const retryRes = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents: [{ parts: [{ text: `Analyze this landing page HTML and decompose into sections. IMPORTANT: Keep ALL text fields SHORT (max 200 chars each). No raw HTML in any field.${intentContext}\n\nURL: ${url}\n\n${shorterHtml}` }] }],
+        generationConfig: { temperature: 0.1, maxOutputTokens: 32768, responseMimeType: 'application/json' },
+      }),
+    })
+    if (retryRes.ok) {
+      data = await retryRes.json()
+      text = data?.candidates?.[0]?.content?.parts?.[0]?.text || text
+    }
+  }
 
   // Extract token usage for cost display
   const usageMeta = data?.usageMetadata
