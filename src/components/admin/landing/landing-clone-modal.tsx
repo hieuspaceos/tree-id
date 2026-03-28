@@ -65,11 +65,31 @@ export function LandingCloneModal({ onClose, onCloned }: Props) {
   const [selected, setSelected] = useState<Set<number>>(new Set())
   const fileRef = useRef<HTMLInputElement>(null)
   const [dragOver, setDragOver] = useState(false)
+  const [siteAnalysis, setSiteAnalysis] = useState<{ tier: number; score: number; label: string; framework: string; details: string[]; canClone: boolean } | null>(null)
+  const [analyzing, setAnalyzing] = useState(false)
 
   /* Remember source mode preference */
   useEffect(() => {
     if (typeof localStorage !== 'undefined') localStorage.setItem('ai-wizard-source', sourceMode)
   }, [sourceMode])
+
+  /* Auto-analyze URL when user stops typing */
+  useEffect(() => {
+    if (sourceMode !== 'url' || !url.trim() || !url.startsWith('http')) { setSiteAnalysis(null); return }
+    setAnalyzing(true)
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch('/api/admin/landing/analyze', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: url.trim() }),
+        })
+        if (res.ok) setSiteAnalysis(await res.json())
+        else setSiteAnalysis(null)
+      } catch { setSiteAnalysis(null) }
+      setAnalyzing(false)
+    }, 1000)
+    return () => { clearTimeout(timer); setAnalyzing(false) }
+  }, [url, sourceMode])
 
   const hasSource = sourceMode === 'url' ? !!url.trim() : !!(code.trim())
 
@@ -163,6 +183,32 @@ export function LandingCloneModal({ onClose, onCloned }: Props) {
             {sourceMode === 'url' && (
               <input type="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com"
                 style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '0.88rem', marginBottom: '0.85rem', boxSizing: 'border-box' }} autoFocus />
+            )}
+
+            {/* Site compatibility badge — auto-shown for URL mode */}
+            {sourceMode === 'url' && analyzing && (
+              <div style={{ marginBottom: '0.75rem', padding: '0.5rem 0.75rem', borderRadius: '8px', background: '#f8fafc', fontSize: '0.75rem', color: '#94a3b8' }}>
+                Analyzing site compatibility...
+              </div>
+            )}
+            {sourceMode === 'url' && siteAnalysis && !analyzing && (
+              <div style={{
+                marginBottom: '0.75rem', padding: '0.6rem 0.85rem', borderRadius: '10px', fontSize: '0.75rem',
+                background: siteAnalysis.tier === 1 ? '#f0fdf4' : siteAnalysis.tier === 2 ? '#fffbeb' : siteAnalysis.tier === 3 ? '#fef2f2' : '#fef2f2',
+                border: `1px solid ${siteAnalysis.tier === 1 ? '#bbf7d0' : siteAnalysis.tier === 2 ? '#fde68a' : '#fecaca'}`,
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem' }}>
+                  <span style={{ fontWeight: 600, color: siteAnalysis.tier === 1 ? '#16a34a' : siteAnalysis.tier === 2 ? '#d97706' : '#dc2626' }}>
+                    {siteAnalysis.tier === 1 ? '✅' : siteAnalysis.tier === 2 ? '⚠️' : '❌'} Tier {siteAnalysis.tier} — {siteAnalysis.label}
+                  </span>
+                  <span style={{ fontWeight: 700, color: '#475569' }}>{siteAnalysis.score}/100</span>
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                  {siteAnalysis.details.map((d, i) => (
+                    <span key={i} style={{ fontSize: '0.68rem', color: '#64748b' }}>{d}</span>
+                  ))}
+                </div>
+              </div>
             )}
 
             {/* Code textarea */}

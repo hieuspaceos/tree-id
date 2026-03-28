@@ -150,6 +150,92 @@ function proxyExternalImages(result: CloneResult) {
   }
 }
 
+/** Site compatibility analysis result */
+export interface SiteAnalysis {
+  tier: 1 | 2 | 3 | 4
+  score: number // 0-100
+  label: string
+  framework: string
+  details: string[]
+  canClone: boolean
+}
+
+/** Analyze URL for clone compatibility — no AI call, just HTML inspection */
+export async function analyzeSiteCompatibility(url: string): Promise<SiteAnalysis> {
+  const html = await fetchPageHtml(url)
+  const details: string[] = []
+  let score = 50 // start neutral
+
+  // 1. Detect framework from HTML markers
+  let framework = 'Unknown'
+  if (html.includes('/_next/')) { framework = 'Next.js'; score += 15 }
+  else if (html.includes('astro')) { framework = 'Astro'; score += 20 }
+  else if (html.includes('__nuxt') || html.includes('/_nuxt/')) { framework = 'Nuxt'; score += 15 }
+  else if (html.includes('wp-content') || html.includes('wordpress')) { framework = 'WordPress'; score += 5 }
+  else if (html.includes('shopify') || html.includes('cdn.shopify')) { framework = 'Shopify'; score += 5 }
+  else if (html.includes('squarespace')) { framework = 'Squarespace'; score += 5 }
+  else if (html.includes('wix.com') || html.includes('wixsite')) { framework = 'Wix'; score += 3 }
+  else if (html.includes('webflow')) { framework = 'Webflow'; score += 8 }
+  else if (html.includes('ghost')) { framework = 'Ghost'; score += 10 }
+  else if (html.includes('hugo') || html.includes('gohugo')) { framework = 'Hugo'; score += 18 }
+  else if (html.includes('jekyll')) { framework = 'Jekyll'; score += 15 }
+  details.push(`Framework: ${framework}`)
+
+  // 2. Check content density (after cleaning)
+  const cleaned = html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<!--[\s\S]*?-->/g, '')
+  const text = cleaned.replace(/<[^>]+>/g, ' ')
+  const words = text.split(/\s+/).filter(w => w.length > 2)
+
+  if (words.length < 30) { score -= 40; details.push(`⚠️ Very low content: ${words.length} words (SPA/JS-rendered)`) }
+  else if (words.length < 100) { score -= 10; details.push(`Content: ${words.length} words (light)`) }
+  else if (words.length <= 800) { score += 15; details.push(`✓ Content: ${words.length} words (optimal)`) }
+  else if (words.length <= 2000) { score += 5; details.push(`Content: ${words.length} words (heavy, may truncate)`) }
+  else { score -= 15; details.push(`⚠️ Content: ${words.length} words (very heavy)`) }
+
+  // 3. Check semantic HTML tags
+  const sections = (html.match(/<section/gi) || []).length
+  const navs = (html.match(/<nav/gi) || []).length
+  const footers = (html.match(/<footer/gi) || []).length
+  const h1s = (html.match(/<h1/gi) || []).length
+  const h2s = (html.match(/<h2/gi) || []).length
+  const semanticCount = sections + navs + footers + h1s + h2s
+
+  if (semanticCount >= 5) { score += 15; details.push(`✓ Semantic HTML: ${semanticCount} tags (section, nav, h1-h2...)`) }
+  else if (semanticCount >= 2) { score += 5; details.push(`Semantic HTML: ${semanticCount} tags`) }
+  else { score -= 10; details.push(`⚠️ No semantic HTML tags found`) }
+
+  // 4. Check HTML size after cleaning
+  const cleanedSize = cleaned.length
+  if (cleanedSize < 500) { score -= 30; details.push(`⚠️ HTML too small: ${cleanedSize} chars`) }
+  else if (cleanedSize <= 50000) { score += 10; details.push(`✓ HTML size: ${(cleanedSize/1000).toFixed(0)}K chars (optimal)`) }
+  else if (cleanedSize <= 150000) { details.push(`HTML size: ${(cleanedSize/1000).toFixed(0)}K chars (large)`) }
+  else { score -= 10; details.push(`⚠️ HTML size: ${(cleanedSize/1000).toFixed(0)}K chars (very large)`) }
+
+  // 5. Check for inline styles bloat
+  const inlineStyles = (html.match(/style="/gi) || []).length
+  if (inlineStyles > 100) { score -= 10; details.push(`⚠️ Heavy inline styles: ${inlineStyles}`) }
+
+  // 6. Check for images
+  const imgs = (html.match(/<img/gi) || []).length
+  if (imgs > 0) details.push(`Images: ${imgs} found`)
+
+  // Clamp score
+  score = Math.max(0, Math.min(100, score))
+
+  // Determine tier
+  let tier: 1 | 2 | 3 | 4
+  let label: string
+  if (score >= 70) { tier = 1; label = 'Excellent — high chance of accurate clone' }
+  else if (score >= 50) { tier = 2; label = 'Good — most sections will be detected' }
+  else if (score >= 30) { tier = 3; label = 'Challenging — some sections may be missed' }
+  else { tier = 4; label = 'Low — try Paste Code mode instead' }
+
+  return { tier, score, label, framework, details, canClone: score >= 20 }
+}
+
 /** Fetch HTML from URL with timeout and size limit */
 async function fetchPageHtml(url: string): Promise<string> {
   const controller = new AbortController()
