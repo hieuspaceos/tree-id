@@ -237,8 +237,11 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
     : await fetchPageHtml(url)
   const html = cleanHtml(rawHtml)
 
-  if (html.length < 500) {
-    throw new Error('Page has too little visible content — this site likely renders via JavaScript. Try "📋 Paste Code" mode: open in Chrome → Inspect → select <body> → Copy outerHTML → paste into Code tab.')
+  // Detect SPA/loading pages — check for real content, not just length
+  const textContent = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+  const wordCount = textContent.split(' ').filter(w => w.length > 2).length
+  if (html.length < 500 || wordCount < 30) {
+    throw new Error(`Page has too little visible content (${wordCount} words found) — this site renders via JavaScript and cannot be cloned by URL. Use "📋 Paste Code" mode instead: open in Chrome → right-click → Inspect → select the <body> tag → right-click → Copy → Copy outerHTML → paste into Code tab.`)
   }
 
   // Split into chunks
