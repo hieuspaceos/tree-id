@@ -192,17 +192,23 @@ function cleanHtml(html: string): string {
 }
 
 /** Send HTML to Gemini and get structured landing page config */
-export async function cloneLandingPage(url: string): Promise<CloneResult> {
+export async function cloneLandingPage(url: string, intent?: string): Promise<CloneResult> {
   const apiKey = import.meta.env.GEMINI_API_KEY
   if (!apiKey) throw new Error('GEMINI_API_KEY not configured')
 
-  // Fetch and clean HTML
-  const rawHtml = await fetchPageHtml(url)
+  // Fetch HTML from URL or decode pasted code (data: URL)
+  const rawHtml = url.startsWith('data:text/html,')
+    ? decodeURIComponent(url.slice('data:text/html,'.length))
+    : await fetchPageHtml(url)
   const html = cleanHtml(rawHtml)
 
   if (html.length < 100) {
     throw new Error('Page content too short — may be a JavaScript-only SPA that requires a browser to render')
   }
+
+  const intentContext = intent
+    ? `\n\nUser's intent: ${intent}\nUse this context to better understand what sections are important and how to categorize content.`
+    : ''
 
   // Call Gemini
   const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
@@ -210,7 +216,7 @@ export async function cloneLandingPage(url: string): Promise<CloneResult> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-      contents: [{ parts: [{ text: `Analyze this landing page HTML and decompose into sections:\n\nURL: ${url}\n\n${html}` }] }],
+      contents: [{ parts: [{ text: `Analyze this landing page HTML and decompose into sections:${intentContext}\n\nURL: ${url}\n\n${html}` }] }],
       generationConfig: {
         temperature: 0.2,
         maxOutputTokens: 16384,

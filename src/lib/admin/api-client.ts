@@ -170,10 +170,10 @@ export const api = {
       }),
     delete: (slug: string) =>
       adminFetch('/api/admin/landing/' + slug, { method: 'DELETE' }),
-    clone: (url: string) =>
+    clone: (url: string, intent?: string) =>
       adminFetch<unknown>('/api/admin/landing/clone', {
         method: 'POST',
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url, intent }),
       }),
   },
 

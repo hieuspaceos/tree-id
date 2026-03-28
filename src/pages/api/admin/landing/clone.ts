@@ -15,6 +15,7 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json()
     const url = body?.url?.trim()
+    const intent = typeof body?.intent === 'string' ? body.intent.trim() : undefined
 
     if (!url || typeof url !== 'string') {
       return json({ ok: false, error: 'URL is required' }, 400)
@@ -25,7 +26,7 @@ export const POST: APIRoute = async ({ request }) => {
       return json({ ok: false, error: 'Invalid URL format' }, 400)
     }
 
-    const result = await cloneLandingPage(url)
+    const result = await cloneLandingPage(url, intent)
     return json({ ok: true, data: result })
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Clone failed'
