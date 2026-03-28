@@ -108,8 +108,8 @@ const landingPages = defineCollection({
         textMuted: z.string().nullable().optional(),
       }).optional(),
       fonts: z.object({
-        heading: z.string().optional(),
-        body: z.string().optional(),
+        heading: z.string().nullable().optional(),
+        body: z.string().nullable().optional(),
       }).optional(),
       borderRadius: z.string().optional(),
     }).optional(),
