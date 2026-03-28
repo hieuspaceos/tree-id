@@ -97,7 +97,7 @@ const landingPages = defineCollection({
     description: z.string().optional(),
     template: z.string().optional(),
     design: z.object({
-      preset: z.string().optional(),
+      preset: z.string().nullable().optional(),
       colors: z.object({
         primary: z.string().nullable().optional(),
         secondary: z.string().nullable().optional(),
@@ -111,8 +111,8 @@ const landingPages = defineCollection({
         heading: z.string().nullable().optional(),
         body: z.string().nullable().optional(),
       }).optional(),
-      borderRadius: z.string().optional(),
-    }).optional(),
+      borderRadius: z.string().nullable().optional(),
+    }).nullable().optional(),
     sections: z.array(z.object({
       type: z.enum(['hero', 'features', 'pricing', 'testimonials', 'faq', 'cta', 'stats', 'how-it-works', 'team', 'logo-wall', 'nav', 'footer', 'video', 'image', 'image-text', 'gallery', 'map', 'rich-text', 'divider', 'countdown', 'contact-form', 'banner', 'layout', 'comparison', 'ai-search', 'social-proof']),
       order: z.number(),
