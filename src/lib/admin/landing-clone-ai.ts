@@ -148,6 +148,37 @@ async function fetchPageHtml(url: string): Promise<string> {
   }
 }
 
+/** Attempt to repair truncated JSON by closing unclosed brackets/braces */
+function repairJson(text: string): string {
+  // Strip markdown code fences if present
+  let json = text.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '').trim()
+
+  // Try parsing as-is first
+  try { JSON.parse(json); return json } catch {}
+
+  // Count unclosed brackets/braces and close them
+  let braces = 0, brackets = 0, inString = false, escape = false
+  for (const ch of json) {
+    if (escape) { escape = false; continue }
+    if (ch === '\\') { escape = true; continue }
+    if (ch === '"') { inString = !inString; continue }
+    if (inString) continue
+    if (ch === '{') braces++
+    else if (ch === '}') braces--
+    else if (ch === '[') brackets++
+    else if (ch === ']') brackets--
+  }
+
+  // Remove trailing comma before closing
+  json = json.replace(/,\s*$/, '')
+
+  // Close unclosed structures
+  while (brackets > 0) { json += ']'; brackets-- }
+  while (braces > 0) { json += '}'; braces-- }
+
+  return json
+}
+
 /** Strip scripts, styles, and non-visible content to reduce token usage */
 function cleanHtml(html: string): string {
   return html
@@ -182,7 +213,7 @@ export async function cloneLandingPage(url: string): Promise<CloneResult> {
       contents: [{ parts: [{ text: `Analyze this landing page HTML and decompose into sections:\n\nURL: ${url}\n\n${html}` }] }],
       generationConfig: {
         temperature: 0.2,
-        maxOutputTokens: 8192,
+        maxOutputTokens: 16384,
         responseMimeType: 'application/json',
       },
     }),
@@ -197,9 +228,9 @@ export async function cloneLandingPage(url: string): Promise<CloneResult> {
   const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
   if (!text) throw new Error('Empty response from Gemini')
 
-  // Parse JSON response
+  // Parse JSON response — repair truncated JSON if needed
   try {
-    const result = JSON.parse(text) as CloneResult
+    const result = JSON.parse(repairJson(text)) as CloneResult
     // Validate minimum structure
     if (!result.sections || !Array.isArray(result.sections)) {
       throw new Error('Invalid response: missing sections array')
