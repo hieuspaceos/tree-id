@@ -198,9 +198,10 @@ function mergeSections(allSections: CloneResult['sections'][]): CloneResult['sec
 
   for (const chunk of allSections) {
     for (const section of chunk) {
-      // Create fingerprint for dedup: type + first 50 chars of headline/heading/text
+      // Ensure section has data object
+      if (!section.data) section.data = {}
       const data = section.data as Record<string, unknown>
-      const contentHint = String(data.headline || data.heading || data.text || data.brandName || '').slice(0, 50)
+      const contentHint = String(data?.headline || data?.heading || data?.text || data?.brandName || '').slice(0, 50)
       const fingerprint = `${section.type}:${contentHint}`
 
       // Allow multiple of same type if content differs (e.g. multiple CTA sections)

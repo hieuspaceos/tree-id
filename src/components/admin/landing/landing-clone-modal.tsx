@@ -270,8 +270,8 @@ export function LandingCloneModal({ onClose, onCloned }: Props) {
             <div style={{ flex: 1, overflowY: 'auto', maxHeight: '380px', marginBottom: '0.75rem' }}>
               {result.sections.map((section, i) => {
                 const meta = SECTION_META[section.type] || { label: section.type, color: '#94a3b8' }
-                const data = section.data as Record<string, unknown>
-                const preview = String(data.headline || data.heading || data.text || data.brandName || data.content || '').slice(0, 80)
+                const data = (section.data || {}) as Record<string, unknown>
+                const preview = String(data?.headline || data?.heading || data?.text || data?.brandName || data?.content || '').slice(0, 80)
                 const isSelected = selected.has(i)
                 return (
                   <label key={i} style={{
