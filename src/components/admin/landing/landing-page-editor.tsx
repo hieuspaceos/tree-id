@@ -231,8 +231,8 @@ export function LandingPageEditor({ slug }: Props) {
           title="Toggle split preview"
         >{splitView ? '✕ Close Preview' : '⊞ Split Preview'}</button>
         {!isNew && slug && <a href={`/${slug}`} target="_blank" rel="noopener" className="admin-btn" style={{ fontSize: '0.8rem' }}>View Page ↗</a>}
-        <button className="admin-btn" onClick={() => setCloneOpen(true)} style={{ fontSize: '0.8rem' }} title="AI Wizard — clone from URL">
-          AI Wizard
+        <button onClick={() => setCloneOpen(true)} style={{ fontSize: '0.8rem', padding: '0.4rem 1rem', borderRadius: '8px', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', color: '#fff', border: 'none', fontWeight: 600, cursor: 'pointer' }} title="AI Wizard — analyze URL, paste code, or upload file">
+          ✨ AI Wizard
         </button>
         <button className="admin-btn admin-btn-primary" onClick={handleSave} disabled={saving}>
           {saving ? 'Saving…' : 'Save'}
