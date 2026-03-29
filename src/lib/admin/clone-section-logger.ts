@@ -91,6 +91,9 @@ export function logCloneSections(
       } else if (!hasHeading && type !== 'divider' && type !== 'social-proof') {
         quality = 'partial'
         issue = 'Missing heading/title — content may be incomplete'
+      } else if (type === 'features' && Array.isArray(data.items) && data.items.some((i: any) => i.icon?.startsWith?.('http'))) {
+        quality = 'partial'
+        issue = 'Feature icons are image URLs instead of emoji — icon rendering may need upgrade'
       } else if (type === 'features' && Array.isArray(data.items) && data.items.length < 2) {
         quality = 'partial'
         issue = `Only ${data.items.length} items extracted — likely missing items`

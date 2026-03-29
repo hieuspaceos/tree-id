@@ -20,7 +20,7 @@ const gridClass = `landing-grid-${columns}` as const
     <div class={gridClass}>
       {items.map((item) => (
         <div class="p-6" style="background: color-mix(in srgb, var(--lp-primary) 5%, var(--lp-surface)); border-radius: var(--lp-radius)">
-          {item.icon && <span class="mb-3 block text-2xl">{item.icon}</span>}
+          {item.icon && (item.icon.startsWith('http') ? <img src={item.icon} alt={item.title} class="mb-3 h-10 w-10 object-contain" /> : <span class="mb-3 block text-2xl">{item.icon}</span>)}
           <h3 class="mb-2 text-lg font-semibold">{item.title}</h3>
           <p class="text-sm" style="color: var(--lp-text-muted)">{item.description}</p>
           {item.price && (
@@ -46,7 +46,7 @@ const gridClass = `landing-grid-${columns}` as const
       {items.map((item) => (
         <div style="display: flex; align-items: flex-start; gap: 1.25rem; padding: 1.25rem; background: color-mix(in srgb, var(--lp-primary) 5%, var(--lp-surface)); border-radius: var(--lp-radius)">
           {item.icon && (
-            <span style="font-size: 1.75rem; flex-shrink: 0; width: 2.5rem; text-align: center">{item.icon}</span>
+            item.icon.startsWith('http') ? <img src={item.icon} alt={item.title} style="width: 2.5rem; height: 2.5rem; object-fit: contain; flex-shrink: 0" /> : <span style="font-size: 1.75rem; flex-shrink: 0; width: 2.5rem; text-align: center">{item.icon}</span>
           )}
           {!item.icon && (
             <span style="width: 2.5rem; height: 2.5rem; flex-shrink: 0; border-radius: 50%; background: color-mix(in srgb, var(--lp-primary) 15%, transparent); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; color: var(--lp-primary)">✓</span>
