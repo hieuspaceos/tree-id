@@ -172,6 +172,8 @@ export interface VideoData {
   heading?: string
   subheading?: string
   cta?: { text: string; url: string }
+  /** Additional videos for multi-video grid layout */
+  items?: Array<{ url: string; caption?: string }>
 }
 
 export interface ImageData {

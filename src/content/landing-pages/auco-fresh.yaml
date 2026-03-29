@@ -328,15 +328,21 @@ sections:
     order: 7
     enabled: true
     data:
-      url: https://www.youtube.com/watch?v=fU-LEIChTxU
-      caption: Voyage authentique et immersif au Vietnam avec AucoeurVietnam - agence de voyage locale
+      url: https://www.youtube.com/embed/fU-LEIChTxU
+      caption: Voyage authentique et immersif au Vietnam
       autoplay: false
       heading: Notre collection de vidéos
       subheading: Découvrez des moments inoubliables lors de vos voyages au Vietnam avec AucoeurVietnam!
       cta:
         text: Voir toutes nos vidéos
         url: https://www.youtube.com/@AucoeurVietnam/videos
-        variant: secondary
+      items:
+        - url: https://www.youtube.com/embed/3ax9yx6rMRY
+          caption: Découverte du Nord Vietnam
+        - url: https://www.youtube.com/embed/Bx0nthbRCPc
+          caption: Croisière sur le Mékong
+        - url: https://www.youtube.com/embed/G-M_Je4xGms
+          caption: Culture et traditions vietnamiennes
     style:
       background: '#faf6f1'
       padding: 4rem 2rem

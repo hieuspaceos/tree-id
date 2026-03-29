@@ -2,27 +2,21 @@
 import type { VideoData } from '@/lib/landing/landing-types'
 
 interface Props extends VideoData {}
-const { url = '', caption, autoplay, heading, subheading, cta } = Astro.props as VideoData & { heading?: string; subheading?: string; cta?: { text: string; url: string } }
+const { url = '', caption, autoplay, heading, subheading, cta, items } = Astro.props as VideoData
 
 /** Convert YouTube/Vimeo watch URLs to embed URLs. Returns null for unrecognised URLs. */
 function toEmbedUrl(raw: string): string | null {
-  // YouTube: youtu.be/<id> or youtube.com/watch?v=<id>
-  const ytMatch = raw.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/)
-  if (ytMatch) {
-    const params = autoplay ? '?autoplay=1&mute=1' : ''
-    return `https://www.youtube.com/embed/${ytMatch[1]}${params}`
-  }
-  // Vimeo: vimeo.com/<id>
+  const ytMatch = raw.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/)
+  if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}${autoplay ? '?autoplay=1&mute=1' : ''}`
   const vmMatch = raw.match(/vimeo\.com\/(\d+)/)
-  if (vmMatch) {
-    const params = autoplay ? '?autoplay=1&muted=1' : ''
-    return `https://player.vimeo.com/video/${vmMatch[1]}${params}`
-  }
-  // Direct video file
+  if (vmMatch) return `https://player.vimeo.com/video/${vmMatch[1]}${autoplay ? '?autoplay=1&muted=1' : ''}`
   if (/\.(mp4|webm|ogg)(\?|$)/i.test(raw)) return raw
   return null
 }
 
+/** All videos: primary + items */
+const allVideos = [{ url, caption }, ...(items || [])]
+const isMulti = allVideos.length > 1
 const embedUrl = toEmbedUrl(url)
 const isDirectVideo = embedUrl === url
 ---
@@ -30,26 +24,36 @@ const isDirectVideo = embedUrl === url
 <section class="landing-section">
   {heading && <h2 class="mb-2 text-center text-3xl font-bold">{heading}</h2>}
   {subheading && <p class="mx-auto mb-6 max-w-2xl text-center" style="color: var(--lp-text-muted)">{subheading}</p>}
-  <div class="mx-auto max-w-4xl">
-    {isDirectVideo ? (
-      <video class="w-full rounded-xl" controls autoplay={autoplay} muted={autoplay}>
-        <source src={embedUrl!} />
-      </video>
-    ) : embedUrl ? (
-      <div style="position:relative;padding-top:56.25%">
-        <iframe
-          src={embedUrl}
-          title={caption || 'Embedded video'}
-          class="absolute inset-0 h-full w-full rounded-xl"
-          allowfullscreen
-          loading="lazy"
-          allow="autoplay; encrypted-media"
-        />
-      </div>
-    ) : (
-      <p class="text-slate-400 text-sm">Unsupported video URL</p>
-    )}
-    {caption && <p class="mt-3 text-center text-sm text-slate-500">{caption}</p>}
-    {cta && <div class="mt-4 text-center"><a href={cta.url} class="inline-block rounded-xl px-6 py-2.5 text-sm font-semibold transition-colors" style="background: color-mix(in srgb, var(--lp-text) 8%, transparent); border-radius: var(--lp-radius)">{cta.text}</a></div>}
-  </div>
+  {cta && <div class="mb-6 text-center"><a href={cta.url} class="landing-btn-primary">{cta.text}</a></div>}
+  {/* Multi-video grid */}
+  {isMulti ? (
+    <div class="landing-grid-2">
+      {allVideos.map(v => {
+        const embed = toEmbedUrl(v.url)
+        return embed ? (
+          <div>
+            <div style="position:relative;padding-top:56.25%">
+              <iframe src={embed} title={v.caption || 'Video'} class="absolute inset-0 h-full w-full rounded-xl" allowfullscreen loading="lazy" allow="autoplay; encrypted-media" />
+            </div>
+            {v.caption && <p class="mt-2 text-center text-xs" style="color: var(--lp-text-muted)">{v.caption}</p>}
+          </div>
+        ) : null
+      })}
+    </div>
+  ) : (
+    <div class="mx-auto max-w-4xl">
+      {isDirectVideo ? (
+        <video class="w-full rounded-xl" controls autoplay={autoplay} muted={autoplay}>
+          <source src={embedUrl!} />
+        </video>
+      ) : embedUrl ? (
+        <div style="position:relative;padding-top:56.25%">
+          <iframe src={embedUrl} title={caption || 'Embedded video'} class="absolute inset-0 h-full w-full rounded-xl" allowfullscreen loading="lazy" allow="autoplay; encrypted-media" />
+        </div>
+      ) : (
+        <p class="text-slate-400 text-sm">Unsupported video URL</p>
+      )}
+      {caption && <p class="mt-3 text-center text-sm text-slate-500">{caption}</p>}
+    </div>
+  )}
 </section>
