@@ -324,6 +324,9 @@ export function LandingCloneModal({ onClose, onCloned }: Props) {
                 const confidence = structInfo?.confidence ?? (section as any).confidence
                 const note = structInfo?.note
                 const variant = structInfo?.variant || (data.variant ? String(data.variant) : '')
+                /* Per-section quality from Phase 2 validation */
+                const quality = ((result as any).sectionQuality as Array<{ index: number; score: string; issue?: string }> | undefined)?.find(q => q.index === i)
+                const qualityColor = quality?.score === 'good' ? '#22c55e' : quality?.score === 'partial' ? '#f59e0b' : quality?.score === 'poor' ? '#ef4444' : undefined
                 const confColor = confidence >= 80 ? '#16a34a' : confidence >= 50 ? '#d97706' : '#dc2626'
                 return (
                   <label key={i} style={{
@@ -339,29 +342,56 @@ export function LandingCloneModal({ onClose, onCloned }: Props) {
                         <span style={{ fontSize: '0.83rem', fontWeight: 500, color: isSelected ? '#1e293b' : '#94a3b8' }}>{meta.label}</span>
                         <div style={{ display: 'flex', gap: '0.3rem', alignItems: 'center', flexShrink: 0 }}>
                           {variant ? <span style={{ fontSize: '0.6rem', color: '#94a3b8', background: '#f1f5f9', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>{variant}</span> : null}
+                          {qualityColor && <span style={{ fontSize: '0.6rem', fontWeight: 600, color: qualityColor, background: `${qualityColor}15`, padding: '0.1rem 0.35rem', borderRadius: '4px' }} title={quality?.issue}>{quality?.score === 'good' ? '●' : quality?.score === 'partial' ? '◐' : '○'}</span>}
                           {confidence != null && <span style={{ fontSize: '0.6rem', fontWeight: 600, color: confColor, background: `${confColor}12`, padding: '0.1rem 0.35rem', borderRadius: '4px' }}>{confidence}%</span>}
                         </div>
                       </div>
                       {preview && <p style={{ fontSize: '0.68rem', color: '#94a3b8', margin: '0.1rem 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{preview}</p>}
                       {note && <p style={{ fontSize: '0.62rem', color: '#d97706', margin: '0.1rem 0 0' }}>⚠️ {note}</p>}
+                      {quality?.issue && quality.score !== 'good' && <p style={{ fontSize: '0.62rem', color: qualityColor, margin: '0.1rem 0 0' }}>{quality.score === 'poor' ? '⛔' : '⚠️'} {quality.issue}</p>}
                     </div>
                   </label>
                 )
               })}
             </div>
 
-            {/* Missing sections warning */}
+            {/* Retry success notice */}
+            {(result as any).retried && (
+              <div style={{ marginBottom: '0.5rem', padding: '0.45rem 0.85rem', background: '#f0fdf4', borderRadius: '10px', borderLeft: '3px solid #22c55e', fontSize: '0.7rem', color: '#16a34a', fontWeight: 500 }}>
+                🔄 Auto-retry filled additional sections that were missed in the first pass
+              </div>
+            )}
+
+            {/* Missing sections warning + add button */}
             {(result as any).missingSections?.length > 0 && (
               <div style={{ marginBottom: '0.75rem', padding: '0.6rem 0.85rem', background: '#fef2f2', borderRadius: '10px', borderLeft: '3px solid #dc2626' }}>
-                <p style={{ fontSize: '0.72rem', fontWeight: 600, color: '#dc2626', marginBottom: '0.3rem' }}>
-                  {(result as any).missingSections.length} sections from original page not cloned:
-                </p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem' }}>
+                  <p style={{ fontSize: '0.72rem', fontWeight: 600, color: '#dc2626', margin: 0 }}>
+                    {(result as any).missingSections.length} sections still missing:
+                  </p>
+                  <button onClick={() => {
+                    const missing = (result as any).missingSections as string[]
+                    const footerIdx = result.sections.findIndex(s => s.type === 'footer')
+                    const maxOrder = Math.max(...result.sections.filter(s => s.type !== 'footer').map(s => s.order ?? 0), 0)
+                    const newSections = missing.map((heading, j) => ({
+                      type: 'rich-text' as const, order: maxOrder + j + 1, enabled: true,
+                      data: { heading, content: `Content for "${heading}" — edit this section` } as Record<string, unknown>,
+                    }))
+                    const updated = [...result.sections]
+                    if (footerIdx >= 0) updated.splice(footerIdx, 0, ...newSections)
+                    else updated.push(...newSections)
+                    const newResult = { ...result, sections: updated, missingSections: undefined }
+                    setResult(newResult as any)
+                    setSelected(new Set(updated.map((_, i) => i)))
+                  }} style={{ fontSize: '0.65rem', fontWeight: 600, color: '#3b82f6', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '6px', padding: '0.2rem 0.6rem', cursor: 'pointer' }}>
+                    + Add as sections
+                  </button>
+                </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
                   {((result as any).missingSections as string[]).map((h: string, i: number) => (
                     <span key={i} style={{ fontSize: '0.65rem', color: '#991b1b', background: '#fee2e2', padding: '0.15rem 0.5rem', borderRadius: '4px' }}>{h}</span>
                   ))}
                 </div>
-                <p style={{ fontSize: '0.6rem', color: '#94a3b8', marginTop: '0.3rem' }}>Add these manually after applying clone results</p>
               </div>
             )}
 

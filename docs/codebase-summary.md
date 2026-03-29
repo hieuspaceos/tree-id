@@ -1,7 +1,7 @@
 # Tree Identity — Codebase Summary
 
-**Status:** v3.0.0 — Marketplace Evolution (Supabase, Hybrid SSR, Google OAuth, AI Intent Search)
-**Last Updated:** 2026-03-28
+**Status:** v3.1.0 — AI Clone Auto-Improve (Auto-retry, Design Extraction, Quality Assessment, Layout Support)
+**Last Updated:** 2026-03-29
 **Stack:** Astro 5 (hybrid SSR) + Keystatic + Supabase + SQLite + Gemini AI + Cloudflare R2 (optional)
 **Deployment:** Vercel
 
@@ -44,7 +44,7 @@ Tree Identity is a **hybrid platform** combining static content engine with digi
 - **Theme system** — CSS variables (`--t-*`) for glass morphism UI
 - **Island architecture** — Astro by default, React only for interactive components
 - **Landing page system** — YAML-driven modular sections, 25 section types (50+ layout variants), D&D editor, design system (6 presets + custom colors/fonts)
-- **AI landing cloner** — Paste URL, AI extracts sections + design, auto-generates landing config
+- **AI landing cloner** — Paste URL, AI extracts sections + design, auto-retry missing sections, per-section quality assessment, layout multi-column support
 - **Feature builder** — AI-assisted feature generation with hybrid code generation engine (Gemini + templates)
 - **Multi-tenant products** — Per-product admin, scoped API, feature toggles per product
 - **Marketplace** — Product catalog with AI intent search, Google OAuth required for checkout
@@ -209,8 +209,11 @@ tree-id/
 │   │   │   ├── ai-setup-generator.ts      # Gemini integration
 │   │   │   └── template-apply.ts   # Template helper
 │   │   ├── admin/
-│   │   │   ├── entity-io.ts        # NEW: Entity CRUD operations
-│   │   │   ├── feature-registry.ts # Feature modules
+│   │   │   ├── clone-ai-utils.ts        # NEW v3.1.0: Shared utilities (Gemini, HTML cleaning, JSON parsing)
+│   │   │   ├── landing-clone-ai.ts      # NEW v2.6.0: Landing page cloner (3-phase pipeline)
+│   │   │   ├── clone-section-logger.ts  # Logging for cloned sections
+│   │   │   ├── entity-io.ts             # Entity CRUD operations
+│   │   │   ├── feature-registry.ts      # Feature modules
 │   │   │   └── ... (existing)
 │   │   └── ...
 │   ├── themes/
@@ -811,11 +814,14 @@ See `.env.example` for full details.
 - **Footer:** 3 variants (simple, columns, minimal)
 - **Tabbed section picker:** Admin UI filters sections by category (All/Structure/Content/Conversion/Media)
 
-#### AI Landing Clone (New)
-- **Feature:** `POST /api/admin/landing/clone` — Paste URL → AI extracts sections + design → generates landing config
-- **Model:** Gemini 2.5 Flash (upgraded from 2.0-flash)
-- **UX:** Modal in landing editor with URL input + clone button
-- **Output:** YAML landing config with extracted sections + design system values
+#### AI Landing Clone (Enhanced v3.1.0)
+- **Feature:** `POST /api/admin/landing/clone` — Paste URL → 3-phase pipeline → landing config
+- **Phase 1:** Direct clone using Gemini 2.5 Flash + intent context
+- **Phase 2:** Separate design extraction from HTML/CSS (overrides Phase 1 design)
+- **Phase 3:** Auto-retry missing sections by comparing page headings vs cloned headings
+- **Quality:** Per-section assessment (good/partial/poor) + layout multi-column support
+- **UX:** Modal with URL/Code/File inputs, site tier analysis, retry notice, quality badges
+- **Output:** YAML landing config with sections, design, usage tokens, quality metadata
 
 #### Feature Builder Phase 3 (Enhanced)
 - **Hybrid code generation:** AI + template combination for faster scaffolding
@@ -851,5 +857,5 @@ See git log for full history. Key components:
 
 ---
 
-**Last updated:** 2026-03-28
-**Version:** v2.7.0
+**Last updated:** 2026-03-29
+**Version:** v3.1.0

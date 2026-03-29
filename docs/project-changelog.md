@@ -4,6 +4,84 @@ All notable changes to Tree Identity are documented here.
 
 ## Releases
 
+### v3.1.0 — AI Clone Auto-Improve (2026-03-29)
+
+**Status:** In Progress
+
+Advanced AI landing page cloner with auto-retry for missing sections, design extraction, per-section quality assessment, and layout multi-column support.
+
+#### Shared Clone Utilities (New)
+- **Module:** `src/lib/admin/clone-ai-utils.ts` — Extracted from landing-clone-ai.ts for reusability
+- **Exports:** CloneResult interface, SECTION_TYPES constant, Gemini API client, HTML cleaning functions
+- **Key functions:**
+  - `directFetch()` — Simple HTTP fetch with timeout
+  - `firecrawlFetch()` — Firecrawl API integration with Markdown side-effect
+  - `cleanBasic()` — Remove scripts/styles/SVGs
+  - `cleanForStructure()` — Aggressive sanitization for semantic extraction
+  - `geminiCall()` — Unified Gemini API wrapper with token usage tracking
+  - `safeJsonParse()` — JSON parsing with jsonrepair fallback
+  - `validateDesign()` — Design object validation
+  - `normalizeSections()` — Normalize section order and structure
+  - `addUsage()` — Accumulate token usage across multiple API calls
+- **Markdown caching:** `getLastMarkdown()`/`setLastMarkdown()` for reusing Firecrawl markdown output
+
+#### Auto-Retry Missing Sections (Enhanced)
+- **Detection:** Compare page H2 headings vs cloned section headings using fuzzy word matching
+- **Retry logic:** Single pass through Gemini targeting missing headings only (additive)
+- **Output:** `missingSections` array in CloneResult if any headings remain unmatched after retry
+- **Implementation:** `retryMissingSections()` function with parallel Gemini call
+- **Threshold:** Ignores if > 8 missing sections (page too complex)
+
+#### Design Extraction Phase (New)
+- **Separate call:** Design extraction now calls Gemini independently with HTML+CSS
+- **Accuracy:** Keeps `<style>` tags for CSS variable detection (previously stripped)
+- **Prompt:** `DESIGN_EXTRACT_PROMPT` specializes in color/font/radius extraction
+- **Merging:** Design results merged with main clone, CSS styles take priority
+- **Token tracking:** Design tokens added to total usage cost estimate
+- **Fallback:** Design extraction failure is non-critical (main clone continues)
+
+#### Per-Section Quality Assessment (New)
+- **Scoring:** Each section rated as 'good', 'partial', or 'poor'
+- **Logic:** Based on content completeness (presence of heading/items/text)
+- **Output:** `sectionQuality` array in CloneResult with per-section issues
+- **Issues detected:** Empty content, truncated items, missing required fields, incomplete data
+- **Usage:** Admin UI displays quality indicators (3-dot badge per section)
+
+#### Layout Section Support (Enhanced)
+- **Type:** `layout` section for multi-column side-by-side content
+- **Structure:** `columns` (array of widths) + `children` (per-column sections)
+- **Prompt:** Updated DIRECT_CLONE_PROMPT with detailed layout examples
+- **Use case:** Stats next to testimonials, image next to form, multi-card grids
+- **Validation:** Schema checks for valid column/children structure
+
+#### Admin UI Enhancements
+- **Retry notice:** Modal shows "Retry attempted, X sections still missing" when `retried: true`
+- **Quality dots:** Section review shows visual quality badges (🟢 good, 🟡 partial, 🔴 poor)
+- **Add missing sections button:** UI prompt to manually add/import remaining unmatched headings
+- **Site analysis:** Real-time tier/score display while typing URL (Tier 1-4 with framework detection)
+
+#### Framework Detection (Enhanced)
+- **Detectors:** 15+ framework patterns (Astro, Hugo, Next.js, Nuxt, SvelteKit, Remix, Gatsby, Jekyll, WordPress, Shopify, Webflow, Wix, Squarespace, Ghost)
+- **Scoring:** Base score 50 + framework boost/penalty (Astro +20, React SPA -15, Angular -20, Cloudflare -30)
+- **Metrics:** Word count (30-2000 word sweet spot), semantic tags count, HTML size
+- **Output:** `SiteAnalysis` interface with tier (1-4), score (0-100), framework name, canClone boolean
+
+#### Files Modified
+- `src/lib/admin/clone-ai-utils.ts` — NEW: Shared utilities module
+- `src/lib/admin/landing-clone-ai.ts` — Phase 3 design extraction, Phase 1 auto-retry, quality assessment
+- `src/components/admin/landing/landing-clone-modal.tsx` — Retry notice UI, quality dots, missing sections button
+
+#### Breaking Changes
+None — Backward compatible. New fields (missingSections, sectionQuality, retried) optional in CloneResult.
+
+#### Architecture Notes
+- **Three-phase pipeline:** Clone → Design Extract → Missing Retry
+- **Token efficiency:** Reuses Markdown from Firecrawl for multiple Gemini calls
+- **Design priority:** CSS-extracted design overrides Gemini-detected values
+- **Quality transparency:** All cloned sections include assessment, enabling informed editing
+
+---
+
 ### v3.0.0 — Marketplace Evolution (2026-03-28)
 
 **Status:** In Progress

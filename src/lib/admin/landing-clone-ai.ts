@@ -1,20 +1,17 @@
 /**
- * AI landing page cloner — 2-step structure-first approach.
- * Step 1: Analyze structure (small output, never truncates)
- * Step 2: Fill content per section (parallel calls, each small)
+ * AI landing page cloner — structure-first approach with auto-retry,
+ * design extraction, quality assessment, and layout section support.
  *
- * Tier 1 sites (< 50K clean HTML) use legacy direct clone (proven stable).
- * Tier 2-4 sites use 2-step approach for reliability.
+ * Tier 1 sites (< 60K) use direct clone. Tier 2+ use 2-step approach.
+ * Utilities (Gemini API, HTML cleaning, normalization) in clone-ai-utils.ts.
  */
-import { jsonrepair } from 'jsonrepair'
-import sanitizeHtml from 'sanitize-html'
 import { logCloneSections } from './clone-section-logger'
-
-const GEMINI_API_URL =
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
-
-/** Section types available in the builder */
-const SECTION_TYPES = ['nav','hero','features','pricing','testimonials','faq','cta','stats','how-it-works','team','logo-wall','footer','video','image','image-text','gallery','map','rich-text','divider','countdown','contact-form','banner','comparison','ai-search','social-proof','layout']
+import {
+  SECTION_TYPES, geminiCall, safeJsonParse, validateDesign, normalizeSections, addUsage,
+  cleanBasic, cleanForStructure, directFetch, firecrawlFetch, getLastMarkdown, setLastMarkdown,
+  type CloneResult,
+} from './clone-ai-utils'
+export type { CloneResult } from './clone-ai-utils'
 
 /** Full detailed prompt for Tier 1 direct clone — EXACT copy from stable commit 830569d */
 const DIRECT_CLONE_PROMPT = `You are an expert web designer. Analyze the HTML of a landing page and decompose it into structured sections matching our landing page builder schema.
@@ -52,8 +49,15 @@ MEDIA:
 - image-text: Fields: image{src,alt}, heading, text, imagePosition(left|right), cta{text,url}
 - gallery: Fields: heading, images[{src,alt,caption}]
 
+LAYOUT (multi-column):
+- layout: For side-by-side content blocks (e.g. stats next to testimonials, image next to form, multi-card grids).
+  Fields: columns (array of column widths, e.g. [1,1] for equal 2-col, [2,1] for 2:1 ratio), children (array of {column: 0|1, sections: [{type,data}]}).
+  Example: { "columns":[1,1], "children":[{"column":0, "sections":[{"type":"stats","data":{...}}]}, {"column":1, "sections":[{"type":"testimonials","data":{...}}]}] }
+  Use layout when: original page shows 2+ content blocks side-by-side in the same row. Do NOT use layout for simple single-column sections stacked vertically.
+
 Rules:
 - Map each visual section to the BEST matching section type
+- When original page has multi-column sections (e.g. 2 content blocks side-by-side), use layout section with nested sections in columns
 - Extract ALL text content, image URLs as absolute URLs
 - CRITICAL: ONLY use image URLs that ACTUALLY EXIST in the HTML source. NEVER invent or fabricate image URLs. If no image URL found for a section, omit the image field entirely — do NOT make up a URL.
 - Order sections top-to-bottom (nav=-1, footer=999, others 0,1,2...)
@@ -76,11 +80,11 @@ const STRUCTURE_PROMPT = `You are a web design expert. Analyze this HTML and ide
 Available section types: ${SECTION_TYPES.join(', ')}
 
 For each visible section on the page, return:
-- type: best matching section type, or "unknown" if no match
+- type: best matching section type, or "unknown" if no match. Use "layout" when 2+ content blocks appear side-by-side in the same row.
 - variant: layout variant (e.g. "centered", "split", "grid", "cards", "carousel")
 - confidence: 0-100 how sure you are this mapping is correct
 - itemCount: number of items (for lists, grids, testimonials, pricing plans)
-- note: any issues or details (e.g. "has video embed", "carousel with 8 items")
+- note: any issues or details (e.g. "has video embed", "carousel with 8 items", "2-column layout")
 
 Also extract design: colors (from CSS/inline styles), fonts, borderRadius.
 
@@ -96,20 +100,6 @@ Expected items: ${itemCount || 'unknown'}
 
 Rules: cta=ALWAYS array [{text,url}]. Icons=emoji. Text=max 200 chars, no HTML. Images=absolute URLs.
 Return ONLY the data object for this section (not wrapped in {sections:[...]}), e.g.: { "heading":"...", "items":[...] }`
-}
-
-export interface CloneResult {
-  title: string
-  description?: string
-  design?: {
-    colors?: Record<string, string>
-    fonts?: { heading?: string; body?: string }
-    borderRadius?: string
-  }
-  sections: Array<{ type: string; order: number; enabled: boolean; data: Record<string, unknown> }>
-  usage?: { promptTokens: number; outputTokens: number; totalTokens: number; estimatedCostUsd: number }
-  /** Structure analysis with per-section confidence */
-  structure?: Array<{ type: string; variant: string; confidence: number; itemCount: number; note: string }>
 }
 
 /** Framework detection patterns for tier scoring */
@@ -183,155 +173,42 @@ function analyzeHtml(html: string): SiteAnalysis {
 /** Fetch HTML — Firecrawl first (best quality), direct fetch as fallback */
 async function fetchPageHtml(url: string): Promise<string> {
   const firecrawlKey = import.meta.env.FIRECRAWL_API_KEY || process.env.FIRECRAWL_API_KEY
-
-  // Firecrawl = best quality (renders JS, clean HTML, covers all site types)
   if (firecrawlKey) {
     try {
       const fcHtml = await firecrawlFetch(url, firecrawlKey)
       if (fcHtml.length > 500) return fcHtml
     } catch {}
   }
-
-  // Fallback: direct fetch (free, no JS rendering)
   return await directFetch(url)
 }
 
-/** Direct HTTP fetch */
-async function directFetch(url: string): Promise<string> {
-  const res = await fetch(url, {
-    signal: AbortSignal.timeout(15000),
-    headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36' },
-  })
-  if (!res.ok) throw new Error(`HTTP ${res.status}`)
-  return (await res.text()).slice(0, 100_000)
+/** Design extraction prompt — uses HTML+CSS for accurate color/font extraction */
+const DESIGN_EXTRACT_PROMPT = `Extract the visual design system from this HTML page. Focus on CSS variables, inline styles, and computed colors.
+
+Return ONLY valid JSON:
+{
+  "colors": { "primary":"#hex", "secondary":"#hex", "accent":"#hex", "background":"#hex", "surface":"#hex", "text":"#hex", "textMuted":"#hex" },
+  "fonts": { "heading":"Font Name", "body":"Font Name" },
+  "borderRadius": "8px"
 }
 
-/** Fetch via Firecrawl API — returns both HTML and Markdown */
-async function firecrawlFetch(url: string, apiKey: string): Promise<string> {
-  const res = await fetch('https://api.firecrawl.dev/v1/scrape', {
-    method: 'POST',
-    signal: AbortSignal.timeout(30000),
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({ url, formats: ['html', 'markdown'], onlyMainContent: false, waitFor: 3000 }),
-  })
-  if (!res.ok) throw new Error(`Firecrawl error: ${res.status}`)
-  const data = await res.json()
-  // Store markdown globally for structure analysis (compact, semantic)
-  _lastMarkdown = (data?.data?.markdown || '').slice(0, 50_000)
-  return (data?.data?.html || '').slice(0, 100_000)
-}
+Rules:
+- Extract ACTUAL colors from CSS variables (--color-primary, etc.), inline styles, and class definitions
+- For fonts, check @import, link[href*=fonts], font-family declarations
+- borderRadius: find the most common border-radius value used on cards/buttons
+- If a value cannot be found, omit the key (don't guess)`
 
-/** Last fetched markdown — used for structure analysis (more compact than HTML) */
-let _lastMarkdown = ''
-
-/** Get markdown from last Firecrawl fetch (if available) */
-export function getLastMarkdown(): string { return _lastMarkdown }
-
-/** Clean HTML — basic (scripts/styles) */
-function cleanBasic(html: string): string {
-  return html
+/** Separate Gemini call to extract design from HTML/CSS (more accurate than Markdown) */
+async function extractDesign(apiKey: string, html: string): Promise<{ design: CloneResult['design']; promptTokens: number; outputTokens: number }> {
+  // Keep style tags for design extraction — only strip scripts/SVGs
+  const designHtml = html
     .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/<style[\s\S]*?<\/style>/gi, '')
-    .replace(/<noscript[\s\S]*?<\/noscript>/gi, '')
-    .replace(/<!--[\s\S]*?-->/g, '')
     .replace(/<svg[\s\S]*?<\/svg>/gi, '')
-    .replace(/\s{2,}/g, ' ').trim()
-}
-
-/** Clean HTML — aggressive (strip attrs, keep semantic structure) */
-function cleanForStructure(html: string): string {
-  return sanitizeHtml(cleanBasic(html), {
-    allowedTags: ['html','head','body','title','meta','h1','h2','h3','h4','h5','h6','p','a','img','ul','ol','li','nav','footer','header','section','article','figure','figcaption','blockquote','video','source','button','form','input','textarea','table','tr','td','th','thead','tbody','div','span'],
-    allowedAttributes: { a: ['href'], img: ['src','alt'], video: ['src'], source: ['src'], meta: ['name','content'], input: ['type','placeholder'], '*': [] },
-    allowedSchemes: ['http','https','data'],
-  }).replace(/\s{2,}/g, ' ').trim()
-}
-
-/** Call Gemini API */
-async function geminiCall(apiKey: string, systemPrompt: string, userPrompt: string, maxTokens = 16384): Promise<{ text: string; promptTokens: number; outputTokens: number }> {
-  const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      system_instruction: { parts: [{ text: systemPrompt }] },
-      contents: [{ parts: [{ text: userPrompt }] }],
-      generationConfig: { temperature: 0.05, maxOutputTokens: maxTokens, responseMimeType: 'application/json' },
-    }),
-  })
-  if (!res.ok) throw new Error(`Gemini API error: ${res.status}`)
-  const data = await res.json()
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || ''
-  const u = data?.usageMetadata
-  return { text, promptTokens: u?.promptTokenCount || 0, outputTokens: u?.candidatesTokenCount || 0 }
-}
-
-/** Parse JSON with jsonrepair */
-function safeJsonParse(text: string): unknown {
-  try { return JSON.parse(text) } catch {}
-  try { return JSON.parse(jsonrepair(text)) } catch {}
-  return null
-}
-
-/** Validate design object — strip invalid string values where objects expected */
-function validateDesign(result: CloneResult) {
-  if (!result.design) return
-  if (typeof result.design.colors === 'string') result.design.colors = undefined as any
-  if (typeof result.design.fonts === 'string') result.design.fonts = undefined as any
-  if (typeof result.design.borderRadius !== 'string' && result.design.borderRadius != null) result.design.borderRadius = String(result.design.borderRadius)
-}
-
-/** Normalize section data fields — fix Gemini inconsistencies */
-function normalizeSections(sections: CloneResult['sections']) {
-  for (const s of sections) {
-    if (!s.data) { s.data = {}; continue }
-    const d = s.data as Record<string, unknown>
-
-    // Fix field name mappings
-    if (d.title && !d.heading && !d.headline) {
-      if (s.type === 'hero' || s.type === 'cta') d.headline = d.title
-      else d.heading = d.title
-      delete d.title
-    }
-    // Nav: items → links, name → brandName
-    if (s.type === 'nav') {
-      if (d.items && !d.links) { d.links = d.items; delete d.items }
-      if (d.name && !d.brandName) { d.brandName = d.name; delete d.name }
-      // Flatten nested menu items to simple links
-      if (Array.isArray(d.links)) {
-        d.links = (d.links as any[]).filter(l => l.label || l.text).map(l => ({
-          label: l.label || l.text || '', href: l.href || l.url || '#'
-        })).slice(0, 10)
-      }
-    }
-    // Footer: name → text
-    if (s.type === 'footer' && d.name && !d.text) { d.text = d.name; delete d.name }
-    // Testimonials: reviews → items
-    if (s.type === 'testimonials' && d.reviews && !d.items) { d.reviews = undefined; d.items = d.reviews }
-    // Features/stats/faq: ensure items array
-    if (['features','stats','faq','how-it-works'].includes(s.type) && !Array.isArray(d.items)) d.items = []
-    // Team: ensure members array
-    if (s.type === 'team' && !Array.isArray(d.members)) {
-      if (Array.isArray(d.items)) { d.members = d.items; delete d.items }
-      else d.members = []
-    }
-    // Gallery: ensure images array
-    if (s.type === 'gallery' && !Array.isArray(d.images)) {
-      if (Array.isArray(d.items)) { d.images = d.items; delete d.items }
-      else d.images = []
-    }
-    // CTA: ensure cta is array
-    if ((s.type === 'hero' || s.type === 'cta') && d.cta && !Array.isArray(d.cta)) {
-      d.cta = [d.cta]
-    }
-    // Fix order
-    if (s.type === 'nav') s.order = -1
-    else if (s.type === 'footer') s.order = 999
-  }
-  // Remove duplicate navs (keep first)
-  const navIdx = sections.findIndex(s => s.type === 'nav')
-  for (let i = sections.length - 1; i > navIdx; i--) {
-    if (sections[i].type === 'nav') sections.splice(i, 1)
-  }
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .slice(0, 30_000)
+  const { text, promptTokens, outputTokens } = await geminiCall(apiKey, DESIGN_EXTRACT_PROMPT, designHtml, 2048)
+  const parsed = safeJsonParse(text) as CloneResult['design'] | null
+  return { design: parsed || undefined, promptTokens, outputTokens }
 }
 
 /** ===== TIER 1: Direct clone (proven stable for SaaS) ===== */
@@ -353,10 +230,11 @@ async function directClone(apiKey: string, html: string, intent: string, url: st
 /** ===== TIER 2+: 2-step structure-first clone ===== */
 async function structureFirstClone(apiKey: string, html: string, intent: string, url: string): Promise<CloneResult> {
   let totalPrompt = 0, totalOutput = 0
+  const lastMd = getLastMarkdown()
 
   // Step 1: Analyze structure — prefer Markdown (compact, fits full page) over HTML
-  const structureContent = _lastMarkdown.length > 500 ? _lastMarkdown : cleanForStructure(html).slice(0, 60_000)
-  const contentType = _lastMarkdown.length > 500 ? 'Markdown' : 'HTML'
+  const structureContent = lastMd.length > 500 ? lastMd : cleanForStructure(html).slice(0, 60_000)
+  const contentType = lastMd.length > 500 ? 'Markdown' : 'HTML'
   const intentCtx = intent ? `\nUser intent: ${intent}` : ''
   const step1 = await geminiCall(apiKey, 'You are a web design expert. Return ONLY valid compact JSON.', `${STRUCTURE_PROMPT}${intentCtx}\n\nURL: ${url}\n\nPage content (${contentType}):\n${structureContent}`, 8192)
   totalPrompt += step1.promptTokens
@@ -366,8 +244,8 @@ async function structureFirstClone(apiKey: string, html: string, intent: string,
   if (!analysis?.structure?.length) throw new Error('Structure analysis returned no sections')
 
   // Step 2: Fill content per section (parallel) — use Markdown if available (compact, full page)
-  const fillContent = _lastMarkdown.length > 500 ? _lastMarkdown : cleanForStructure(html).slice(0, 50_000)
-  const fillType = _lastMarkdown.length > 500 ? 'Markdown' : 'HTML'
+  const fillContent = lastMd.length > 500 ? lastMd : cleanForStructure(html).slice(0, 50_000)
+  const fillType = lastMd.length > 500 ? 'Markdown' : 'HTML'
   const validSections = analysis.structure.filter(s => SECTION_TYPES.includes(s.type))
   const fillPromises = validSections.map(async (s) => {
     const prompt = buildFillPrompt(s.type, s.variant, s.itemCount)
@@ -393,6 +271,42 @@ async function structureFirstClone(apiKey: string, html: string, intent: string,
   return result
 }
 
+/** Retry prompt — targeted fill for specific missing headings */
+const RETRY_MISSING_PROMPT = `You are a web design expert. The page has sections that were missed in a first pass.
+For EACH heading below, extract the content from the page and map it to the best matching section type.
+
+Available section types: ${SECTION_TYPES.join(', ')}
+
+Rules:
+- Map each heading to the BEST matching section type
+- Extract ALL text content for that section
+- Icons → emoji, text max 200 chars, images as absolute URLs
+- cta is ALWAYS an array [{text, url}]
+- For side-by-side content blocks, use "layout" type with columns and children
+- Return sections in order they appear on the page
+
+Return ONLY valid JSON: { "sections": [{ "type":"...", "order":N, "enabled":true, "data":{...} }] }`
+
+/** Auto-retry: call Gemini only for missing sections, merge into result (additive only) */
+async function retryMissingSections(
+  apiKey: string, content: string, missingHeadings: string[], existingSections: CloneResult['sections']
+): Promise<{ sections: CloneResult['sections']; promptTokens: number; outputTokens: number }> {
+  const headingList = missingHeadings.map((h, i) => `${i + 1}. "${h}"`).join('\n')
+  const userPrompt = `Missing section headings to find:\n${headingList}\n\nPage content:\n${content}`
+  const { text, promptTokens, outputTokens } = await geminiCall(apiKey, RETRY_MISSING_PROMPT, userPrompt, 8192)
+  const parsed = safeJsonParse(text) as { sections?: CloneResult['sections'] } | null
+  if (!parsed?.sections?.length) return { sections: [], promptTokens, outputTokens }
+
+  const maxOrder = Math.max(...existingSections.filter(s => s.type !== 'footer').map(s => s.order), 0)
+  parsed.sections.forEach((s, i) => {
+    if (!s.data) s.data = {}
+    if (s.order == null || s.order <= 0) s.order = maxOrder + 1 + i
+    s.enabled = true
+  })
+  normalizeSections(parsed.sections)
+  return { sections: parsed.sections, promptTokens, outputTokens }
+}
+
 /** ===== MAIN ENTRY — single path: best HTML → directClone ===== */
 export async function cloneLandingPage(url: string, intent?: string): Promise<CloneResult> {
   const apiKey = import.meta.env.GEMINI_API_KEY
@@ -406,14 +320,11 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
   if (isDataUrl) {
     rawHtml = decodeURIComponent(url.slice('data:text/html,'.length))
   } else {
-    // Try Firecrawl first (best quality), fallback to direct fetch
     let fcHtml = ''
     if (firecrawlKey) {
       try { fcHtml = await firecrawlFetch(url, firecrawlKey) } catch {}
     }
     const directHtml = await directFetch(url)
-
-    // Use whichever has more content
     const fcWords = cleanBasic(fcHtml).replace(/<[^>]+>/g, ' ').split(/\s+/).filter(w => w.length > 2).length
     const directWords = cleanBasic(directHtml).replace(/<[^>]+>/g, ' ').split(/\s+/).filter(w => w.length > 2).length
     rawHtml = fcWords > directWords ? fcHtml : directHtml
@@ -427,21 +338,37 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
   }
 
   // Step 2: Choose best input format
-  // Tier 1 (< 60K): use HTML directly (proven)
-  // Tier 2+ (> 60K): use Markdown if available (compact, full page), else cleaned HTML
+  const lastMd = getLastMarkdown()
   let cloneInput: string
   if (html.length <= 60_000) {
     cloneInput = html
-  } else if (_lastMarkdown.length > 500) {
-    cloneInput = _lastMarkdown.slice(0, 50_000)
+  } else if (lastMd.length > 500) {
+    cloneInput = lastMd.slice(0, 50_000)
   } else {
     cloneInput = cleanForStructure(rawHtml).slice(0, 80_000)
   }
 
   const r = await directClone(apiKey, cloneInput, intent || '', url)
 
+  // Phase 3: Separate design extraction from HTML/CSS (more accurate than clone's design)
+  if (!isDataUrl) {
+    try {
+      const designResult = await extractDesign(apiKey, rawHtml)
+      if (designResult.design) {
+        const existing = r.design || {}
+        r.design = {
+          colors: { ...existing.colors, ...designResult.design.colors },
+          fonts: { ...existing.fonts, ...designResult.design.fonts },
+          borderRadius: designResult.design.borderRadius || existing.borderRadius,
+        }
+        validateDesign(r)
+      }
+      addUsage(r, designResult.promptTokens, designResult.outputTokens)
+    } catch {} // Design extraction failure is non-critical
+  }
+
   // Detect missing sections — compare page H2s vs cloned headings
-  const headingSource = _lastMarkdown || html
+  const headingSource = lastMd || html
   const pageHeadings = [...headingSource.matchAll(/^##\s+(.+)/gm)].map(m => m[1].trim())
     .concat([...headingSource.matchAll(/<h2[^>]*>([^<]+)<\/h2>/gi)].map(m => m[1].trim()))
     .filter(h => h.length > 3 && h.length < 100)
@@ -451,18 +378,15 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
     return String(d.headline || d.heading || d.text || d.brandName || '').toLowerCase()
   }).filter(Boolean)
 
-  // Fuzzy match: check if any significant words overlap
   const getWords = (s: string) => s.toLowerCase().split(/\s+/).filter(w => w.length > 3)
   const missingSections = pageHeadings.filter(h => {
     const hWords = getWords(h)
     if (hWords.length === 0) return false
-    // Check if any cloned section shares 2+ words or 50%+ word overlap
     return !clonedHeadings.some(ch => {
       const cWords = getWords(ch)
       const overlap = hWords.filter(w => cWords.some(cw => cw.includes(w) || w.includes(cw))).length
       return overlap >= 2 || overlap >= hWords.length * 0.5
     }) && !r.sections.some(s => {
-      // Also check section TYPE matches heading content keywords
       const typeKeywords: Record<string, string[]> = {
         testimonials: ['client', 'avis', 'témoignage', 'parlent', 'review'],
         team: ['équipe', 'conseiller', 'team', 'advisor'],
@@ -476,11 +400,67 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
     })
   })
 
-  // Attach missing sections info to result
-  if (missingSections.length > 0) {
-    (r as any).missingSections = missingSections
+  // Phase 1: Auto-retry missing sections (additive only, max 1 retry)
+  if (missingSections.length > 0 && missingSections.length <= 8) {
+    try {
+      const retryContent = lastMd.length > 500 ? lastMd : cloneInput
+      const retry = await retryMissingSections(apiKey, retryContent, missingSections, r.sections)
+      if (retry.sections.length > 0) {
+        const footerIdx = r.sections.findIndex(s => s.type === 'footer')
+        if (footerIdx >= 0) r.sections.splice(footerIdx, 0, ...retry.sections)
+        else r.sections.push(...retry.sections)
+        r.retried = true
+      }
+      addUsage(r, retry.promptTokens, retry.outputTokens)
+      // Re-detect missing after retry
+      const retriedHeadings = retry.sections.map(s => {
+        const d = (s.data || {}) as Record<string, unknown>
+        return String(d.headline || d.heading || d.text || '').toLowerCase()
+      }).filter(Boolean)
+      const stillMissing = missingSections.filter(h => {
+        const hWords = getWords(h)
+        return !retriedHeadings.some(rh => {
+          const rWords = getWords(rh)
+          const overlap = hWords.filter(w => rWords.some(rw => rw.includes(w) || w.includes(rw))).length
+          return overlap >= 1
+        })
+      })
+      r.missingSections = stillMissing.length > 0 ? stillMissing : undefined
+    } catch {
+      r.missingSections = missingSections
+    }
+  } else if (missingSections.length > 0) {
+    r.missingSections = missingSections
   }
+
+  // Phase 2: Per-section quality assessment
+  r.sectionQuality = r.sections.map((s, i) => assessSectionQuality(s, i))
 
   try { logCloneSections(url, r.sections, words, pageHeadings) } catch {}
   return r
+}
+
+/** Assess quality of a single cloned section */
+function assessSectionQuality(
+  s: { type: string; data: Record<string, unknown> }, index: number
+): { index: number; score: 'good' | 'partial' | 'poor'; issue?: string } {
+  const d = s.data || {}
+  const values = Object.values(d).filter(v => v != null && v !== '' && v !== undefined)
+  if (values.length === 0) return { index, score: 'poor', issue: 'No content extracted' }
+
+  const hasHeading = !!(d.headline || d.heading || d.brandName || d.text || d.content)
+  if (!hasHeading && !['divider','social-proof','nav','footer','image','video','map'].includes(s.type))
+    return { index, score: 'partial', issue: 'Missing heading' }
+
+  const itemKey = s.type === 'team' ? 'members' : s.type === 'gallery' ? 'images' : 'items'
+  if (['features','stats','faq','how-it-works','testimonials','pricing','team','gallery'].includes(s.type)) {
+    const items = d[itemKey]
+    if (!Array.isArray(items) || items.length === 0) return { index, score: 'poor', issue: 'Empty items list' }
+    if (items.length === 1 && s.type !== 'pricing') return { index, score: 'partial', issue: 'Only 1 item — likely incomplete' }
+  }
+
+  if ((s.type === 'hero' || s.type === 'image-text') && !d.backgroundImage && !d.image && !d.embed)
+    return { index, score: 'partial', issue: 'No image or media' }
+
+  return { index, score: 'good' }
 }

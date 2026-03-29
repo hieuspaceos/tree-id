@@ -2,22 +2,67 @@
 
 Strategic roadmap for Tree Identity. Tracks active work, completed milestones, and future directions.
 
-## Current Status (2026-03-28)
+## Current Status (2026-03-29)
 
-**Phase:** v3.0.0 — Marketplace Evolution
-**Completion:** v2.7.0 complete + Marketplace backbone implementation
+**Phase:** v3.1.0 — AI Clone Auto-Improve
+**Completion:** v3.0.0 complete + Marketplace evolution (Marketplace v1 shipped)
 **Active Team:** Solo (HieuSpace)
-**Key Features Added (v3.0.0):**
-- Astro Hybrid SSR: `output: 'server'` enables on-demand SSR for marketplace
-- Supabase Integration: 6-table schema (profiles, products, orders, order_items, licenses, payment_events)
-- SQLite Fallback: better-sqlite3 for local dev without API keys
-- Google OAuth: Supabase Auth integration with `/api/auth/callback` handler
-- Marketplace Pages: `/marketplace`, `/marketplace/[slug]`, `/checkout/[slug]`, `/dashboard`
-- AI Intent Search: Gemini 2.5-flash powered product search with confidence scoring
-- License Key Delivery: Auto-generated keys with activation tracking
-- Payment Skeleton: `/api/checkout/create` and `/api/checkout/confirm` (local simulation)
-- Database Schema: Full SQL for Supabase + SQLite fallback
-- New Dependencies: @supabase/supabase-js, better-sqlite3
+**Key Features Added (v3.1.0):**
+- Shared Clone Utilities: Extracted from landing-clone-ai.ts for reusability
+- Auto-Retry Missing Sections: Fuzzy heading matching + single retry pass
+- Design Extraction Phase: Separate Gemini call for CSS/color/font accuracy
+- Per-Section Quality Assessment: good/partial/poor scoring with issue detection
+- Layout Multi-Column Support: Side-by-side content blocks (e.g., stats + testimonials)
+- Framework Detection: 15+ patterns with tier/score analysis
+- Admin UI Polish: Retry notice, quality badges, missing sections button
+- Site Tier Analysis: Real-time compatibility scoring while typing URL
+
+**Previous (v3.0.0):**
+- Marketplace backbone: Supabase + Google OAuth + license key delivery
+- Astro Hybrid SSR: Server mode for marketplace/auth routes
+- AI Intent Search: Gemini-powered product semantic matching
+- Payment skeleton: `/checkout/[slug]` and `/dashboard` (local simulation)
+
+---
+
+## Phase 11 — AI Clone Auto-Improve ✓ COMPLETE
+
+**Timeline:** 2026-03-28 to 2026-03-29
+**Status:** Complete
+**Effort:** 8 hours
+
+### Deliverables
+- [x] Shared clone utilities module: `clone-ai-utils.ts` extracted for reusability
+- [x] Auto-retry missing sections: Fuzzy H2 heading matching + single Gemini retry pass
+- [x] Design extraction phase: Separate CSS-aware Gemini call for accurate colors/fonts
+- [x] Per-section quality assessment: good/partial/poor scoring with issue detection
+- [x] Layout multi-column support: Enhanced prompts for side-by-side content blocks
+- [x] Framework detection: 15+ framework patterns with tier/score analysis
+- [x] Admin UI enhancements: Retry notice, quality badges, missing sections button
+- [x] Site compatibility analysis: Real-time tier display while typing URL
+
+**Files Created/Modified:**
+- `src/lib/admin/clone-ai-utils.ts` — NEW: Shared utilities (HTML cleaning, Gemini API, JSON parsing)
+- `src/lib/admin/landing-clone-ai.ts` — Phase 3 design extraction + Phase 1 auto-retry
+- `src/components/admin/landing/landing-clone-modal.tsx` — UI for retry notice, quality dots, site analysis
+
+**Architecture:**
+- 3-phase pipeline: Direct clone → Design extract → Missing retry
+- Markdown caching: Reuse Firecrawl markdown across multiple Gemini calls
+- Design merging: CSS-extracted design overrides Gemini-detected values
+- Quality transparency: All cloned sections include assessment
+
+**Key Insights:**
+- Utilities extraction enables future clone variants (blog posts, docs, etc.)
+- Heading-based retry catches sections missed in first pass with minimal token cost
+- Separate design extraction improves color/font accuracy from CSS
+- Quality badges help users focus editing efforts
+
+**Success Metrics:**
+- Fewer missing sections after auto-retry (50%+ reduction)
+- More accurate design extraction from CSS variables
+- Quality indicators guide user refinement
+- Reusable utilities enable feature expansion
 
 ---
 
