@@ -810,7 +810,13 @@ function postProcessCloneResult(r: CloneResult, rawHtml: string, url: string) {
     // Prioritize URLs with hero-related keywords (most specific first)
     const heroKeywords = ['slider', 'hero', 'banner', 'header-', 'cover']
     const heroUrl = jpgUrls.find(u => heroKeywords.some(k => u.toLowerCase().includes(k)))
-    const bestUrl = heroUrl || jpgUrls[0] || bgUrls.find(u => /\.(png)/i.test(u) && !u.includes('logo'))
+    // Also check <img> tags near slider/hero areas as fallback
+    const imgUrls = [...rawHtml.matchAll(/<img[^>]*src=["']([^"']+)["'][^>]*>/g)]
+      .map(m => m[1])
+      .filter(u => u.startsWith('http') && /\.(jpg|jpeg|webp)/i.test(u) && !u.includes('logo') && !u.includes('icon') && !u.includes('flag') && !u.includes('avatar') && !u.includes('dropdown'))
+    const sliderImg = imgUrls.find(u => ['slider', 'hero', 'banner', 'header-'].some(k => u.toLowerCase().includes(k)))
+
+    const bestUrl = heroUrl || sliderImg || jpgUrls[0] || bgUrls.find(u => /\.(png)/i.test(u) && !u.includes('logo'))
     if (bestUrl) {
       hero.data.backgroundImage = bestUrl
     }
@@ -861,26 +867,28 @@ function postProcessCloneResult(r: CloneResult, rawHtml: string, url: string) {
     }
   }
 
-  // Fix 5: Clean topBar icons — replace Font Awesome classes with emoji
+  // Fix 5: Clean topBar + socialLinks icons — replace FA classes/names with emoji
+  const iconEmojiMap: Record<string, string> = {
+    'whatsapp': '📱', 'phone': '📞', 'envelope': '✉️', 'email': '✉️', 'mail': '✉️',
+    'facebook': '📘', 'instagram': '📷', 'twitter': '🐦', 'x-twitter': '𝕏', 'youtube': '▶️',
+    'linkedin': '💼', 'map-marker': '📍', 'globe': '🌐', 'clock': '🕐', 'tiktok': '🎵',
+    'pinterest': '📌', 'telegram': '✈️', 'reddit': '🔴', 'github': '💻', 'discord': '💬',
+  }
+  function cleanIcon(icon: string): string {
+    if (!icon || icon.startsWith('http')) return icon // URLs are fine
+    // Strip "fab fa-" / "fas fa-" / "far fa-" prefixes
+    const cleaned = icon.replace(/fa[bsr]?\s+fa-/g, '').replace(/fa-/g, '').trim().toLowerCase()
+    return iconEmojiMap[cleaned] || icon
+  }
   if (nav?.data.topBar && Array.isArray(nav.data.topBar)) {
-    const faMap: Record<string, string> = {
-      'fa-whatsapp': '📱', 'fa-phone': '📞', 'fa-envelope': '✉️', 'fa-email': '✉️',
-      'fa-facebook': '📘', 'fa-instagram': '📷', 'fa-twitter': '🐦', 'fa-youtube': '▶️',
-      'fa-linkedin': '💼', 'fa-map-marker': '📍', 'fa-globe': '🌐', 'fa-clock': '🕐',
-    }
     for (const item of nav.data.topBar as Array<{ icon?: string; text?: string }>) {
-      if (item.icon && typeof item.icon === 'string') {
-        // Replace "fab fa-whatsapp" or "fas fa-envelope" with emoji
-        const faMatch = item.icon.match(/fa[bsr]?\s+fa-(\w+)/)
-        if (faMatch) {
-          const key = `fa-${faMatch[1]}`
-          item.icon = faMap[key] || '•'
-        }
-        // Also clean from text if icon class leaked into text
-        if (item.text && typeof item.text === 'string') {
-          item.text = item.text.replace(/fa[bsr]?\s+fa-\w+\s*/g, '').trim()
-        }
-      }
+      if (item.icon) item.icon = cleanIcon(String(item.icon))
+      if (item.text) item.text = String(item.text).replace(/fa[bsr]?\s+fa-\w+\s*/g, '').trim()
+    }
+  }
+  if (nav?.data.socialLinks && Array.isArray(nav.data.socialLinks)) {
+    for (const sl of nav.data.socialLinks as Array<{ icon?: string; label?: string }>) {
+      if (sl.icon) sl.icon = cleanIcon(String(sl.icon))
     }
   }
 
