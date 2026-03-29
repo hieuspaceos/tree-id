@@ -30,6 +30,13 @@
 - User chỉ cần edit content, không cần tạo section manually
 **Files**: `landing-clone-modal.tsx`, `landing-page-editor.tsx`
 
+## Phase 5: Layout section usage in clone
+- Gemini không dùng layout section vì prompt không hướng dẫn khi nào dùng
+- Thêm instruction: "When original page has multi-column sections (e.g. 2 content blocks side-by-side), use layout section with nested sections in columns"
+- Teach Gemini layout structure: `{columns:[1,1], children:[{column:0, sections:[...]}, {column:1, sections:[...]}]}`
+- Map common patterns: stats+testimonials side-by-side, image+form combo, multi-card grids
+**Files**: `landing-clone-ai.ts` (prompt update)
+
 ## Safety
 - Test claudekit.cc after every phase
 - Tier 1 path unchanged
