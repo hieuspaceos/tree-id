@@ -472,31 +472,17 @@ function buildScopedCssFromStyles(sections: CloneResult['sections']): Array<{ se
     if (!style) continue
 
     const rules: string[] = []
-    const bg = style.background as string | undefined
     const textColor = style.textColor as string | undefined
-    const textMuted = style.textMutedColor as string | undefined
-    const accent = style.accentColor as string | undefined
     const isDark = textColor && ['#fff', '#ffffff', '#fafafa', 'white'].includes(textColor.toLowerCase())
 
-    // Section background
-    if (bg && bg.toLowerCase() !== '#ffffff' && bg.toLowerCase() !== '#fff') {
-      rules.push(`.landing-section { background: ${bg}; }`)
-    }
+    // Colors come from design variables (--lp-primary, etc.) or section style inline.
+    // Scoped CSS should NOT hardcode colors — only layout, animation, and theme-mode overrides.
 
-    // Dark section — override all text colors
+    // Dark section — override card/glass backgrounds for visibility (not colors, those come from --lp-text)
     if (isDark) {
-      rules.push(`h1, h2, h3, h4 { color: ${textColor}; }`)
-      rules.push(`p, li, span { color: ${textMuted || 'rgba(255,255,255,0.7)'}; }`)
       rules.push(`.lp-card-hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); }`)
-      rules.push(`.glass-card { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: ${textColor}; }`)
+      rules.push(`.glass-card { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); }`)
       rules.push(`.lp-icon-bg { background: rgba(255,255,255,0.1); }`)
-    }
-
-    // Accent color for stats, stars
-    if (accent) {
-      rules.push(`.landing-stat-value { color: ${accent}; }`)
-      rules.push(`.lp-stars { color: ${accent}; }`)
-      rules.push(`.lp-icon-bg { color: ${accent}; }`)
     }
 
     if (rules.length > 0) {
@@ -915,7 +901,7 @@ function postProcessCloneResult(r: CloneResult, rawHtml: string, url: string) {
     })
     r.scopedCss.splice(1, 0, {
       selector: '[data-section="section-hero"]',
-      css: `h1, h2 { font-family: 'Dancing Script', cursive; font-size: clamp(2.5rem, 5vw, 3.5rem); color: #fff; }`,
+      css: `h1, h2 { font-family: 'Dancing Script', cursive; font-size: clamp(2.5rem, 5vw, 3.5rem); }`,
     })
   }
 
@@ -1017,18 +1003,19 @@ function postProcessCloneResult(r: CloneResult, rawHtml: string, url: string) {
     }
   }
 
-  // Fix 9: Fix scoped CSS — ensure dark-bg selectors include white text
+  // Fix 9: Strip hardcoded colors from AI-generated scoped CSS — colors come from design variables
   if (r.scopedCss) {
     for (const css of r.scopedCss as Array<{ selector: string; css: string }>) {
-      if (!css.css) continue
-      const hasDarkBg = /background:\s*#[0-3][0-9a-f]{5}/i.test(css.css) ||
-        /background:\s*#1[0-9a-f]/i.test(css.css) ||
-        /background:\s*#2[0-9a-f]/i.test(css.css)
-      const hasTextColor = /color:\s*#fff/i.test(css.css) || /color:\s*#ffffff/i.test(css.css) || /color:\s*rgba\(255/i.test(css.css)
-      if (hasDarkBg && !hasTextColor) {
-        css.css += ` h1, h2, h3, h4, h5 { color: #fff; } p, li, span, a { color: rgba(255,255,255,0.8); }`
-      }
+      if (!css.css || css.selector === '.landing-page-root') continue
+      // Remove hardcoded background/color rules — let section style inline + design vars handle colors
+      css.css = css.css
+        .replace(/\.landing-section\s*\{[^}]*background:[^}]+\}\s*/g, '')
+        .replace(/h[1-6][^{]*\{[^}]*color:\s*#[^}]+\}\s*/g, '')
+        .replace(/p,\s*li,\s*span[^{]*\{[^}]*color:[^}]+\}\s*/g, '')
+        .trim()
     }
+    // Remove empty scoped CSS entries
+    r.scopedCss = r.scopedCss.filter((c: { css: string }) => c.css.length > 0)
   }
 
   // Fix 10: Testimonials with dark bg + cards variant → switch to light bg
@@ -1044,7 +1031,7 @@ function postProcessCloneResult(r: CloneResult, rawHtml: string, url: string) {
       // Also fix scoped CSS for testimonials
       const scopedTest = r.scopedCss?.find((c: { selector: string }) => c.selector.includes('testimonials'))
       if (scopedTest) {
-        scopedTest.css = `.landing-section { background: #faf6f1; } .lp-card-hover { background: #fff; border-color: rgba(0,0,0,0.08); } .lp-stars { color: #e67e22; }`
+        scopedTest.css = `.lp-card-hover { background: var(--lp-bg, #fff); border-color: rgba(0,0,0,0.08); } .lp-stars { color: var(--lp-accent, #f59e0b); }`
       }
     }
   }
