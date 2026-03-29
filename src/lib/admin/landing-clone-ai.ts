@@ -280,6 +280,60 @@ function validateDesign(result: CloneResult) {
   if (typeof result.design.borderRadius !== 'string' && result.design.borderRadius != null) result.design.borderRadius = String(result.design.borderRadius)
 }
 
+/** Normalize section data fields — fix Gemini inconsistencies */
+function normalizeSections(sections: CloneResult['sections']) {
+  for (const s of sections) {
+    if (!s.data) { s.data = {}; continue }
+    const d = s.data as Record<string, unknown>
+
+    // Fix field name mappings
+    if (d.title && !d.heading && !d.headline) {
+      if (s.type === 'hero' || s.type === 'cta') d.headline = d.title
+      else d.heading = d.title
+      delete d.title
+    }
+    // Nav: items → links, name → brandName
+    if (s.type === 'nav') {
+      if (d.items && !d.links) { d.links = d.items; delete d.items }
+      if (d.name && !d.brandName) { d.brandName = d.name; delete d.name }
+      // Flatten nested menu items to simple links
+      if (Array.isArray(d.links)) {
+        d.links = (d.links as any[]).filter(l => l.label || l.text).map(l => ({
+          label: l.label || l.text || '', href: l.href || l.url || '#'
+        })).slice(0, 10)
+      }
+    }
+    // Footer: name → text
+    if (s.type === 'footer' && d.name && !d.text) { d.text = d.name; delete d.name }
+    // Testimonials: reviews → items
+    if (s.type === 'testimonials' && d.reviews && !d.items) { d.reviews = undefined; d.items = d.reviews }
+    // Features/stats/faq: ensure items array
+    if (['features','stats','faq','how-it-works'].includes(s.type) && !Array.isArray(d.items)) d.items = []
+    // Team: ensure members array
+    if (s.type === 'team' && !Array.isArray(d.members)) {
+      if (Array.isArray(d.items)) { d.members = d.items; delete d.items }
+      else d.members = []
+    }
+    // Gallery: ensure images array
+    if (s.type === 'gallery' && !Array.isArray(d.images)) {
+      if (Array.isArray(d.items)) { d.images = d.items; delete d.items }
+      else d.images = []
+    }
+    // CTA: ensure cta is array
+    if ((s.type === 'hero' || s.type === 'cta') && d.cta && !Array.isArray(d.cta)) {
+      d.cta = [d.cta]
+    }
+    // Fix order
+    if (s.type === 'nav') s.order = -1
+    else if (s.type === 'footer') s.order = 999
+  }
+  // Remove duplicate navs (keep first)
+  const navIdx = sections.findIndex(s => s.type === 'nav')
+  for (let i = sections.length - 1; i > navIdx; i--) {
+    if (sections[i].type === 'nav') sections.splice(i, 1)
+  }
+}
+
 /** ===== TIER 1: Direct clone (proven stable for SaaS) ===== */
 async function directClone(apiKey: string, html: string, intent: string, url: string): Promise<CloneResult> {
   const intentCtx = intent ? `\n\nUser intent: ${intent}` : ''
@@ -288,6 +342,7 @@ async function directClone(apiKey: string, html: string, intent: string, url: st
   const parsed = safeJsonParse(text) as CloneResult | null
   if (!parsed?.sections?.length) throw new Error('Failed to parse clone response')
   for (const s of parsed.sections) { if (!s.data) s.data = {} }
+  normalizeSections(parsed.sections)
 
   const totalTokens = promptTokens + outputTokens
   parsed.usage = { promptTokens, outputTokens, totalTokens, estimatedCostUsd: (promptTokens * 0.00000015) + (outputTokens * 0.0000006) }
@@ -396,9 +451,29 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
     return String(d.headline || d.heading || d.text || d.brandName || '').toLowerCase()
   }).filter(Boolean)
 
+  // Fuzzy match: check if any significant words overlap
+  const getWords = (s: string) => s.toLowerCase().split(/\s+/).filter(w => w.length > 3)
   const missingSections = pageHeadings.filter(h => {
-    const hLower = h.toLowerCase()
-    return !clonedHeadings.some(ch => ch.includes(hLower.slice(0, 15)) || hLower.includes(ch.slice(0, 15)))
+    const hWords = getWords(h)
+    if (hWords.length === 0) return false
+    // Check if any cloned section shares 2+ words or 50%+ word overlap
+    return !clonedHeadings.some(ch => {
+      const cWords = getWords(ch)
+      const overlap = hWords.filter(w => cWords.some(cw => cw.includes(w) || w.includes(cw))).length
+      return overlap >= 2 || overlap >= hWords.length * 0.5
+    }) && !r.sections.some(s => {
+      // Also check section TYPE matches heading content keywords
+      const typeKeywords: Record<string, string[]> = {
+        testimonials: ['client', 'avis', 'témoignage', 'parlent', 'review'],
+        team: ['équipe', 'conseiller', 'team', 'advisor'],
+        video: ['vidéo', 'video', 'collection'],
+        'how-it-works': ['étape', 'step', 'comment', 'process'],
+        gallery: ['voyage', 'idée', 'programme', 'collection'],
+        faq: ['question', 'faq'],
+      }
+      const kw = typeKeywords[s.type]
+      return kw && kw.some(k => h.toLowerCase().includes(k))
+    })
   })
 
   // Attach missing sections info to result
