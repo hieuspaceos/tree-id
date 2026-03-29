@@ -179,9 +179,12 @@ export async function analyzeSiteCompatibility(url: string): Promise<SiteAnalysi
     { name: 'SvelteKit', tier: 1, patterns: ['__sveltekit', 'svelte-'], boost: 15 },
     { name: 'Gatsby', tier: 1, patterns: ['gatsby-', '___gatsby'], boost: 12 },
     // Tier 2 — Server-rendered with heavier HTML
+    // WordPress MUST be checked before Ghost (both can have 'content/themes')
+    { name: 'WordPress', tier: 2, patterns: ['wp-content', 'wp-includes', 'wp-json'], boost: 5 },
+    { name: 'WordPress + Elementor', tier: 2, patterns: ['elementor'], boost: 3 },
+    { name: 'WordPress + Divi', tier: 2, patterns: ['et-db', 'et_pb_', 'divi'], boost: 3 },
     { name: 'Webflow', tier: 2, patterns: ['webflow.com', 'w-webflow', 'wf-page'], boost: 8 },
-    { name: 'Ghost', tier: 2, patterns: ['ghost.org', 'ghost-', 'content/themes'], boost: 10 },
-    { name: 'WordPress', tier: 2, patterns: ['wp-content', 'wp-includes', 'wordpress', 'wp-json'], boost: 5 },
+    { name: 'Ghost', tier: 2, patterns: ['ghost.org', 'ghost/', 'ghost-portal'], boost: 10 },
     { name: 'Shopify', tier: 2, patterns: ['cdn.shopify.com', 'shopify-section', 'Shopify.theme'], boost: 5 },
     { name: 'Squarespace', tier: 2, patterns: ['squarespace.com', 'sqsp-', 'sqs-'], boost: 5 },
     { name: 'Wix', tier: 2, patterns: ['wix.com', 'wixsite.com', 'wix-', 'x-wix-'], boost: 3 },
