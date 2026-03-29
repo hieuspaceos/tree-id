@@ -41,8 +41,9 @@ function parseMarkdown(md: string): string {
     .replace(/<p>(<hr \/>)<\/p>/g, '$1')
 }
 
-const isHtml = content.trimStart().startsWith('<')
-const html = isHtml ? content : parseMarkdown(content)
+const safeContent = content || ''
+const isHtml = safeContent.trimStart().startsWith('<')
+const html = isHtml ? safeContent : parseMarkdown(safeContent)
 
 /** Strip script tags for basic XSS protection */
 const safe = html.replace(/<script[\s\S]*?<\/script>/gi, '')
