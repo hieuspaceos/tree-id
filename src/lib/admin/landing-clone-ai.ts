@@ -337,57 +337,43 @@ async function structureFirstClone(apiKey: string, html: string, intent: string,
   return result
 }
 
-/** ===== MAIN ENTRY ===== */
+/** ===== MAIN ENTRY — single path: best HTML → directClone ===== */
 export async function cloneLandingPage(url: string, intent?: string): Promise<CloneResult> {
   const apiKey = import.meta.env.GEMINI_API_KEY
   if (!apiKey) throw new Error('GEMINI_API_KEY not configured')
 
-  // Get raw HTML — direct fetch first to check tier
   const isDataUrl = url.startsWith('data:text/html,')
-  const directHtml = isDataUrl
-    ? decodeURIComponent(url.slice('data:text/html,'.length))
-    : await directFetch(url)
-
-  const analysis = analyzeHtml(directHtml)
-
-  // Tier 4: too little content
-  if (analysis.score < 20 && !isDataUrl) {
-    // Try Firecrawl before giving up
-    const firecrawlKey = import.meta.env.FIRECRAWL_API_KEY || process.env.FIRECRAWL_API_KEY
-    if (firecrawlKey) {
-      try {
-        const fcHtml = await firecrawlFetch(url, firecrawlKey)
-        if (fcHtml.length > 500) {
-          const fcAnalysis = analyzeHtml(fcHtml)
-          if (fcAnalysis.score >= 20) {
-            const r = await structureFirstClone(apiKey, fcHtml, intent || '', url)
-            try { logCloneSections(url, r.sections, r.structure) } catch {}
-            return r
-          }
-        }
-      } catch {}
-    }
-    throw new Error(`Page has too little visible content (score: ${analysis.score}). Use "📋 Paste Code" mode.`)
-  }
-
-  // Tier 1: Direct clone with DIRECT fetch (proven stable, Firecrawl changes format)
-  const html = cleanBasic(directHtml)
-  if (analysis.tier === 1 && html.length <= 50_000) {
-    const r = await directClone(apiKey, html, intent || '', url)
-    try { logCloneSections(url, r.sections, r.structure) } catch {}
-    return r
-  }
-
-  // Tier 2-3: Structure-first 2-step clone — prefer Firecrawl HTML (cleaner, JS-rendered)
   const firecrawlKey = import.meta.env.FIRECRAWL_API_KEY || process.env.FIRECRAWL_API_KEY
-  let cloneHtml = directHtml
-  if (firecrawlKey && !isDataUrl) {
-    try {
-      const fcHtml = await firecrawlFetch(url, firecrawlKey)
-      if (fcHtml.length > 500) cloneHtml = fcHtml
-    } catch {}
+
+  // Step 1: Get best HTML available
+  let rawHtml: string
+  if (isDataUrl) {
+    rawHtml = decodeURIComponent(url.slice('data:text/html,'.length))
+  } else {
+    // Try Firecrawl first (best quality), fallback to direct fetch
+    let fcHtml = ''
+    if (firecrawlKey) {
+      try { fcHtml = await firecrawlFetch(url, firecrawlKey) } catch {}
+    }
+    const directHtml = await directFetch(url)
+
+    // Use whichever has more content
+    const fcWords = cleanBasic(fcHtml).replace(/<[^>]+>/g, ' ').split(/\s+/).filter(w => w.length > 2).length
+    const directWords = cleanBasic(directHtml).replace(/<[^>]+>/g, ' ').split(/\s+/).filter(w => w.length > 2).length
+    rawHtml = fcWords > directWords ? fcHtml : directHtml
   }
-  const r = await structureFirstClone(apiKey, cloneHtml, intent || '', url)
+
+  const html = cleanBasic(rawHtml)
+  const words = html.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(w => w.length > 2).length
+
+  if (words < 20) {
+    throw new Error(`Page has too little content (${words} words). Use "📋 Paste Code" mode.`)
+  }
+
+  // Step 2: Clone — single proven path for ALL tiers
+  // Truncate to 60K (fits in Gemini context with prompt)
+  const cloneHtml = html.slice(0, 60_000)
+  const r = await directClone(apiKey, cloneHtml, intent || '', url)
   try { logCloneSections(url, r.sections, r.structure) } catch {}
   return r
 }
