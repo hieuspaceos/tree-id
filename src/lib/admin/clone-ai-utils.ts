@@ -101,12 +101,34 @@ export function safeJsonParse(text: string): unknown {
   return null
 }
 
-/** Validate design object — strip invalid string values where objects expected */
+/** Check if a hex color is very light (would be invisible on white bg) */
+function isVeryLight(hex: string): boolean {
+  const c = hex.replace('#', '')
+  const n = c.length === 3 ? c.split('').map(ch => parseInt(ch + ch, 16)) : [parseInt(c.slice(0, 2), 16), parseInt(c.slice(2, 4), 16), parseInt(c.slice(4, 6), 16)]
+  const lum = (0.299 * n[0] + 0.587 * n[1] + 0.114 * n[2]) / 255
+  return lum > 0.85
+}
+
+/** Validate design object — strip invalid values, fix color sanity */
 export function validateDesign(result: CloneResult) {
   if (!result.design) return
   if (typeof result.design.colors === 'string') result.design.colors = undefined as any
   if (typeof result.design.fonts === 'string') result.design.fonts = undefined as any
   if (typeof result.design.borderRadius !== 'string' && result.design.borderRadius != null) result.design.borderRadius = String(result.design.borderRadius)
+
+  // Sanity: text color must not be white/very light (common Gemini mistake — picks nav text)
+  const colors = result.design.colors
+  if (colors?.text && isVeryLight(colors.text)) {
+    colors.text = '#1e2022' // safe dark fallback
+  }
+  if (colors?.textMuted && isVeryLight(colors.textMuted)) {
+    colors.textMuted = '#64748b'
+  }
+  // Sanity: background should be light, not dark
+  if (colors?.background && !isVeryLight(colors.background) && colors.background !== '#f8f8f8') {
+    // If background is dark, it's likely a section bg — swap to white
+    colors.background = '#ffffff'
+  }
 }
 
 /** Normalize section data fields — fix Gemini inconsistencies */

@@ -183,7 +183,7 @@ async function fetchPageHtml(url: string): Promise<string> {
 }
 
 /** Design extraction prompt — uses HTML+CSS for accurate color/font extraction */
-const DESIGN_EXTRACT_PROMPT = `Extract the visual design system from this HTML page. Focus on CSS variables, inline styles, and computed colors.
+const DESIGN_EXTRACT_PROMPT = `Extract the visual design system from this HTML page by analyzing inline styles, CSS classes, and style blocks.
 
 Return ONLY valid JSON:
 {
@@ -193,10 +193,17 @@ Return ONLY valid JSON:
 }
 
 Rules:
-- Extract ACTUAL colors from CSS variables (--color-primary, etc.), inline styles, and class definitions
-- For fonts, check @import, link[href*=fonts], font-family declarations
-- borderRadius: find the most common border-radius value used on cards/buttons
-- If a value cannot be found, omit the key (don't guess)`
+- PRIMARY = the most prominent brand color used on buttons, links, nav backgrounds, CTA sections. Look at background-color on buttons and nav, color on links/headings. Count frequency — the most-used non-white/non-black color is likely primary.
+- SECONDARY = second most common brand color. Often used for hover states or section backgrounds.
+- ACCENT = eye-catching highlight color (often yellow, orange, or bright). Used sparingly for badges, highlights, icons.
+- BACKGROUND = page body background (usually #fff or light gray)
+- SURFACE = card/section background (usually white or very light)
+- TEXT = main body text color (usually dark gray/black, e.g. #1e2022, #333)
+- TEXT MUTED = secondary text, captions (lighter gray)
+- IMPORTANT: Do NOT guess. Only return colors that ACTUALLY appear in the HTML inline styles or style blocks. Count occurrences — frequency matters.
+- For fonts: check @import, link[href*=fonts], font-family in style attributes. Return the actual font name, not generic "Sans-serif".
+- borderRadius: find the most common border-radius on cards/buttons
+- If a value cannot be confidently found, omit the key`
 
 /** Separate Gemini call to extract design from HTML/CSS (more accurate than Markdown) */
 async function extractDesign(apiKey: string, html: string): Promise<{ design: CloneResult['design']; promptTokens: number; outputTokens: number }> {
