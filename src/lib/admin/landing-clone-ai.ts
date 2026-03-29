@@ -884,7 +884,12 @@ function postProcessCloneResult(r: CloneResult, rawHtml: string, url: string) {
     return iconEmojiMap[cleaned] || icon
   }
   if (nav?.data.topBar && Array.isArray(nav.data.topBar)) {
-    for (const item of nav.data.topBar as Array<{ icon?: string; text?: string }>) {
+    for (const item of nav.data.topBar as Array<{ icon?: string; text?: string; image?: string }>) {
+      // If image field has URL but icon doesn't, move image → icon
+      if (item.image && typeof item.image === 'string' && item.image.startsWith('http')) {
+        item.icon = item.image
+        delete item.image
+      }
       if (item.icon) item.icon = cleanIcon(String(item.icon))
       if (item.text) item.text = String(item.text).replace(/fa[bsr]?\s+fa-\w+\s*/g, '').trim()
     }
