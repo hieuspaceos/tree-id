@@ -304,11 +304,33 @@ export type SectionType = 'hero' | 'features' | 'pricing' | 'testimonials' | 'fa
 /** Union of all section data types */
 export type SectionData = HeroData | FeaturesData | PricingData | TestimonialsData | FaqData | CtaData | StatsData | HowItWorksData | TeamData | LogoWallData | NavData | FooterData | VideoData | ImageData | ImageTextData | GalleryData | MapData | RichTextData | DividerData | CountdownData | ContactFormData | BannerData | LayoutData | ComparisonData | AiSearchData | SocialProofData
 
+/** Per-section visual style overrides — extracted by AI or set manually in editor */
+export interface SectionStyle {
+  /** Section spans full viewport width (breaks out of container) */
+  fullWidth?: boolean
+  /** Background color or CSS gradient */
+  background?: string
+  /** Background image URL */
+  backgroundImage?: string
+  /** Gradient overlay on background image (e.g. for dark hero sections) */
+  backgroundOverlay?: string
+  /** Custom padding (e.g. "5rem 2rem") */
+  padding?: string
+  /** Override text color for this section (e.g. "#fff" for dark backgrounds) */
+  textColor?: string
+  /** Override muted text color */
+  textMutedColor?: string
+  /** Override accent color (stats numbers, stars, icons) */
+  accentColor?: string
+}
+
 export interface LandingSection {
   type: SectionType
   order: number
   enabled: boolean
   data: SectionData
+  /** Per-section visual style overrides */
+  style?: SectionStyle
 }
 
 export interface LandingPageConfig {

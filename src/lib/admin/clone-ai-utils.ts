@@ -13,7 +13,7 @@ export interface CloneResult {
     fonts?: { heading?: string; body?: string }
     borderRadius?: string
   }
-  sections: Array<{ type: string; order: number; enabled: boolean; data: Record<string, unknown> }>
+  sections: Array<{ type: string; order: number; enabled: boolean; data: Record<string, unknown>; style?: Record<string, unknown> }>
   usage?: { promptTokens: number; outputTokens: number; totalTokens: number; estimatedCostUsd: number }
   structure?: Array<{ type: string; variant: string; confidence: number; itemCount: number; note: string }>
   missingSections?: string[]
@@ -181,6 +181,22 @@ export function normalizeSections(sections: CloneResult['sections']) {
   const navIdx = sections.findIndex(s => s.type === 'nav')
   for (let i = sections.length - 1; i > navIdx; i--) {
     if (sections[i].type === 'nav') sections.splice(i, 1)
+  }
+
+  // Sanitize per-section style overrides (prevent XSS via CSS injection)
+  for (const s of sections) {
+    if (!s.style || typeof s.style !== 'object') { delete (s as any).style; continue }
+    const st = s.style as Record<string, unknown>
+    // Only allow safe string values — strip anything with javascript:, expression(), url(data:)
+    const dangerousPattern = /javascript:|expression\s*\(|url\s*\(\s*data:/i
+    for (const key of Object.keys(st)) {
+      const v = st[key]
+      if (typeof v === 'string' && dangerousPattern.test(v)) delete st[key]
+    }
+    // backgroundImage: only allow http/https URLs
+    if (st.backgroundImage && typeof st.backgroundImage === 'string' && !st.backgroundImage.startsWith('http')) {
+      delete st.backgroundImage
+    }
   }
 }
 

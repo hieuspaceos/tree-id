@@ -67,11 +67,30 @@ Rules:
 - Decode /_next/image URLs to actual file paths
 - Do NOT duplicate content across sections
 
+Per-section styling:
+For EACH section, extract its visual style from the original page as a "style" object:
+- "fullWidth": true if the section spans full viewport width with no side margins (hero, CTA banners, dark testimonial strips, trust bars). false or omit for contained sections.
+- "background": the section's actual background — color hex (e.g. "#1a2e28") or CSS gradient (e.g. "linear-gradient(135deg, #2d4a3e, #1a2e28)"). Omit if default/white/transparent.
+- "backgroundImage": URL of section's background image (absolute URL). Only for sections with a visible bg image.
+- "backgroundOverlay": gradient overlay used on top of backgroundImage (e.g. "linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.3))"). Only if section has a bg image with text overlay.
+- "padding": section padding if notably different from default 3rem (e.g. "5rem 2rem", "1.5rem 2rem"). Omit if standard.
+- "textColor": text color if the section has dark background and uses light text (e.g. "#ffffff"). Omit for default dark text.
+- "textMutedColor": muted/secondary text color for the section (e.g. "rgba(255,255,255,0.6)" for dark sections).
+- "accentColor": accent color for numbers, icons, stars, badges in this section.
+IMPORTANT: Most landing pages alternate dark/light section backgrounds for visual rhythm. You MUST extract style for:
+- Hero sections (always fullWidth, usually has backgroundImage + overlay)
+- CTA/banner sections (usually fullWidth with gradient or dark background)
+- Testimonial sections (often dark background for contrast)
+- Stats/trust strips (often brand-color background with white text)
+- Footer (always fullWidth)
+- Any section with a visibly different background color from the page default
+Only omit style for sections that truly use the page's default white/light background with no distinctive styling.
+
 Return ONLY valid JSON:
 {
   "title": "Page title", "description": "Meta description",
   "design": { "colors": { "primary":"#hex","secondary":"#hex","accent":"#hex","background":"#hex","surface":"#hex","text":"#hex","textMuted":"#hex" }, "fonts": { "heading":"Font", "body":"Font" }, "borderRadius": "12px" },
-  "sections": [{ "type":"nav", "order":-1, "enabled":true, "data":{...} }, ...]
+  "sections": [{ "type":"nav", "order":-1, "enabled":true, "data":{...}, "style":{"fullWidth":true,"background":"#1a2e28","textColor":"#fff"} }, ...]
 }`
 
 /** Structure analysis prompt (Step 1 — small output) */

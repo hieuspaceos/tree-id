@@ -31,7 +31,7 @@ import LandingComparison from './landing-comparison.astro'
 import LandingAiSearch from './landing-ai-search.astro'
 import LandingLayout from './landing-layout.astro'
 import LandingSocialProof from './landing-social-proof.astro'
-import type { LandingSection } from '@/lib/landing/landing-types'
+import type { LandingSection, SectionStyle } from '@/lib/landing/landing-types'
 
 import '@/styles/landing.css'
 
@@ -58,6 +58,21 @@ function uniqueSectionId(type: string): string {
   const count = (typeCounts.get(type) || 0) + 1
   typeCounts.set(type, count)
   return count === 1 ? `section-${type}` : `section-${type}-${count}`
+}
+
+/** Build inline style string from per-section style overrides */
+function buildSectionStyle(style?: SectionStyle): string | undefined {
+  if (!style) return undefined
+  const parts: string[] = []
+  if (style.background) parts.push(`background: ${style.background}`)
+  // Full-width sections get default padding unless custom padding is set
+  if (style.padding) parts.push(`padding: ${style.padding}`)
+  else if (style.fullWidth) parts.push('padding: 4rem 2rem')
+  if (style.textColor) parts.push(`--lp-text: ${style.textColor}; color: ${style.textColor}`)
+  if (style.textMutedColor) parts.push(`--lp-text-muted: ${style.textMutedColor}`)
+  if (style.accentColor) parts.push(`--lp-accent: ${style.accentColor}`)
+  if (style.backgroundImage) parts.push('position: relative; overflow: hidden')
+  return parts.length > 0 ? parts.join('; ') : undefined
 }
 
 const componentMap: Record<string, any> = {
@@ -94,11 +109,30 @@ const componentMap: Record<string, any> = {
 <div class="landing-sections">
   {bodySections.map(section => {
     const Component = componentMap[section.type]
-    return Component ? (
-      <div id={uniqueSectionId(section.type)}>
-        <Component {...section.data as any} />
+    if (!Component) return null
+    const s = section.style
+    const isFullWidth = s?.fullWidth
+    const hasBgImage = !!s?.backgroundImage
+    const sectionId = uniqueSectionId(section.type)
+    const inlineStyle = buildSectionStyle(s)
+    return (
+      <div
+        id={sectionId}
+        class:list={[isFullWidth ? 'lp-full-width' : '', hasBgImage ? 'lp-section-bg' : '', 'lp-fade-up']}
+        style={inlineStyle}
+      >
+        {/* Background image + overlay (rendered before content) */}
+        {hasBgImage && (
+          <div class="lp-section-bg-img" style={`background-image: url(${s!.backgroundImage}); background-size: cover; background-position: center`} />
+        )}
+        {hasBgImage && s?.backgroundOverlay && (
+          <div class="lp-section-bg-overlay" style={`background: ${s.backgroundOverlay}`} />
+        )}
+        <div class={hasBgImage ? 'lp-section-content' : ''}>
+          <Component {...section.data as any} />
+        </div>
       </div>
-    ) : null
+    )
   })}
 </div>
 

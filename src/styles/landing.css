@@ -168,6 +168,52 @@ html:has(.landing-nav) {
   background-clip: text;
 }
 
+/* ─── FULL-WIDTH SECTIONS ────────────────────── */
+
+.lp-full-width {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  color: var(--lp-text);
+  border-radius: 0;
+}
+.lp-full-width > .lp-section-content,
+.lp-full-width > div:not(.lp-section-bg-img):not(.lp-section-bg-overlay) {
+  max-width: 72rem;
+  margin: 0 auto;
+}
+/* Full-width sections: component's .landing-section should not add extra padding/bg */
+.lp-full-width .landing-section {
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+}
+
+/* When renderer applies a background via style, component section should be transparent */
+[style*="background"] > div > .landing-section,
+[style*="background"] > .lp-section-content > .landing-section {
+  background: transparent;
+}
+
+/* Section with background image — needs relative positioning */
+.lp-section-bg {
+  position: relative;
+  overflow: hidden;
+}
+.lp-section-bg > .lp-section-bg-img {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.lp-section-bg > .lp-section-bg-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.lp-section-bg > .lp-section-content {
+  position: relative;
+  z-index: 2;
+}
+
 /* ─── ANIMATIONS ─────────────────────────────── */
 
 /* Fade-up on scroll — add .lp-fade-up to sections, JS adds .visible */
