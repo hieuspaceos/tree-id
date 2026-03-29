@@ -676,8 +676,10 @@ function parseMd(md: string): string {
 }
 
 function PreviewRichText({ data }: { data: RichTextData }) {
-  const isHtml = data.content.trimStart().startsWith('<')
-  const html = isHtml ? data.content : parseMd(data.content)
+  const content = data?.content || ''
+  if (!content) return <div style={{ padding: '1rem', color: 'var(--lp-text-muted)', fontSize: '0.8rem' }}>[Rich Text — empty]</div>
+  const isHtml = content.trimStart().startsWith('<')
+  const html = isHtml ? content : parseMd(content)
   const safe = html.replace(/<script[\s\S]*?<\/script>/gi, '')
   return (
     <div style={{ padding: '1rem', fontSize: '0.8rem', lineHeight: 1.6, color: 'var(--lp-text)' }}
@@ -858,7 +860,8 @@ function PreviewLayout({ data }: { data: LayoutData }) {
 
 /** Render preview from section data, keyed by type */
 function renderSection(section: LandingSection, allSections: LandingSection[], pageTitle?: string) {
-  const d = section.data as Record<string, unknown>
+  const d = (section.data || {}) as Record<string, unknown>
+  if (!section.data) return <div style={{ padding: '0.5rem', color: 'var(--lp-text-muted)', fontSize: '0.75rem', textAlign: 'center' }}>[{section.type} — no data]</div>
   switch (section.type) {
     case 'hero': return <PreviewHero data={d as unknown as HeroData} />
     case 'features': return <PreviewFeatures data={d as unknown as FeaturesData} />
