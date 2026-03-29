@@ -19,11 +19,11 @@ const { heading, subheading, items = [], variant = 'numbered' } = Astro.props
     <div class="landing-grid-3">
       {items.map((step, i) => (
         <div class="glass-card p-6 text-center">
-          <span class="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full text-lg font-bold" style="background: color-mix(in srgb, var(--lp-primary) 12%, transparent); color: var(--lp-primary)">
+          <span class="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full text-xl font-bold" style="background: var(--lp-accent, #e67e22); color: #fff; box-shadow: 0 4px 12px color-mix(in srgb, var(--lp-accent, #e67e22) 30%, transparent)">
             {step.number ?? i + 1}
           </span>
           <h3 class="mb-2 text-lg font-semibold">{step.title}</h3>
-          <p class="text-sm" style="color: var(--lp-text-muted)">{step.description}</p>
+          <p class="text-sm" style="color: var(--lp-text-muted); line-height: 1.7">{step.description}</p>
         </div>
       ))}
     </div>

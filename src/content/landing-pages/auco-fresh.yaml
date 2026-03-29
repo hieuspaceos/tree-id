@@ -70,7 +70,7 @@ sections:
       columns: 3
       variant: grid
     style:
-      background: '#f0f0f0'
+      background: '#faf6f1'
       padding: 4rem 2rem
   - type: image-text
     order: 2
@@ -130,7 +130,7 @@ sections:
       columns: 3
       variant: grid
     style:
-      background: '#f0f0f0'
+      background: '#faf6f1'
       padding: 4rem 2rem
   - type: features
     order: 4
@@ -296,7 +296,7 @@ sections:
           image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/riziere-en-terrasse-a-mu-cang-chai.jpg
       variant: cards
     style:
-      background: '#f0f0f0'
+      background: '#faf6f1'
       padding: 4rem 2rem
   - type: rich-text
     order: 6
@@ -331,7 +331,7 @@ sections:
         url: https://www.youtube.com/@AucoeurVietnam/videos
         variant: secondary
     style:
-      background: '#f0f0f0'
+      background: '#faf6f1'
       padding: 4rem 2rem
   - type: testimonials
     order: 8
@@ -402,10 +402,7 @@ sections:
     style:
       padding: 4rem 2rem
       fullWidth: true
-      background: '#1b2c25'
-      textColor: '#ffffff'
-      textMutedColor: rgba(255,255,255,0.7)
-      accentColor: '#e67e22'
+      background: '#faf6f1'
   - type: team
     order: 9
     enabled: true
@@ -448,7 +445,7 @@ sections:
             pour vous apporter un Vietnam avec toutes ses beautés charmante et ses valeurs variées.
       variant: grid
     style:
-      background: '#f0f0f0'
+      background: '#faf6f1'
       padding: 4rem 2rem
   - type: features
     order: 10
@@ -727,24 +724,21 @@ scopedCss:
       } .glass-card { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: #ffffff; }
       .lp-icon-bg { background: rgba(255,255,255,0.1); }
   - selector: '[data-section="section-features"]'
-    css: '.landing-section { background: #f0f0f0; }'
+    css: '.landing-section { background: #faf6f1; }'
   - selector: '[data-section="section-features-2"]'
-    css: '.landing-section { background: #f0f0f0; }'
+    css: '.landing-section { background: #faf6f1; }'
   - selector: '[data-section="section-pricing"]'
-    css: '.landing-section { background: #f0f0f0; }'
+    css: '.landing-section { background: #faf6f1; }'
   - selector: '[data-section="section-video"]'
-    css: '.landing-section { background: #f0f0f0; }'
+    css: '.landing-section { background: #faf6f1; }'
   - selector: '[data-section="section-testimonials"]'
     css: >-
-      .landing-section { background: #1b2c25; } h1, h2, h3, h4 { color: #ffffff; } p, li, span { color:
-      rgba(255,255,255,0.7); } .lp-card-hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1);
-      } .glass-card { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: #ffffff; }
-      .lp-icon-bg { background: rgba(255,255,255,0.1); } .landing-stat-value { color: #e67e22; } .lp-stars { color:
-      #e67e22; } .lp-icon-bg { color: #e67e22; }
+      .landing-section { background: #faf6f1; } .lp-stars { color: #e67e22; }
+      .lp-card-hover { background: #fff; border-color: rgba(0,0,0,0.06); }
   - selector: '[data-section="section-team"]'
-    css: '.landing-section { background: #f0f0f0; }'
+    css: '.landing-section { background: #faf6f1; }'
   - selector: '[data-section="section-how-it-works"]'
-    css: '.landing-section { background: #f0f0f0; }'
+    css: '.landing-section { background: #faf6f1; }'
   - selector: '[data-section="section-footer"]'
     css: >-
       .landing-section { background: #2d4a3e; } h1, h2, h3, h4 { color: #ffffff; } p, li, span { color:

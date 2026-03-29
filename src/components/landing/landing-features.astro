@@ -21,25 +21,35 @@ const hasImages = items.some(item => item.image)
     {subheading && <p class="mx-auto mb-8 max-w-2xl text-center" style="color: var(--lp-text-muted)">{subheading}</p>}
     <div class={gridClass}>
       {items.map((item) => {
-        const cardContent = (
-          <div class="lp-card-hover" style={`background: color-mix(in srgb, var(--lp-primary) 5%, var(--lp-surface)); border-radius: var(--lp-radius); border: 1px solid color-mix(in srgb, var(--lp-primary) 8%, transparent); overflow: hidden; ${item.url ? 'cursor: pointer' : ''}`}>
-            {item.image && <img src={item.image} alt={item.title} style="width: 100%; height: 180px; object-fit: cover" loading="lazy" />}
-            <div style={`padding: ${item.image ? '1rem 1.25rem' : '1.5rem'}`}>
-              {!item.image && item.icon && (item.icon.startsWith('http') ? <img src={item.icon} alt={item.title} class="mb-3 h-10 w-10 object-contain" /> : <div class="lp-icon-bg mb-3">{item.icon}</div>)}
-              <h3 class={`font-semibold ${item.image ? 'text-base' : 'text-lg mb-2'}`}>{item.title}</h3>
-              {item.description && <p class="text-sm mt-1" style="color: var(--lp-text-muted); line-height: 1.7">{item.description}</p>}
-              {item.price && (
-                <div style="margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid color-mix(in srgb, var(--lp-text) 10%, transparent); display: flex; align-items: center; justify-content: space-between">
-                  <span style="font-size: 0.9375rem; color: var(--lp-accent, var(--lp-primary)); font-weight: 500">{item.price}</span>
-                  {item.priceType && (
-                    <span style="font-size: 0.75rem; color: var(--lp-text-muted); background: color-mix(in srgb, var(--lp-text) 5%, transparent); padding: 0.25rem 0.625rem; border-radius: 100px">{item.priceType}</span>
-                  )}
-                </div>
-              )}
+        /* Image-overlay card: photo with title at bottom (like travel/portfolio cards) */
+        const imageOverlayCard = (
+          <div class="lp-card-hover" style="position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 4/3">
+            <img src={item.image} alt={item.title} style="width: 100%; height: 100%; object-fit: cover" loading="lazy" />
+            <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.1) 50%, transparent 100%)"></div>
+            <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 1rem 1.25rem">
+              <h3 style="color: #fff; font-weight: 600; font-size: 0.95rem; text-shadow: 0 1px 3px rgba(0,0,0,0.4)">{item.title}</h3>
+              {item.description && <p style="color: rgba(255,255,255,0.8); font-size: 0.8rem; margin-top: 0.25rem">{item.description}</p>}
             </div>
           </div>
         )
-        return item.url ? <a href={item.url} style="text-decoration: none; color: inherit">{cardContent}</a> : cardContent
+        /* Standard icon/text card */
+        const standardCard = (
+          <div class="lp-card-hover" style="background: color-mix(in srgb, var(--lp-primary) 5%, var(--lp-surface)); border-radius: var(--lp-radius); border: 1px solid color-mix(in srgb, var(--lp-primary) 8%, transparent); overflow: hidden; padding: 1.5rem">
+            {item.icon && (item.icon.startsWith('http') ? <img src={item.icon} alt={item.title} class="mb-3 h-10 w-10 object-contain" /> : <div class="lp-icon-bg mb-3">{item.icon}</div>)}
+            <h3 class="text-lg mb-2 font-semibold">{item.title}</h3>
+            {item.description && <p class="text-sm mt-1" style="color: var(--lp-text-muted); line-height: 1.7">{item.description}</p>}
+            {item.price && (
+              <div style="margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid color-mix(in srgb, var(--lp-text) 10%, transparent); display: flex; align-items: center; justify-content: space-between">
+                <span style="font-size: 0.9375rem; color: var(--lp-accent, var(--lp-primary)); font-weight: 500">{item.price}</span>
+                {item.priceType && (
+                  <span style="font-size: 0.75rem; color: var(--lp-text-muted); background: color-mix(in srgb, var(--lp-text) 5%, transparent); padding: 0.25rem 0.625rem; border-radius: 100px">{item.priceType}</span>
+                )}
+              </div>
+            )}
+          </div>
+        )
+        const card = item.image ? imageOverlayCard : standardCard
+        return item.url ? <a href={item.url} style="text-decoration: none; color: inherit">{card}</a> : card
       })}
     </div>
   </section>
