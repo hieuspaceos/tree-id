@@ -1,0 +1,628 @@
+title: Voyage authentique et immersif au Vietnam
+description: >-
+  AucoeurVietnam est votre agence de voyage locale, spécialisée dans les voyages sur mesure au Vietnam, offrant des
+  expériences authentiques et immersives avec des guides francophones et un engagement responsable.
+design:
+  colors:
+    primary: '#007bff'
+    secondary: '#28a745'
+    accent: '#ffc107'
+    text: '#343a40'
+    background: '#f8f9fa'
+  fonts:
+    headings: Montserrat, sans-serif
+    body: Open Sans, sans-serif
+sections:
+  - type: nav
+    title: Header Navigation
+    items:
+      - text: fr
+        url: https://aucoeurvietnam.com/
+        icon: 🇫🇷
+      - text: es
+        url: https://aucoeurvietnam.com/es/
+        icon: 🇪🇸
+      - text: 'WhatsApp: +84.909.426.406'
+        url: tel:+84.909.426.406
+        icon: 📞
+      - text: bonjour@aucoeurvietnam.com
+        url: mailto:bonjour@aucoeurvietnam.com
+        icon: ✉️
+      - text: Facebook
+        url: https://www.facebook.com/aucoeurvietnam
+        icon: 🔗
+      - text: Instagram
+        url: https://instagram.com/aucoeurvietnam.official/
+        icon: 🔗
+      - text: YouTube
+        url: https://www.youtube.com/@AucoeurVietnam
+        icon: 🔗
+      - text: LinkedIn
+        url: https://www.linkedin.com/company/imagetravel-events/
+        icon: 🔗
+      - text: COLLECTIONS DE VOYAGE
+        url: https://aucoeurvietnam.com/collections-de-voyage-au-vietnam/
+        items:
+          - text: Par région
+            url: https://aucoeurvietnam.com/#mm-1
+            items:
+              - text: Voyage au Vietnam
+                url: https://aucoeurvietnam.com/region/voyage-au-vietnam/
+              - text: Voyage au Vietnam du Nord
+                url: https://aucoeurvietnam.com/region/voyage-au-vietnam-du-nord/
+              - text: Voyage au Vietnam du Sud
+                url: https://aucoeurvietnam.com/region/voyage-au-vietnam-du-sud/
+              - text: Voyage au Centre du Vietnam
+                url: https://aucoeurvietnam.com/region/voyage-au-centre-du-vietnam/
+              - text: Combiné Vietnam Cambodge Laos
+                url: https://aucoeurvietnam.com/region/voyage-combine-vietnam-cambodge-laos/
+          - text: Par durée
+            url: https://aucoeurvietnam.com/#mm-1
+            items:
+              - text: Excursions 1-2-3-4 … jours
+                url: https://aucoeurvietnam.com/duree/excursion-1-2-3-4-jours-au-vietnam/
+              - text: Programme de 10 – 12 jours
+                url: https://aucoeurvietnam.com/duree/circuit-vietnam-10-jours-12-jours/
+              - text: Programme de 2 semaines
+                url: https://aucoeurvietnam.com/duree/circuit-vietnam-15-jours/
+              - text: Programme de 3 semaines
+                url: https://aucoeurvietnam.com/duree/circuit-vietnam-3-semaines/
+          - text: Par profil
+            url: https://aucoeurvietnam.com/#mm-1
+            items:
+              - text: Voyage en couple
+                url: https://aucoeurvietnam.com/profil/voyage-en-couple/
+              - text: Voyage en famille
+                url: https://aucoeurvietnam.com/profil/voyage-en-famille/
+              - text: Voyage entre amis
+                url: https://aucoeurvietnam.com/profil/voyage-entre-amis/
+              - text: Rejoindre un groupe
+                url: https://aucoeurvietnam.com/profil/rejoindre-un-groupe/
+          - text: Par style
+            url: https://aucoeurvietnam.com/#mm-1
+            items:
+              - text: Tous styles
+                url: https://aucoeurvietnam.com/style/tous-styles/
+              - text: Incontournables
+                url: https://aucoeurvietnam.com/style/incontournables/
+              - text: Vietnam en liberté
+                url: https://aucoeurvietnam.com/style/vietnam-en-liberte/
+              - text: Gastronomie
+                url: https://aucoeurvietnam.com/style/gastronomie/
+              - text: Culture ethnique
+                url: https://aucoeurvietnam.com/style/rencontre-ethnique/
+              - text: Trek & randonnée
+                url: https://aucoeurvietnam.com/style/trek-randonnee/
+              - text: Extension plage
+                url: https://aucoeurvietnam.com/style/circuit-extension-plage/
+              - text: Bike-tour
+                url: https://aucoeurvietnam.com/style/bike-tour/
+              - text: Voyage moto
+                url: https://aucoeurvietnam.com/style/voyage-moto/
+              - text: Croisière
+                url: https://aucoeurvietnam.com/style/croisiere/
+              - text: Charme & chic
+                url: https://aucoeurvietnam.com/style/charme-chic/
+      - text: Voyage sur mesure au Vietnam
+        url: https://aucoeurvietnam.com/voyage-sur-mesure-au-vietnam/
+        items:
+          - text: Voyage sur mesure au Sud du Vietnam
+            url: https://aucoeurvietnam.com/voyage-sur-mesure-au-sud-du-vietnam/
+            image: https://aucoeurvietnam.com/wp-content/uploads/2024/03/balade-en-barque-a-rame-delta-du-Mekong.jpg
+          - text: Voyage sur mesure au Centre du Vietnam
+            url: https://aucoeurvietnam.com/voyage-sur-mesure-au-centre-du-vietnam/
+            image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/plage-de-Mui-Ne-Phan-Thiet.jpg
+          - text: Voyage sur mesure au Nord du Vietnam
+            url: https://aucoeurvietnam.com/voyage-sur-mesure-au-nord-du-vietnam/
+            image: >-
+              https://aucoeurvietnam.com/wp-content/uploads/2023/12/Ninh-Binh-est-une-destination-magnifique-dans-le-nord-du-Vietnam-1.jpg
+          - text: Voyage sur mesure dans les montagnes du Nord du Vietnam
+            url: https://aucoeurvietnam.com/voyage-sur-mesure-montagnes-du-nord-du-vietnam/
+            image: https://aucoeurvietnam.com/wp-content/uploads/2024/06/nord-du-vn.jpg
+      - text: INFOS & IDÉES
+        url: https://aucoeurvietnam.com/inspirations-de-voyage-au-vietnam/
+        items:
+          - text: GUIDE DE VOYAGE
+            url: https://aucoeurvietnam.com/guide-de-voyage-vietnam/conseils-pratiques-vietnam/
+            items:
+              - text: Visa pour le Vietnam
+                url: https://aucoeurvietnam.com/visa-pour-le-vietnam/
+              - text: Visa pour le Cambodge
+                url: https://aucoeurvietnam.com/visa-pour-le-cambodge-cea/
+              - text: Avant de partir en Indochine
+                url: https://aucoeurvietnam.com/voyage-en-indochine-vietnam-cambodge-laos/
+              - text: Meilleure période de voyage
+                url: https://aucoeurvietnam.com/meilleure-periode-pour-aller-au-vietnam/
+              - text: Services de santé au Vietnam
+                url: https://aucoeurvietnam.com/services-de-sante-au-vietnam/
+              - text: Vaccins pour le Vietnam
+                url: https://aucoeurvietnam.com/vaccins-pour-le-vietnam-obligatoires/
+              - text: Pourboire au Vietnam
+                url: https://aucoeurvietnam.com/pourboire-au-vietnam/
+              - text: Autres conseils pratiques
+                url: https://aucoeurvietnam.com/guide-de-voyage-vietnam/conseils-pratiques-vietnam/
+          - text: BLOG DU VIETNAM
+            url: https://aucoeurvietnam.com/blog-de-voyage-au-vietnam/
+            items:
+              - text: Culture ethnique
+                url: https://aucoeurvietnam.com/decouvrir-les-ethnies-minoritaires-du-vietnam/
+              - text: Cuisine vietnamienne
+                url: https://aucoeurvietnam.com/explorer-la-cuisine-vietnamienne/
+              - text: Parcs nationaux
+                url: https://aucoeurvietnam.com/8-parcs-nationaux-du-vietnam-a-ne-pas-manquer/
+              - text: Plages paradisiaques
+                url: https://aucoeurvietnam.com/top-7-des-plus-belles-plages-du-vietnam/
+              - text: Métiers d’artisanat
+                url: https://aucoeurvietnam.com/decouvrir-les-9-metiers-dartisanat-du-vietnam/
+              - text: Hôtels de charme & luxe
+                url: https://aucoeurvietnam.com/decouvrez-10-hotels-de-luxe-au-vietnam/
+              - text: Croisières au Vietnam
+                url: https://aucoeurvietnam.com/croisiere-au-vietnam/
+              - text: Plongée au Vietnam
+                url: https://aucoeurvietnam.com/plongee-au-vietnam/
+      - text: Voyage en famille
+        url: https://aucoeurvietnam.com/profil/voyage-en-famille/
+      - text: VIETNAM en liberté
+        url: https://aucoeurvietnam.com/style/vietnam-en-liberte/
+        items:
+          - text: Voyage pas cher/confortable
+            url: https://aucoeurvietnam.com/voyage-vietnam-pas-cher-voyage-confortable/
+          - text: Guide francophone
+            url: https://aucoeurvietnam.com/guide-francophone-au-vietnam-lame-du-voyage/
+          - text: Chauffeur guide francophone
+            url: https://aucoeurvietnam.com/chauffeur-guide-francophone-au-vietnam/
+          - text: Activités les plus appréciées
+            url: https://aucoeurvietnam.com/activites-au-vietnam-les-plus-appreciees/
+          - text: Rejoindre un petit groupe
+            url: https://aucoeurvietnam.com/profil/rejoindre-un-groupe/
+      - text: Rencontre avec un personnage
+        url: https://aucoeurvietnam.com/rencontre-avec-un-personnage-au-vietnam/
+  - type: nav
+    title: Secondary Navigation
+    items:
+      - text: Qui sommes - nous ?
+        url: https://aucoeurvietnam.com/votre-agence-de-voyage-locale/
+      - text: À propos de AucoeurVietnam
+        url: https://aucoeurvietnam.com/votre-agence-de-voyage-locale/
+      - text: Nos conseillers de voyage
+        url: https://aucoeurvietnam.com/vos-conseillers-de-voyage-locaux/
+      - text: Nos garantis juridiques
+        url: https://imagevietnam.com/nos-garanties-juridiques/
+      - text: Nos conditions de vente
+        url: https://aucoeurvietnam.com/conditions-de-vente/
+      - text: Blog
+        url: https://aucoeurvietnam.com/blog-de-voyage-au-vietnam/
+      - text: Parcours responsable
+        url: https://aucoeurvietnam.com/parcours-de-tourisme-responsable/
+      - text: FAQ
+        url: https://aucoeurvietnam.com/faq-les-questions-voyage-au-vietnam/
+      - text: Germany
+        url: https://reise.aucoeurvietnam.com/
+        icon: 🇩🇪
+      - text: Spain
+        url: https://aucoeurvietnam.com/es
+        icon: 🇪🇸
+      - text: France
+        url: https://aucoeurvietnam.com/
+        icon: 🇫🇷
+  - type: hero
+    title: Voyage authentique et immersif au Vietnam
+    description: >-
+      Planifiez votre voyage sur mesure au Vietnam. Choisissez votre profil de voyageur (seul, en couple, en famille,
+      entre amis) et votre période de voyage (Juin 2025 à Février 2027).
+    cta:
+      - text: Personnaliser votre voyage
+        url: https://aucoeurvietnam.com/devis-sur-mesure/
+  - type: features
+    title: Pourquoi choisir AucoeurVietnam ?
+    items:
+      - title: DEVIS PERSONNALISÉ
+        image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/Devis-du-voyage-au-vietnam.png
+        icon: 📝
+      - title: VOYAGES AUTHENTIQUES
+        image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/voyage-authentique-au-Vietnam.png
+        icon: 🌏
+      - title: GUIDES FRANCOPHONES
+        image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/Guide-francophone-au-vietnam.png
+        icon: 🗣️
+      - title: CONSEILLERS RÉACTIFS
+        image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/conseiller-de-voyage-au-vietnam.png
+        icon: 💬
+      - title: AGENCE LOCALE RESPONSABLE
+        image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/Agence-de-voyage-responsable.png
+        icon: 🌱
+  - type: rich-text
+    title: À propos de AucoeurVietnam
+    description: >-
+      _Votre agence de voyage sur-mesure au Vietnam_
+
+
+      **AucoeurVietnam – IMAGE Travel** dispose de 3 agences situées dans 3 régions du Vietnam, chacune étant dirigée
+      par un responsable local pour mieux gérer la qualité de chaque voyage. Le gérant du Nord, **Phan NGUYEN** est un
+      guide spécialiste des voyages hors des sentiers battus dans les montagnes du Nord et habite à Hanoï. Il a organisé
+      beaucoup de voyages authentiques dans cette région. Au centre du pays, l’agence à Danang est gérée par **Quynh-Anh
+      NGUYEN**. Étant francophile, elle exerce ce métier depuis 2012, ce qui lui permet de parler sa langue préférée et
+      de créer de beaux voyages dans les trois pays de l’Indochine. Et au Sud, l’agence se trouve à Saigon, gérée par
+      **Laetitia TRAN**, conseillère de voyage depuis 2013. Après 11 ans d’expérience dans l’organisation de circuits,
+      elle se consacre maintenant à la conception de voyage en ligne avec **Toan NGUYEN**, un ex-guide francophone. Toan
+      Nguyen, avec ses expériences profondes du métier depuis 2001, assure notre base juridique et financière dans son
+      réseau **DMC MEKONG IMAGE TRAVEL**, …
+    image: https://aucoeurvietnam.com/wp-content/uploads/2024/02/agence-de-voyage-au-Vietnam-c.png
+    cta:
+      - text: Lire plus
+        url: https://aucoeurvietnam.com/votre-agence-de-voyage-locale/
+  - type: gallery
+    title: Idées de voyages en fonction de votre style
+    description: _Les activités enrichissantes qui jalonnent notre itinéraire_
+    items:
+      - title: Voyage gastronomique au Vietnam
+        image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/voyage-gastronomique-au-Vietnam-2.jpg
+        url: https://aucoeurvietnam.com/idees-des-voyages-culinaires-vietnam/
+      - title: Voyage à la rencontre des minorités ethniques au Vietnam
+        image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/culture-ethnique.jpg
+        url: https://aucoeurvietnam.com/idees-rencontres-ethniques-au-vietnam/
+      - title: Villages d'artisanat
+        image: https://aucoeurvietnam.com/wp-content/uploads/2025/05/villages-dartisanat.jpg
+        url: https://aucoeurvietnam.com/idees-villages-dartisanat-au-vietnam/
+      - title: Voyage avec extension plage au Vietnam
+        image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/voyage-avec-extension-plage-au-Vietnam-2.jpg
+        url: https://aucoeurvietnam.com/idees-sejours-balneaires-au-vietnam/
+      - title: Randonnée au Vietnam trek au Vietnam
+        image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/randonnee-au-Vietnam-trek-au-Vietnam.jpg
+        url: https://aucoeurvietnam.com/randonee-trek-au-vietnam/
+      - title: Bike tour au Vietnam
+        image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/Bike-tour-au-Vietnam.jpg
+        url: https://aucoeurvietnam.com/style/bike-tour/
+      - title: Croisière au Vietnam
+        image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/croisiere-au-Vietnam-1.jpg
+        url: https://aucoeurvietnam.com/idees-des-croisieres-au-vietnam/
+  - type: gallery
+    title: Programmes adaptés à la durée de votre voyage
+    description: >-
+      _Découvrez le Vietnam à votre rythme, en prenant le temps nécessaire pour vous immerger pleinement dans
+      l’expérience de votre séjour._
+    items:
+      - title: Excursions 1-2-3-4 jours au Vietnam
+        image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/Excursions-1-2-3-4-jours-au-Vietnam.jpg
+        url: https://aucoeurvietnam.com/duree/excursion-1-2-3-4-jours-au-vietnam/
+      - title: Circuit de 10-12 jours au Vietnam
+        image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/Circuit-de-10-12-jours-au-Vietnam.jpg
+        url: https://aucoeurvietnam.com/duree/circuit-vietnam-10-jours-12-jours/
+      - title: Circuit de 2 semaines au Vietnam
+        image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/Circuit-de-2-semaines-au-Vietnam.jpg
+        url: https://aucoeurvietnam.com/duree/circuit-vietnam-15-jours/
+      - title: Circuit de 3 semaines au Vietnam
+        image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/Circuit-de-3-semaines-au-Vietnam.jpg
+        url: https://aucoeurvietnam.com/duree/circuit-vietnam-3-semaines/
+    cta:
+      - text: Devis pour votre voyage sur mesure
+        url: https://aucoeurvietnam.com/devis-sur-mesure/
+  - type: gallery
+    title: Voyages recommandés
+    description: >-
+      _Parcourez nos dernières créations de voyages sur-mesure, conçues pour vous offrir une expérience totalement
+      personnalisée._
+    items:
+      - title: Grande croisière sur le fleuve du Mékong
+        image: https://aucoeurvietnam.com/wp-content/uploads/2024/07/hotonlesap.jpg
+        url: https://aucoeurvietnam.com/voyage/grande-croisiere-sur-le-mekong/
+        categories:
+          - Croisière
+        duration: 11 jours 10 nuits
+        region: Sud Vietnam, Cambodge
+      - title: Le sud du Vietnam 12 jours 11 nuits
+        image: https://aucoeurvietnam.com/wp-content/uploads/2024/04/ho-chi-minh-89.jpg
+        url: https://aucoeurvietnam.com/voyage/le-sud-du-vietnam-12-jours-11-nuits/
+        categories:
+          - Incontournables
+        duration: 12 jours 11 nuits
+        region: Sud du Vietnam
+      - title: Voyage culinaire Vietnam à travers des incontournables 14 jours
+        image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/cuisine-vietnamienne.jpg
+        url: https://aucoeurvietnam.com/voyage/voyage-culinaire-vietnam-a-travers-des-incontournables/
+        categories:
+          - Incontournables
+          - Gastronomie
+        duration: 14 jours 13 nuits
+        region: Vietnam du Nord au Sud
+      - title: Épopée Vietnam en famille 14 jours
+        image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/cerf-volant-Hue.jpg
+        url: https://aucoeurvietnam.com/voyage/exploration-vietnam-en-famille-14-jours/
+        categories:
+          - Voyage en famille
+          - activités ludiques
+        duration: 14 jours 13 nuits
+        region: Vietnam du Nord au Centre
+      - title: Incontournables au Vietnam 11 jours 10 nuits (circuit en petit groupe)
+        image: >-
+          https://aucoeurvietnam.com/wp-content/uploads/2023/12/Idees-de-circuit-au-Vietnam-Ninh-Binh-baie-dHalong-terrestre.jpg
+        url: https://aucoeurvietnam.com/voyage/incontournables-au-vietnam-11-jours-10-nuits/
+        categories:
+          - Rejoindre un groupe
+          - Incontournables
+        duration: 11 jours 10 nuits
+        region: Vietnam du Nord au Sud
+      - title: Escapade au Vietnam et dans les Hauts Plateaux du Vietnam 15 jours
+        image: >-
+          https://aucoeurvietnam.com/wp-content/uploads/2023/12/balade-avec-des-elephants-au-Vietnam-Hauts-Plateaux-e1746522657649.jpg
+        url: https://aucoeurvietnam.com/voyage/escapade-dans-les-hauts-plateaux-du-vietnam-15-jours/
+        categories:
+          - Rencontre ethnique
+        duration: 15 jours 14 nuits
+        region: Vietnam, Hauts plateaux
+      - title: Vietnam en liberté 17 jours
+        image: https://aucoeurvietnam.com/wp-content/uploads/2024/04/ho-chi-minh-89.jpg
+        url: https://aucoeurvietnam.com/voyage/vietnam-en-liberte-17-jours-16-nuits/
+        categories:
+          - Incontournables
+          - rencontre ethnique
+        duration: 17 jours 16 nuits
+        region: Vietnam du Nord au Sud
+      - title: Exploration des montagnes & Ethnie du Nord du Vietnam 17 jours
+        image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/ethnie-Hmong-Nord-Vietnam-e1753419476536.jpg
+        url: https://aucoeurvietnam.com/voyage/montagnes-ethnie-du-nord-du-vietnam/
+        categories:
+          - Rencontre ethnique
+          - randonnée
+        duration: 17 jours 16 nuits
+        region: Nord du Vietnam
+      - title: Voyage de noces au Vietnam en 20 jours
+        image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/Voyage-en-couple-de-noce-Vietnam-e1737432686936.jpg
+        url: https://aucoeurvietnam.com/voyage/voyage-de-noces-au-vietnam-en-20-jours/
+        categories:
+          - Charme et luxe
+        duration: 20 jours 19 nuits
+        region: Vietnam du Nord au Sud
+      - title: Immersion de la montagne au delta Vietnam Cambodge 21 jours
+        image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/riziere-en-terrasse-a-mu-cang-chai.jpg
+        url: https://aucoeurvietnam.com/voyage/immersion-de-la-montagne-au-delta-vietnam-cambodge/
+        categories:
+          - Incontournables
+          - rencontre ethnique
+        duration: 21 jours 20 nuits
+        region: Vietnam Cambodge
+    cta:
+      - text: Voir tous nos circuits
+        url: https://aucoeurvietnam.com/region/voyage-au-vietnam/
+  - type: social-proof
+    title: Nos engagements responsables et actions solidaires
+    description: >-
+      _AucoeurVietnam : Pionnier du tourisme responsable, pour un avenir durable_
+
+
+      Conscient des enjeux écologiques et sociétaux, AucoeurVietnam met en place des solutions pour contrebalancer son
+      empreinte et celle de ses voyages mais aussi encourager la transition vers un tourisme durable. Cela se manifeste
+      par la signature de la charte Travelife 2017 et le rôle d’initiateur de WAFORT, la communauté du tourisme
+      responsable au Vietnam. En parallèle, nous effectuons des actions concrètes telles que la restauration d’un
+      orphelinat, des journées de ramassage de déchets, la plantation dans les provinces, la promotion des déplacements
+      verts, et surtout l’organisation de voyages responsables respectueux de l’environnement, des populations et de
+      l’économie locales.
+    image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/Travelife-300x117.webp
+    url: https://travelifesustainability.com/
+    cta:
+      - text: Découvrir plus sur nos actions
+        url: https://aucoeurvietnam.com/parcours-de-tourisme-responsable/
+  - type: video
+    title: Notre collection de vidéos
+    description: _Découvrez des moments inoubliables lors de vos voyages au Vietnam avec AucoeurVietnam!_
+    items:
+      - title: Voyage authentique et immersif au Vietnam avec AucoeurVietnam - agence de voyage locale
+        url: https://www.youtube.com/watch?v=fU-LEIChTxU
+        thumbnail: >-
+          https://yt3.ggpht.com/A-5DJ9p1LTN_i_poYB4yrBZ-pDSr8erR8PoJC-XfI3D4wjbr6tow_kxnH16wzx6xKjaIDOZV=s68-c-k-c0x00ffffff-no-rj
+      - title: Journée de ramassage des déchets et visite de l'orphelinat Huong Duong au delta du Mékong
+        url: https://www.youtube.com/watch?v=Bx0nthbRCPc
+        thumbnail: >-
+          https://yt3.ggpht.com/A-5DJ9p1LTN_i_poYB4yrBZ-pDSr8erR8PoJC-XfI3D4wjbr6tow_kxnH16wzx6xKjaIDOZV=s68-c-k-c0x00ffffff-no-rj
+      - title: Cérémonie de l'abandon des tombes dans les Hauts Plateaux du Centre du Vietnam
+        url: https://www.youtube.com/watch?v=3ax9yx6rMRY
+        thumbnail: >-
+          https://yt3.ggpht.com/A-5DJ9p1LTN_i_poYB4yrBZ-pDSr8erR8PoJC-XfI3D4wjbr6tow_kxnH16wzx6xKjaIDOZV=s68-c-k-c0x00ffffff-no-rj
+      - title: Évasion à la campagne au Vietnam Cambodge Laos - Voyages avec AucoeurVietnam
+        url: https://www.youtube.com/watch?v=G-M_Je4xGms
+        thumbnail: >-
+          https://yt3.ggpht.com/A-5DJ9p1LTN_i_poYB4yrBZ-pDSr8erR8PoJC-XfI3D4wjbr6tow_kxnH16wzx6xKjaIDOZV=s68-c-k-c0x00ffffff-no-rj
+    cta:
+      - text: Voir toutes nos vidéos
+        url: https://www.youtube.com/@AucoeurVietnam/videos
+  - type: testimonials
+    title: Nos clients parlent de nous
+    items:
+      - platform: Google Review
+        url: https://g.page/r/CQe3WlUNn4R7EAE/review
+        image: https://aucoeurvietnam.com/wp-content/uploads/2024/12/google-review-aucoeurvietnam-1.png
+      - platform: Petit Futé Review
+        url: >-
+          https://www.petitfute.com/v45031-hanoi/c1122-voyage-transports/c747-tours-operateurs/2098939-aucoeurvietnam-image-travel/tous-les-avis.html
+        image: https://aucoeurvietnam.com/wp-content/uploads/2024/12/petit-fute-review-aucoeurvietnam.png
+      - platform: Tripadvisor Review
+        url: >-
+          https://www.tripadvisor.com.vn/Attraction_Review-g293924-d27133890-Reviews-AucoeurVietnam_IMAGE_Travel-Hanoi.html
+        image: https://aucoeurvietnam.com/wp-content/uploads/2024/12/tripadvisor-review-aucoeurvietnam-1.png
+      - author: Reconnaissance
+        text: >-
+          Organisation très professionnelle,excellents guides,hôtels conformes à notre demande,programme bien
+          équilibré,bref:une réussite. Très satisfait des prestations de AucoeurVietnam lors de chacun des voyages que
+          nous avons eu la bonheur de vivre.
+      - author: Johanna
+        text: >-
+          Nous avons passé un formidable voyage au Vietnam ( nous avons fait le Nord et le Sud, pas le Centre), on
+          revient enchantés avec des souvenirs et de magnifiques images pleins la tête ! Tout a été parfaitement
+          organisé et fluide ! Nous avions demandé un voyage hors des sentiers battus, pas touristique et le contrat a
+          été…
+      - author: Carine
+        text: >-
+          Nous revenons enchantés de notre voyage organisé (pour notre groupe de 27 personnes) par l agence locale
+          AucoeurVietnam – notre conseillère pour déterminer le circuit et notre guide sur place ont été d un grande
+          gentillesse et ont été à l écoute de toutes nos attentes, surpassant même parfois celles-ci avec un grand
+          professionnalisme, une…
+      - author: Corinne
+        text: >-
+          Très beau voyage conforme à mes souhaits petits déplacements, marche vélo , découverte hors des sentiers
+          battus, logements qualitatifs et guides et chauffeurs sérieux et à l’écoute. Un seul bémol, la 2eme semaine
+          les températures ont fortement baissé, et la chambre d’hôtes pourtant sympa, n’était pas adaptée pour ce type
+          de température , nous avons eu trop…
+      - author: Benoît
+        text: >-
+          Nous vous remercions énormément pour l’ensemble du séjour : vous avez su nous proposer, et mettre en place
+          tout cela en un temps record ! bravo ! Nous avons été enchantés par ce séjour, ces belles découvertes, ces
+          paysages, ces magnifiques rencontres : avec les guides surtout, mais de façon générale nous n’avons vu que des
+          gens accueillants, souriants…
+      - author: Laurence et Yves
+        text: >-
+          Nous l’avons rêvé, nous l’avons vécu! D’Hanoi a la baie de Tu Long, puis Luang Prabang et enfin Siem Reap. Des
+          cascades d’images merveilleuses et de moments intenses qui resteront à jamais d’excellents souvenirs, tout
+          cela grâce à l’accompagnement parfaitement orchestré par Cuc qui a aussi su s’adapter à nos ‘caprices’,
+          toujours avec réactivité, efficacité…
+  - type: team
+    title: Vos conseillers de voyage
+    description: >-
+      _Nos conseillers de voyage au Vietnam, à l’écoute, toujours disponibles, vous aideront à avoir un voyage de
+      qualité et mémorable._
+    items:
+      - name: CUC NGUYEN
+        title: Experte des croisières Mékong
+        description: >-
+          “Je me suis profondément attachée aux régions et aux cultures variées du Vietnam et du Cambodge. Les plages
+          exotiques, le delta du Mékong paisible, les marchés flottants… ”
+        image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/conseiller-de-voyage-cuc-nguyen-1.jpeg
+      - name: QUEEN-ANNE
+        title: Expert Laos et Nord Vietnam
+        description: >-
+          “Avec plus de dix ans d’expérience en tant que guide touristique au Laos et dans le Nord du Vietnam, je me
+          suis spécialisée dans la création d’expériences immersives en pleine nature.”
+        image: https://aucoeurvietnam.com/wp-content/uploads/2024/01/conseillere-de-voyage-au-Vietnam-Quynh-Anh.jpg
+      - name: TRAM NGUYEN
+        title: Experte des voyages combinés
+        description: >-
+          “La curiosité que j’ai pour mon pays n’a cessé de grandir au fil de découvertes. J’adore parcourir le Vietnam
+          et immortaliser la beauté de ses paysages, de ses locaux avec mon appareil photo.”
+        image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/conseiller-de-voyage-tram-nguyen-1.jpg
+      - name: DARTIS HOANG
+        title: Expert des voyages au Vietnam
+        description: >-
+          “Avec son histoire millénaire et sa culture vibrante, le Vietnam suscite en moi une passion pour le domaine du
+          tourisme. En tant que conseiller dynamique, je serais ravi de vous faire découvrir l’enchantement du Vietnam”
+        image: https://aucoeurvietnam.com/wp-content/uploads/2025/05/dartis-conseiller-de-voyage-aucoeurvietnam.jpg
+      - name: LAETITIA TRAN
+        title: Experte des voyages culturels
+        description: >-
+          “J’aime découvrir l’histoire et la culture de mon pays. C’est pour cet amour que je m’engage dans le tourisme
+          pour vous apporter un Vietnam avec toutes ses beautés charmante et ses valeurs variées.”
+        image: https://aucoeurvietnam.com/wp-content/uploads/2025/07/laetitia-conseillere.jpg
+    cta:
+      - text: Voir notre équipe
+        url: https://aucoeurvietnam.com/vos-conseillers-de-voyage-locaux/
+  - type: rich-text
+    title: Notre blog de voyage au Vietnam
+    description: _Le Vietnam sous toutes ses facettes à explorer !_
+    items:
+      - title: 'Hausse du prix des carburants : quel impact sur le voyage au Vietnam ?'
+        image: https://aucoeurvietnam.com/wp-content/uploads/2026/03/prix-des-carburants-au-vietnam-source-vnexpress.jpg
+        url: https://aucoeurvietnam.com/hausse-du-prix-des-carburants-au-vietnam/
+        description: 'Au 25 mars 2026, les prix des carburants au Vietnam restent élevés : l’essence à...'
+      - title: 'À la rencontre du peuple Ede: une immersion culturelle au cœur du hauts plateaux Vietnam'
+        image: >-
+          https://aucoeurvietnam.com/wp-content/uploads/2026/03/des-artisans-transmettent-aux-jeunes-generations-les-techniques-de-creation-des-motifs-de-brocart-1.jpg
+        url: https://aucoeurvietnam.com/ede-dans-les-hauts-plateaux-du-vietnam/
+        description: Voyager dans les hauts plateaux du centre du Vietnam, c’est découvrir un Vietnam plus brut,...
+      - title: La cuisine khmer est-elle facile à manger ? 7 plats incontournables pour bien commencer
+        image: >-
+          https://aucoeurvietnam.com/wp-content/uploads/2026/03/amok-fruit-de-mer-un-des-plats-typiques-dans-la-cuisine-khmer-delicious.jpg
+        url: https://aucoeurvietnam.com/la-cuisine-khmer-avec-top-plats-facile-a-manger/
+        description: La cuisine khmer ne se limite pas à ce que l’on trouve dans l’assiette. Elle...
+      - title: 'Voyager sans passer par le Moyen-Orient : une nouvelle liaison directe Hanoï Amsterdam à partir de juin 2026'
+        image: >-
+          https://aucoeurvietnam.com/wp-content/uploads/2026/03/vietnam-airlines-lance-une-liaison-directe-hanoi-amsterdam-a-partir-de-juin-2026.jpg
+        url: https://aucoeurvietnam.com/vol-hanoi-amsterdam-avec-vietnamairlines/
+        description: >-
+          Malgré les nombreuses difficultés liées aux conflits Moyen-Orient, plusieurs compagnies aériennes
+          vietnamiennes cherchent à ouvrir...
+      - title: Religion au vietnam et 9 questions pour mieux les comprendre
+        image: >-
+          https://aucoeurvietnam.com/wp-content/uploads/2026/03/la-communaute-cham-musulmane-dans-la-province-dan-giang-source-le-journal-de-dan-toc-mien-nui-1.jpg
+        url: https://aucoeurvietnam.com/religion-au-vietnam/
+        description: >-
+          Le Vietnam possède une vie spirituelle riche et complexe, mêlant croyances populaires, traditions ancestrales
+          et...
+      - title: 'Poivre du Kampot : pourquoi tout le monde en parle lors d’un voyage au Cambodge ?'
+        image: >-
+          https://aucoeurvietnam.com/wp-content/uploads/2026/03/une-selection-minutieuse-des-grains-apres-la-recolte-realisee-en-collaboration-avec-les-familles-locales-opoivredukampot.jpg
+        url: https://aucoeurvietnam.com/poivre-du-kampot-au-cambodge/
+        description: Vous êtes en train de préparer votre voyage au Cambodge…Et là, une petite phrase revient...
+      - title: 'Les sœurs Trung : symboles de résistance au Vietnam'
+        image: https://aucoeurvietnam.com/wp-content/uploads/2025/04/hai-ba-trung-peinture-dong-ho.jpeg
+        url: https://aucoeurvietnam.com/les-soeurs-trung-symboles-de-resistance/
+        description: Les Trưng Trắc et Trưng Nhị, plus connues sous le nom des sœurs Trung, occupent...
+      - title: Quelle est la signification de l’encens Vietnam ? Pourquoi les Vietnamiens en brûlent-ils chaque jour ?
+        image: https://aucoeurvietnam.com/wp-content/uploads/2026/03/bruler-lencens-dans-le-temple-thien-hau-1.jpg
+        url: https://aucoeurvietnam.com/encens-vietnam-dans-vie-quotidienne/
+        description: Chaque jour, des millions de bâtonnets d’encens sont allumés au Vietnam. Ils ne se limitent...
+      - title: Bœuf luc lac – un plat vietnamien super bon et facile à faire à la maison
+        image: https://aucoeurvietnam.com/wp-content/uploads/2026/03/boeuf-luc-lac-avec-salads-tomates-frites-1.jpg
+        url: https://aucoeurvietnam.com/boeuf-luc-lac-vietnamien/
+        description: Quand on pense à la cuisine vietnamienne, les premiers plats qui viennent souvent à l’esprit...
+      - title: 'Sapa villages vietnam: Quels villages visiter? Guide complet'
+        image: https://aucoeurvietnam.com/wp-content/uploads/2026/03/sinh-chai-un-des-belles-sapa-villages-vietnam.jpg
+        url: https://aucoeurvietnam.com/sapa-villages-vietnam/
+        description: Si vous tapez “Sapa villages Vietnam” sur Google, vous verrez des centaines de photos de...
+    cta:
+      - text: Découvrir tous nos articles
+        url: https://aucoeurvietnam.com/blog-de-voyage-au-vietnam/
+  - type: how-it-works
+    title: Faites créer votre voyage au Vietnam en 3 étapes !
+    description: '_Votre voyage au Vietnam sur mesure : nos conseillers le façonnent selon vos préférences !_'
+    items:
+      - title: Premier contact
+        description: >-
+          Vous laissez vos coordonnées et notre conseiller de voyage vous appelera. Partagez-leur vos envies pour ce
+          voyage au Vietnam. N’hésitez pas à leur poser des questions concernant vos incertitudes, vos préoccupations.
+        image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/etape-1.png
+        icon: 1️⃣
+      - title: Personnalisation
+        description: >-
+          Une fois que vous avez reçu le premier devis, poursuivez les échanges avec votre conseiller de voyage afin de
+          le personnaliser en fonction de vos préférences, jusqu’à ce qu’il corresponde bien à vos attentes.
+        image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/etape-2.png
+        icon: 2️⃣
+      - title: Voyage
+        description: >-
+          Une fois sur place, nous vous offrons une assistance 24/7, travaillant en étroite collaboration avec nos
+          partenaires locaux pour assurer la flexibilité totale, l’authenticité et l’immersion complète de votre voyage.
+        image: https://aucoeurvietnam.com/wp-content/uploads/2023/12/etape-3.png
+        icon: 3️⃣
+    cta:
+      - text: FAITES CRÉER VOTRE VOYAGE
+        url: https://aucoeurvietnam.com/devis-sur-mesure/
+  - type: footer
+    title: Footer
+    items:
+      - text: Devis Sur Mesure
+        url: https://aucoeurvietnam.com/devis-sur-mesure/
+      - text: Rappel Gratuit
+        url: https://aucoeurvietnam.com/rappel-gratuit/
+      - text: Presupuesto a medida
+        url: https://aucoeurvietnam.com/es/cotizacion-personalizada/
+      - text: Llamada gratuita
+        url: https://aucoeurvietnam.com/es/devolucion-de-llamada-gratuita/
+      - text: Germany
+        url: https://reise.aucoeurvietnam.com/
+        icon: 🇩🇪
+      - text: Spain
+        url: https://aucoeurvietnam.com/es
+        icon: 🇪🇸
+      - text: France
+        url: https://aucoeurvietnam.com/
+        icon: 🇫🇷
+      - text: Facebook
+        url: https://www.facebook.com/aucoeurvietnam
+        icon: 🔗
+      - text: Twitter
+        url: '#'
+        icon: 🔗
+      - text: Pinterest
+        url: '#'
+        icon: 🔗
+    description: >-
+      Chat widget: Discutez avec nous. Bonjour! Je m'apelle Hà, conseillère de voyage de AucoeurVietnam. Comment puis-je
+      vous aider? :)

@@ -1,0 +1,218 @@
+title: AucoeurVietnam | Voyage authentique et immersif au Vietnam
+sections:
+  - type: nav
+    order: -1
+    enabled: true
+    data:
+      brandName: AucoeurVietnam
+      logo: https://aucoeurvietnam.com/wp-content/uploads/2024/04/logo-agence-de-voyage-au-vietnam.jpg
+      links:
+        - label: COLLECTIONS DE VOYAGE
+          href: https://aucoeurvietnam.com/collections-de-voyage-au-vietnam/
+        - label: Voyage sur mesure au Vietnam
+          href: https://aucoeurvietnam.com/voyage-sur-mesure-au-vietnam/
+        - label: INFOS & IDÉES
+          href: https://aucoeurvietnam.com/inspirations-de-voyage-au-vietnam/
+        - label: Voyage en famille
+          href: https://aucoeurvietnam.com/profil/voyage-en-famille/
+        - label: VIETNAM en liberté
+          href: https://aucoeurvietnam.com/style/vietnam-en-liberte/
+        - label: Rencontre avec un personnage
+          href: https://aucoeurvietnam.com/rencontre-avec-un-personnage-au-vietnam/
+      variant: default
+  - type: hero
+    order: 0
+    enabled: true
+    data:
+      headline: Voyage authentique et immersif au Vietnam
+      subheadline: null
+      cta:
+        - text: Personnaliser votre voyage
+          url: https://aucoeurvietnam.com/devis-sur-mesure/
+          variant: primary
+      variant: centered
+      backgroundImage: null
+      embed: null
+  - type: features
+    order: 1
+    enabled: true
+    data:
+      heading: null
+      subheading: null
+      items:
+        - icon: https://aucoeurvietnam.com/wp-content/uploads/2023/12/Devis-du-voyage-au-vietnam.png
+          title: DEVIS PERSONNALISÉ
+          description: null
+        - icon: https://aucoeurvietnam.com/wp-content/uploads/2023/12/voyage-authentique-au-Vietnam.png
+          title: VOYAGES AUTHENTIQUES
+          description: null
+        - icon: https://aucoeurvietnam.com/wp-content/uploads/2023/12/Guide-francophone-au-vietnam.png
+          title: GUIDES FRANCOPHONES
+          description: null
+        - icon: https://aucoeurvietnam.com/wp-content/uploads/2023/12/conseiller-de-voyage-au-vietnam.png
+          title: CONSEILLERS RÉACTIFS
+          description: null
+        - icon: https://aucoeurvietnam.com/wp-content/uploads/2023/12/Agence-de-voyage-responsable.png
+          title: AGENCE LOCALE RESPONSABLE
+          description: null
+      columns: 3
+      variant: grid
+  - type: image-text
+    order: 2
+    enabled: true
+    data:
+      heading: À propos de AucoeurVietnam
+      text: >-
+        AucoeurVietnam – IMAGE Travel dispose de 3 agences situées dans 3 régions du Vietnam, chacune étant dirigée par
+        un responsable local pour mieux gérer la qualité de chaque voyage. Le gérant du Nord, Phan NGUYEN est un guide
+        spécialiste des voyages hors des sentiers battus dans les montagnes du Nord et habite à Hanoï. Il a organisé
+        beaucoup de voyages authentiques dans cette région. Au centre du pays, l’agence à Danang est gérée par Quynh-Anh
+        NGUYEN. Étant francophile, elle exerce ce métier depuis 2012, ce qui lui permet de parler sa langue préférée et
+        de créer de beaux voyages dans les trois pays de l’Indochine. Et au Sud, l’agence se trouve à Saigon, gérée par
+        Laetitia TRAN, conseillère de voyage depuis 2013. Après 11 ans d’expérience dans l’organisation de circuits,
+        elle se consacre maintenant à la conception de voyage en ligne avec Toan NGUYEN, un ex-guide francophone. Toan
+        Nguyen, avec ses expériences profondes du métier depuis 2001, assure notre base juridique et financière dans son
+        réseau DMC MEKONG IMAGE TRAVEL, …
+      image:
+        src: https://aucoeurvietnam.com/wp-content/uploads/2024/02/agence-de-voyage-au-Vietnam-c.png
+        alt: agence de voyage au Vietnam
+      imagePosition: right
+      cta:
+        text: Lire plus
+        url: https://aucoeurvietnam.com/votre-agence-de-voyage-locale/
+  - type: gallery
+    order: 3
+    enabled: true
+    data:
+      heading: Idées de voyages en fonction de votre style
+      subheading: Les activités enrichissantes qui jalonnent notre itinéraire
+      images:
+        - src: https://aucoeurvietnam.com/wp-content/uploads/2024/01/voyage-gastronomique-au-Vietnam-2.jpg
+          alt: voyage gastronomique au Vietnam (2)
+          caption: null
+        - src: https://aucoeurvietnam.com/wp-content/uploads/2024/01/culture-ethnique.jpg
+          alt: voyage à la rencontre des minorités ethniques au Vietnam
+          caption: null
+        - src: https://aucoeurvietnam.com/wp-content/uploads/2025/05/villages-dartisanat.jpg
+          alt: villages d'artisanat
+          caption: null
+        - src: https://aucoeurvietnam.com/wp-content/uploads/2024/01/voyage-avec-extension-plage-au-Vietnam-2.jpg
+          alt: voyage avec extension plage au Vietnam
+          caption: null
+        - src: https://aucoeurvietnam.com/wp-content/uploads/2024/01/randonnee-au-Vietnam-trek-au-Vietnam.jpg
+          alt: randonnée au Vietnam trek au Vietnam
+          caption: null
+        - src: https://aucoeurvietnam.com/wp-content/uploads/2024/01/Bike-tour-au-Vietnam.jpg
+          alt: Bike tour au Vietnam
+          caption: null
+        - src: https://aucoeurvietnam.com/wp-content/uploads/2024/01/croisiere-au-Vietnam-1.jpg
+          alt: croisière au Vietnam
+          caption: null
+  - type: gallery
+    order: 4
+    enabled: true
+    data:
+      heading: Programmes adaptés à la durée de votre voyage
+      subheading: >-
+        Découvrez le Vietnam à votre rythme, en prenant le temps nécessaire pour vous immerger pleinement dans
+        l’expérience de votre séjour.
+      images:
+        - src: https://aucoeurvietnam.com/wp-content/uploads/2024/01/Excursions-1-2-3-4-jours-au-Vietnam.jpg
+          alt: Excursions 1-2-3-4 jours au Vietnam
+          caption: null
+        - src: https://aucoeurvietnam.com/wp-content/uploads/2024/01/Circuit-de-10-12-jours-au-Vietnam.jpg
+          alt: Circuit de 10-12 jours au Vietnam
+          caption: null
+        - src: https://aucoeurvietnam.com/wp-content/uploads/2024/01/Circuit-de-2-semaines-au-Vietnam.jpg
+          alt: Circuit de 2 semaines au Vietnam
+          caption: null
+        - src: https://aucoeurvietnam.com/wp-content/uploads/2024/01/Circuit-de-3-semaines-au-Vietnam.jpg
+          alt: Circuit de 3 semaines au Vietnam
+          caption: null
+  - type: cta
+    order: 5
+    enabled: true
+    data:
+      headline: Prêt à créer votre voyage sur mesure ?
+      subheadline: null
+      cta:
+        - text: Devis pour votre voyage sur mesure
+          url: https://aucoeurvietnam.com/devis-sur-mesure/
+          variant: primary
+      variant: default
+      backgroundImage: null
+  - type: features
+    order: 6
+    enabled: true
+    data:
+      heading: Voyages recommandés
+      subheading: >-
+        Parcourez nos dernières créations de voyages sur-mesure, conçues pour vous offrir une expérience totalement
+        personnalisée.
+      items:
+        - icon: https://aucoeurvietnam.com/wp-content/uploads/2024/07/hotonlesap.jpg
+          title: Grande croisière sur le fleuve du Mékong
+          description: Croisière. 11 jours 10 nuits. Sud Vietnam, Cambodge
+        - icon: https://aucoeurvietnam.com/wp-content/uploads/2024/04/ho-chi-minh-89.jpg
+          title: Le sud du Vietnam 12 jours 11 nuits
+          description: Incontournables. 12 jours 11 nuits. Sud du Vietnam
+        - icon: https://aucoeurvietnam.com/wp-content/uploads/2023/12/cuisine-vietnamienne.jpg
+          title: Voyage culinaire Vietnam à travers des incontournables 14 jours
+          description: Incontournables, Gastronomie. 14 jours 13 nuits. Vietnam du Nord au Sud
+        - icon: https://aucoeurvietnam.com/wp-content/uploads/2023/12/cerf-volant-Hue.jpg
+          title: Épopée Vietnam en famille 14 jours
+          description: Voyage en famille, activités ludiques. 14 jours 13 nuits. Vietnam du Nord au Centre
+        - icon: >-
+            https://aucoeurvietnam.com/wp-content/uploads/2023/12/Idees-de-circuit-au-Vietnam-Ninh-Binh-baie-dHalong-terrestre.jpg
+          title: Incontournables au Vietnam 11 jours 10 nuits
+          description: Rejoindre un groupe, Incontournables.
+      columns: 3
+      variant: grid
+  - type: footer
+    order: 999
+    enabled: true
+    data:
+      text: 'WhatsApp: +84.909.426.406 | bonjour@aucoeurvietnam.com'
+      links:
+        - label: Facebook
+          href: https://www.facebook.com/aucoeurvietnam
+        - label: Instagram
+          href: https://instagram.com/aucoeurvietnam.official/
+        - label: YouTube
+          href: https://www.youtube.com/@AucoeurVietnam
+        - label: LinkedIn
+          href: https://www.linkedin.com/company/imagetravel-events/
+      columns:
+        - heading: Qui sommes - nous ?
+          links:
+            - label: À propos de AucoeurVietnam
+              href: https://aucoeurvietnam.com/votre-agence-de-voyage-locale/
+            - label: Nos conseillers de voyage
+              href: https://aucoeurvietnam.com/vos-conseillers-de-voyage-locaux/
+            - label: Nos garantis juridiques
+              href: https://imagevietnam.com/nos-garanties-juridiques/
+            - label: Nos conditions de vente
+              href: https://aucoeurvietnam.com/conditions-de-vente/
+        - heading: Informations
+          links:
+            - label: Blog
+              href: https://aucoeurvietnam.com/blog-de-voyage-au-vietnam/
+            - label: Parcours responsable
+              href: https://aucoeurvietnam.com/parcours-de-tourisme-responsable/
+            - label: FAQ
+              href: https://aucoeurvietnam.com/faq-les-questions-voyage-au-vietnam/
+      variant: columns
+description: Découvrez des voyages sur mesure et authentiques au Vietnam avec AucoeurVietnam, votre agence locale experte.
+design:
+  colors:
+    primary: '#007bff'
+    secondary: '#6c757d'
+    accent: '#28a745'
+    background: '#ffffff'
+    surface: '#f8f9fa'
+    text: '#212529'
+    textMuted: '#6c757d'
+  fonts:
+    heading: Arial, sans-serif
+    body: Arial, sans-serif
+  borderRadius: 8px

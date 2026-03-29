@@ -1,0 +1,184 @@
+title: AucoeurVietnam
+sections:
+  - type: nav
+    order: -1
+    enabled: true
+    data:
+      variant: default
+      brandName: AucoeurVietnam
+      links:
+        - label: COLLECTIONS DE VOYAGE
+          href: https://aucoeurvietnam.com/collections-de-voyage-au-vietnam/
+        - label: Voyage sur mesure au Vietnam
+          href: https://aucoeurvietnam.com/voyage-sur-mesure-au-vietnam/
+        - label: INFOS & IDÉES
+          href: https://aucoeurvietnam.com/inspirations-de-voyage-au-vietnam/
+        - label: Voyage en famille
+          href: https://aucoeurvietnam.com/profil/voyage-en-famille/
+        - label: VIETNAM en liberté
+          href: https://aucoeurvietnam.com/style/vietnam-en-liberte/
+        - label: Rencontre avec un personnage
+          href: https://aucoeurvietnam.com/rencontre-avec-un-personnage-au-vietnam/
+  - type: hero
+    order: 0
+    enabled: true
+    data:
+      variant: centered
+      headline: Voyage authentique et immersif au Vietnam
+      subheadline: null
+      backgroundImage: null
+      embed: null
+      cta:
+        - text: Personnaliser votre voyage
+          url: https://aucoeurvietnam.com/devis-sur-mesure/
+          variant: primary
+  - type: features
+    order: 1
+    enabled: true
+    data:
+      variant: grid
+      heading: null
+      subheading: null
+      columns: 5
+      items:
+        - icon: 📝
+          title: DEVIS PERSONNALISÉ
+          description: null
+        - icon: 🌏
+          title: VOYAGES AUTHENTIQUES
+          description: null
+        - icon: 🗣️
+          title: GUIDES FRANCOPHONES
+          description: null
+        - icon: 💬
+          title: CONSEILLERS RÉACTIFS
+          description: null
+        - icon: 🌱
+          title: AGENCE LOCALE RESPONSABLE
+          description: null
+  - type: image-text
+    order: 2
+    enabled: true
+    data:
+      image:
+        src: https://aucoeurvietnam.com/wp-content/uploads/2024/02/agence-de-voyage-au-Vietnam-c.png
+        alt: agence de voyage au Vietnam
+      heading: À propos de AucoeurVietnam
+      text: >-
+        Votre agence de voyage sur-mesure au Vietnam
+
+        AucoeurVietnam – IMAGE Travel dispose de 3 agences situées dans 3 régions du Vietnam, chacune étant dirigée par
+        un responsable local pour mieux gérer la qualité de chaque voyage. Le gérant du Nord, Phan NGUYEN est un guide
+        spécialiste des voyages hors des sentiers battus dans les montagnes du Nord et habite à Hanoï. Il a organisé
+        beaucoup de voyages authentiques dans cette région. Au centre du pays, l’agence à Danang est gérée par Quynh-Anh
+        NGUYEN. Étant francophile, elle exerce ce métier depuis 2012, ce qui lui permet de parler sa langue préférée et
+        de créer de beaux voyages dans les trois pays de l’Indochine. Et au Sud, l’agence se trouve à Saigon, gérée par
+        Laetitia TRAN, conseillère de voyage depuis 2013. Après 11 ans d’expérience dans l’organisation de circuits,
+        elle se consacre maintenant à la conception de voyage en ligne avec Toan NGUYEN, un ex-guide francophone. Toan
+        Nguyen, avec ses expériences profondes du métier depuis 2001, assure notre base juridique et financière dans son
+        réseau DMC MEKONG IMAGE TRAVEL, …
+      imagePosition: right
+      cta:
+        text: Lire plus
+        url: https://aucoeurvietnam.com/votre-agence-de-voyage-locale/
+  - type: gallery
+    order: 3
+    enabled: true
+    data:
+      heading: Idées de voyages en fonction de votre style
+      images:
+        - src: https://aucoeurvietnam.com/wp-content/uploads/2024/01/voyage-gastronomique-au-Vietnam-2.jpg
+          alt: voyage gastronomique au Vietnam (2)
+          caption: null
+        - src: https://aucoeurvietnam.com/wp-content/uploads/2024/01/culture-ethnique.jpg
+          alt: voyage à la rencontre des minorités ethniques au Vietnam
+          caption: null
+        - src: https://aucoeurvietnam.com/wp-content/uploads/2025/05/villages-dartisanat.jpg
+          alt: villages d'artisanat
+          caption: null
+        - src: https://aucoeurvietnam.com/wp-content/uploads/2024/01/voyage-avec-extension-plage-au-Vietnam-2.jpg
+          alt: voyage avec extension plage au Vietnam
+          caption: null
+        - src: https://aucoeurvietnam.com/wp-content/uploads/2024/01/randonnee-au-Vietnam-trek-au-Vietnam.jpg
+          alt: randonnée au Vietnam trek au Vietnam
+          caption: null
+        - src: https://aucoeurvietnam.com/wp-content/uploads/2024/01/Bike-tour-au-Vietnam.jpg
+          alt: Bike tour au Vietnam
+          caption: null
+        - src: https://aucoeurvietnam.com/wp-content/uploads/2024/01/croisiere-au-Vietnam-1.jpg
+          alt: croisière au Vietnam
+          caption: null
+  - type: gallery
+    order: 4
+    enabled: true
+    data:
+      heading: Programmes adaptés à la durée de votre voyage
+      images:
+        - src: https://aucoeurvietnam.com/wp-content/uploads/2024/01/Excursions-1-2-3-4-jours-au-Vietnam.jpg
+          alt: Excursions 1-2-3-4 jours au Vietnam
+          caption: null
+        - src: https://aucoeurvietnam.com/wp-content/uploads/2024/01/Circuit-de-10-12-jours-au-Vietnam.jpg
+          alt: Circuit de 10-12 jours au Vietnam
+          caption: null
+        - src: https://aucoeurvietnam.com/wp-content/uploads/2024/01/Circuit-de-2-semaines-au-Vietnam.jpg
+          alt: Circuit de 2 semaines au Vietnam
+          caption: null
+        - src: https://aucoeurvietnam.com/wp-content/uploads/2024/01/Circuit-de-3-semaines-au-Vietnam.jpg
+          alt: Circuit de 3 semaines au Vietnam
+          caption: null
+  - type: cta
+    order: 5
+    enabled: true
+    data:
+      variant: default
+      headline: null
+      subheadline: null
+      backgroundImage: null
+      cta:
+        - text: Devis pour votre voyage sur mesure
+          url: https://aucoeurvietnam.com/devis-sur-mesure/
+          variant: primary
+  - type: features
+    order: 6
+    enabled: true
+    data:
+      variant: grid
+      heading: Voyages recommandés
+      subheading: >-
+        Parcourez nos dernières créations de voyages sur-mesure, conçues pour vous offrir une expérience totalement
+        personnalisée.
+      columns: 3
+      items:
+        - icon: 🚢
+          title: Grande croisière sur le fleuve du Mékong
+          description: |-
+            11 jours 10 nuits 
+            Sud Vietnam, Cambodge
+        - icon: 📍
+          title: Le sud du Vietnam 12 jours 11 nuits
+          description: |-
+            12 jours 11 nuits 
+            Sud du Vietnam
+        - icon: 📍
+          title: Voyage culinaire Vietnam à travers des incontournables 14 jours
+          description: |-
+            14 jours 13 nuits 
+            Vietnam du Nord au Sud
+        - icon: 👨‍👩‍👧‍👦
+          title: Épopée Vietnam en famille 14 jours
+          description: |-
+            14 jours 13 nuits 
+            Vietnam du Nord au Centre
+design:
+  colors:
+    primary: '#000000'
+    secondary: '#000000'
+    accent: '#000000'
+    background: '#ffffff'
+    surface: '#ffffff'
+    text: '#333333'
+    textMuted: '#666666'
+  fonts:
+    heading: Arial
+    body: Arial
+  borderRadius: 8px
