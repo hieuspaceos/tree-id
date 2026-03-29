@@ -12,16 +12,20 @@ interface PageMeta {
   sectionCount: number
 }
 
+interface BacklogItem { action: string; sectionType: string; description: string; count: number; urls: string[] }
+
 export function LandingPagesList() {
   const [, navigate] = useLocation()
   const [pages, setPages] = useState<PageMeta[]>([])
   const [loading, setLoading] = useState(true)
+  const [backlog, setBacklog] = useState<{ totalClones: number; needsReview: boolean; items: BacklogItem[] } | null>(null)
 
   useEffect(() => {
     api.landing.list().then((res) => {
       setPages((res.data as any)?.entries || [])
       setLoading(false)
     })
+    fetch('/api/admin/landing/clone-stats').then(r => r.json()).then(d => setBacklog(d)).catch(() => {})
   }, [])
 
   async function handleDelete(slug: string, title: string) {
@@ -89,6 +93,34 @@ export function LandingPagesList() {
           </div>
         ))}
       </div>
+
+      {/* Section Backlog — from AI clone flywheel */}
+      {backlog && backlog.items.length > 0 && (
+        <div style={{ marginTop: '2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+            <h2 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#475569' }}>
+              Section Backlog
+              {backlog.needsReview && <span style={{ marginLeft: '0.5rem', fontSize: '0.7rem', background: '#fef2f2', color: '#dc2626', padding: '2px 8px', borderRadius: '99px' }}>Review needed</span>}
+            </h2>
+            <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>{backlog.totalClones} clones total</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            {backlog.items.slice(0, 10).map((item, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0.75rem', background: '#f8fafc', borderRadius: '8px', borderLeft: `3px solid ${item.action === 'create' ? '#3b82f6' : '#f59e0b'}` }}>
+                <span style={{ fontSize: '0.68rem', fontWeight: 600, color: item.action === 'create' ? '#3b82f6' : '#d97706', textTransform: 'uppercase', width: '55px' }}>{item.action}</span>
+                <span style={{ fontSize: '0.78rem', color: '#1e293b', flex: 1 }}>{item.description.slice(0, 80)}</span>
+                <span style={{ fontSize: '0.68rem', color: '#94a3b8', background: '#f1f5f9', padding: '1px 6px', borderRadius: '4px' }}>×{item.count}</span>
+              </div>
+            ))}
+          </div>
+          {backlog.needsReview && (
+            <button onClick={async () => { await fetch('/api/admin/landing/clone-stats', { method: 'POST' }); setBacklog(b => b ? { ...b, needsReview: false } : null) }}
+              style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>
+              Mark as reviewed ✓
+            </button>
+          )}
+        </div>
+      )}
     </div>
   )
 }
