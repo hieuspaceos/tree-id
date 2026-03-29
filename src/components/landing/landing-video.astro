@@ -2,7 +2,7 @@
 import type { VideoData } from '@/lib/landing/landing-types'
 
 interface Props extends VideoData {}
-const { url, caption, autoplay } = Astro.props
+const { url = '', caption, autoplay } = Astro.props
 
 /** Convert YouTube/Vimeo watch URLs to embed URLs. Returns null for unrecognised URLs. */
 function toEmbedUrl(raw: string): string | null {
