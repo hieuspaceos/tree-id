@@ -941,15 +941,8 @@ function postProcessCloneResult(r: CloneResult, rawHtml: string, url: string) {
         if (avg > 180) c.textMuted = '#64748b' // fix too-light muted text
       }
     }
-    // Fix surface color — if surface is very dark on light bg, reset to light
-    if (c.surface && c.background) {
-      const bgLight = !c.background || c.background === '#ffffff' || c.background === '#fff'
-      const surfMatch = c.surface.match(/^#([0-9a-f]{6})$/i)
-      if (bgLight && surfMatch) {
-        const avg = (parseInt(surfMatch[1].slice(0, 2), 16) + parseInt(surfMatch[1].slice(2, 4), 16) + parseInt(surfMatch[1].slice(4, 6), 16)) / 3
-        if (avg < 80) c.surface = '#f8fafc' // dark surface on light bg → fix
-      }
-    }
+    // NOTE: Do NOT auto-fix surface color — dark-theme sites need dark surface.
+    // Surface is intentional per-site design choice.
     // Fix primary/accent — try to extract from actual nav/button colors in HTML
     const navBg = nav?.style?.background
     if (navBg && typeof navBg === 'string' && /^#[0-9a-f]{6}$/i.test(navBg)) {
@@ -1016,8 +1009,9 @@ function postProcessCloneResult(r: CloneResult, rawHtml: string, url: string) {
     if (dark === true && !s.style.textColor) {
       s.style.textColor = '#ffffff'
       if (!s.style.textMutedColor) s.style.textMutedColor = 'rgba(255,255,255,0.75)'
-    } else if (dark === false && s.style.textColor === '#ffffff') {
-      // Light bg but AI set white text → remove to fall back to dark default
+    } else if (dark === false && s.style.textColor === '#ffffff' && !String(s.style.background).includes('gradient')) {
+      // Solid light bg with white text → remove to fall back to dark default
+      // Don't touch gradients — they may have dark regions
       delete s.style.textColor
       delete s.style.textMutedColor
     }
