@@ -5,12 +5,12 @@ sections:
     enabled: true
     data:
       brandName: ClaudeKit
-      logo: https://claudekit.cc/logo.png
+      logo: https://claudekit.cc/_next/image?url=%2Flogo.png&w=128&q=75
       links:
         - label: Home
           href: /
         - label: Products
-          href: '#'
+          href: '#products'
         - label: Blog
           href: /blog
         - label: Community
@@ -18,20 +18,18 @@ sections:
         - label: Docs
           href: https://docs.claudekit.cc
         - label: Referrals
-          href: '#'
-      cta:
-        - text: Account Dashboard
-          url: /account/dashboard
-          variant: outline
-        - text: Purchase
-          url: '#'
-          variant: primary
+          href: /account/dashboard
       variant: default
+      cta:
+        text: Purchase
+        url: /engineer#pricing
+        variant: primary
     style:
       fullWidth: true
       background: rgba(14,14,14,0.8)
       textColor: '#ffffff'
-      textMutedColor: var(--text-secondary)
+      backgroundOverlay: backdrop-blur-xl
+      textMutedColor: '#a0a0a0'
   - type: hero
     order: 0
     enabled: true
@@ -40,13 +38,12 @@ sections:
       subheadline: Production-ready AI subagents automate your development & marketing workflows. Build in hours, not weeks.
       variant: split
       embed: https://cdn.claudekit.cc/videos/claudekit-intro-v2.mp4
-      backgroundImage: https://claudekit.cc/assets/video/intro-poster.jpg
       cta:
         - text: Get Engineer Kit — $99
           url: /engineer#pricing
           variant: primary
         - text: Get Marketing Kit - $99
-          url: '#'
+          url: /marketing#pricing
           variant: secondary
         - text: Get The Bundle (Engineer + Marketing) →
           url: '#products'
@@ -54,9 +51,8 @@ sections:
     style:
       fullWidth: true
       background: linear-gradient(to bottom right, rgba(217,119,87,0.05), rgba(212,162,127,0.03))
-      textColor: '#ffffff'
-      textMutedColor: var
-      backgroundOverlay: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.4) 100%)
+      padding: 4rem 1.5rem 5rem
+      textColor: '#'
   - type: features
     order: 1
     enabled: true
@@ -70,12 +66,13 @@ sections:
           description: Every session feels like starting over - different code styles, missed requirements, quality variance
         - title: Manual Workflows
           description: Copy-pasting prompts between projects, rebuilding the same patterns over and over
-      variant: grid
       columns: 3
+      variant: grid
     style:
-      background: '#0E0E0E'
-      textColor: '#FFFFFF'
-      textMutedColor: rgba(255,255,255,0.7)
+      background: '#0e0e0e'
+      padding: 4rem 1.5rem
+      textColor: '#ffffff'
+      textMutedColor: rgba(255,255,255,0.75)
   - type: stats
     order: 2
     enabled: true
@@ -85,15 +82,19 @@ sections:
       items:
         - value: 108+
           label: Skills
+          description: Pre-built AI skills for dev, marketing, research, and automation
         - value: 95+
           label: Commands
+          description: Slash commands covering entire SDLC & marketing funnel
         - value: '45'
           label: AI Agents
+          description: 17 Engineer + 28 Marketing specialized agents
       variant: cards
     style:
-      background: '#1A1A1A'
-      textColor: '#FFFFFF'
-      textMutedColor: rgba(255,255,255,0.7)
+      background: '#1a1a1a'
+      padding: 4rem 1.5rem
+      textColor: '#ffffff'
+      textMutedColor: rgba(255,255,255,0.75)
   - type: pricing
     order: 3
     enabled: true
@@ -102,35 +103,43 @@ sections:
       subheading: Both kits work seamlessly with Claude Code
       plans:
         - name: Engineer Kit
-          price: $99
           description: 60+ skills, 30+ workflows, and AI subagents for fullstack development
+          price: $99
+          period: one-time
           features:
             - Frontend & backend skills
             - Database management
             - DevOps automation
             - Code review & debugging
+            - Ship features 10x faster
+            - Consistent code quality
+            - Works with any stack
           cta:
             text: Learn More →
             url: /engineer
           highlighted: true
           badge: Most Popular
         - name: Marketing Kit
-          price: $99
           description: 12+ MCP integrations, 3 workflows for research, sales & growth
+          price: $99
+          period: one-time
           features:
             - Lead generation automation
             - Email & programmatic SEO
             - CRM integrations
             - Marketing subagents
+            - Automate lead research
+            - Scale content creation
+            - Multi-channel outreach
           cta:
             text: Learn More →
             url: /marketing
-          highlighted: false
       variant: cards
     style:
-      background: '#1A1A1A'
-      textColor: '#FFFFFF'
-      textMutedColor: rgba(255,255,255,0.7)
+      background: '#1a1a1a'
+      padding: 4rem 1.5rem
+      textColor: '#ffffff'
+      textMutedColor: rgba(255,255,255,0.75)
   - type: testimonials
     order: 4
     enabled: true
@@ -194,6 +203,7 @@ sections:
       variant: carousel
     style:
       background: '#faf6f1'
+      padding: 4rem 1.5rem
   - type: cta
     order: 5
     enabled: true
@@ -214,24 +224,7 @@ sections:
     style:
       fullWidth: true
       background: linear-gradient(to bottom right, rgba(217,119,87,0.1), rgba(212,162,127,0.05))
-      textColor: '#FFFFFF'
-      textMutedColor: rgba(255,255,255,0.5)
-  - type: image-text
-    order: 1
-    enabled: true
-    data:
-      subtitle: Votre agence de voyage sur-mesure au Vietnam
-      text: >-
-        AucoeurVietnam – IMAGE Travel dispose de 3 agences situées dans 3 régions du Vietnam, chacune étant dirigée par
-        un responsable local pour mieux gérer la qualité de chaque voyage. Le gérant du Nord, Phan NGUYEN est un guide
-        spécialiste des voyages hors des sentiers battus dans les montagnes du Nord et habite à Hanoï. Il a organisé
-        beaucoup de voyages authentiques dans cette région. Au centre du pays, l’agence à Danang est gérée par Quynh-Anh
-        NGUYEN. Étant francophile, elle exerce ce métier depuis 2012, ce qui lui permet de parler sa langue préférée et
-        de créer de beaux voyages dans les trois pays de l’Indochine. Et au Sud, l’agence se trouve à Saigon, gérée par
-        Laetitia TRAN, conseillère de voyage depuis 2013. Après 11 ans d’expérience dans l’organisation de circuits,
-        elle se consacre maintenant à la conception de voyage en ligne avec Toan NGUYEN, un ex-guide francophone. Toan
-        Nguyen, avec ses expériences profondes du métier depuis 2
-      heading: À propos de AucoeurVietnam
+      padding: 5rem 1.5rem
   - type: footer
     order: 999
     enabled: true
@@ -269,6 +262,19 @@ sections:
               href: https://claudekit.cc/discord
             - label: GitHub
               href: https://github.com/claudekit
+          socialLinks:
+            - icon: facebook
+              url: https://facebook.com/mrgoonie
+              label: Facebook
+            - icon: x-twitter
+              url: https://x.com/goon_nguyen
+              label: X (Twitter)
+            - icon: discord
+              url: https://claudekit.cc/discord
+              label: Discord
+            - icon: youtube
+              url: https://youtube.com/@goonnguyen
+              label: Youtube
         - heading: Company
           links:
             - label: About
@@ -278,45 +284,33 @@ sections:
             - label: Leaderboard
               href: /leaderboard
             - label: Contact
-              href: /cdn-cgi/l/email-protection#bbc8cecbcbd4c9cffbd8d7dacedfded0d2cf95d8d8
+              href: /cdn-cgi/l/email-protection#40333530302f323400232c213524252b29346e2323
             - label: Privacy
               href: /privacy
             - label: Terms
               href: /terms
-      socialLinks:
-        - icon: facebook
-          url: https://facebook.com/mrgoonie
-          label: Facebook
-        - icon: x
-          url: https://x.com/goon_nguyen
-          label: X (Twitter)
-        - icon: discord
-          url: https://claudekit.cc/discord
-          label: Discord
-        - icon: youtube
-          url: https://youtube.com/@goonnguyen
-          label: Youtube
       text: |-
         © 2025 ClaudeKit. Built on Claude Code by Anthropic.
         🔒 Stripe Verified | SOC 2 Certified | GDPR Compliant
       variant: columns
     style:
       fullWidth: true
-      background: '#121212'
-      textColor: '#FFFFFF'
-      textMutedColor: rgba(255,255,255,0.5)
+      background: '#0a0a0a'
+      textColor: '#ffffff'
+      textMutedColor: rgba(255,255,255,0.7)
+      padding: 4rem 1.5rem
 design:
   colors:
     primary: '#D97757'
     secondary: '#D4A27F'
-    accent: '#D4A27F'
+    accent: '#E08667'
     background: '#ffffff'
-    surface: '#1E1E1E'
+    surface: '#1e20'
     text: '#1e2022'
     textMuted: rgba(255,255,255,0.7)
   fonts:
-    heading: Sans-serif
-    body: Sans-serif
+    heading: Plus Jakarta Sans
+    body: Inter
   borderRadius: 8px
 scopedCss:
   - selector: .landing-page-root
@@ -328,46 +322,32 @@ scopedCss:
   - selector: '[data-section="section-nav"]'
     css: >-
       .landing-section { background: rgba(14,14,14,0.8); } h1, h2, h3, h4 { color: #ffffff; } p, li, span { color:
-      var(--text-secondary); } .lp-card-hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1);
-      } .glass-card { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: #ffffff; }
-      .lp-icon-bg { background: rgba(255,255,255,0.1); }
+      #a0a0a0; } .lp-card-hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); } .glass-card
+      { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: #ffffff; } .lp-icon-bg {
+      background: rgba(255,255,255,0.1); }
   - selector: '[data-section="section-hero"]'
-    css: >-
-      .landing-section { background: linear-gradient(to bottom right, rgba(217,119,87,0.05), rgba(212,162,127,0.03)); }
-      h1, h2, h3, h4 { color: #FFFFFF; } p, li, span { color: var; } .lp-card-hover { background:
-      rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); } .glass-card { background: rgba(255,255,255,0.06);
-      border-color: rgba(255,255,255,0.1); color: #FFFFFF; } .lp-icon-bg { background: rgba(255,255,255,0.1); }
+    css: '.landing-section { background: linear-gradient(to bottom right, rgba(217,119,87,0.05), rgba(212,162,127,0.03)); }'
   - selector: '[data-section="section-features"]'
     css: >-
-      .landing-section { background: #0E0E0E; } h1, h2, h3, h4 { color: #FFFFFF; } p, li, span { color:
-      rgba(255,255,255,0.7); } .lp-card-hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1);
-      } .glass-card { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: #FFFFFF; }
-      .lp-icon-bg { background: rgba(255,255,255,0.1); }
+      .landing-section { background: #0e0e0e; } h1, h2, h3, h4, h5 { color: #fff; } p, li, span, a { color:
+      rgba(255,255,255,0.8); }
   - selector: '[data-section="section-stats"]'
     css: >-
-      .landing-section { background: #1A1A1A; } h1, h2, h3, h4 { color: #FFFFFF; } p, li, span { color:
-      rgba(255,255,255,0.7); } .lp-card-hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1);
-      } .glass-card { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: #FFFFFF; }
-      .lp-icon-bg { background: rgba(255,255,255,0.1); }
+      .landing-section { background: #1a1a1a; } h1, h2, h3, h4, h5 { color: #fff; } p, li, span, a { color:
+      rgba(255,255,255,0.8); }
   - selector: '[data-section="section-pricing"]'
     css: >-
-      .landing-section { background: #1A1A1A; } h1, h2, h3, h4 { color: #FFFFFF; } p, li, span { color:
-      rgba(255,255,255,0.7); } .lp-card-hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1);
-      } .glass-card { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: #FFFFFF; }
-      .lp-icon-bg { background: rgba(255,255,255,0.1); }
+      .landing-section { background: #1a1a1a; } h1, h2, h3, h4, h5 { color: #fff; } p, li, span, a { color:
+      rgba(255,255,255,0.8); }
   - selector: '[data-section="section-testimonials"]'
     css: >-
       .landing-section { background: #faf6f1; } .lp-card-hover { background: #fff; border-color: rgba(0,0,0,0.08); }
       .lp-stars { color: #e67e22; }
   - selector: '[data-section="section-cta"]'
-    css: >-
-      .landing-section { background: linear-gradient(to bottom right, rgba(217,119,87,0.1), rgba(212,162,127,0.05)); }
-      h1, h2, h3, h4 { color: #FFFFFF; } p, li, span { color: rgba(255,255,255,0.5); } .lp-card-hover { background:
-      rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); } .glass-card { background: rgba(255,255,255,0.06);
-      border-color: rgba(255,255,255,0.1); color: #FFFFFF; } .lp-icon-bg { background: rgba(255,255,255,0.1); }
+    css: '.landing-section { background: linear-gradient(to bottom right, rgba(217,119,87,0.1), rgba(212,162,127,0.05)); }'
   - selector: '[data-section="section-footer"]'
     css: >-
-      .landing-section { background: #121212; } h1, h2, h3, h4 { color: #FFFFFF; } p, li, span { color:
-      rgba(255,255,255,0.5); } .lp-card-hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1);
-      } .glass-card { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: #FFFFFF; }
+      .landing-section { background: #0a0a0a; } h1, h2, h3, h4 { color: #ffffff; } p, li, span { color:
+      rgba(255,255,255,0.7); } .lp-card-hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1);
+      } .glass-card { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: #ffffff; }
       .lp-icon-bg { background: rgba(255,255,255,0.1); }
