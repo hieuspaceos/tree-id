@@ -940,19 +940,36 @@ function postProcessCloneResult(r: CloneResult, rawHtml: string, url: string) {
     }
   }
 
-  // Fix 8b: Ensure dark-bg sections have white text (contrast fix)
+  // Fix 8b: Ensure text contrast — dark bg → white text, light bg → dark text
+  function isBgDark(bg: string): boolean | null {
+    if (!bg) return null
+    const lower = bg.toLowerCase()
+    // Solid hex
+    const hexMatch = lower.match(/^#([0-9a-f]{6})$/)
+    if (hexMatch) {
+      const hex = hexMatch[1]
+      const avg = (parseInt(hex.slice(0, 2), 16) + parseInt(hex.slice(2, 4), 16) + parseInt(hex.slice(4, 6), 16)) / 3
+      return avg < 128
+    }
+    // Near-transparent gradients are LIGHT (e.g. rgba(x,y,z,0.05))
+    if (lower.includes('linear-gradient') && /rgba?\([^)]*,\s*0\.0[0-5]\)/.test(lower)) return false
+    // Dark-ish gradients
+    if (lower.includes('linear-gradient') && /rgba?\(\s*\d{1,2}\s*,\s*\d{1,2}\s*,\s*\d{1,2}[^)]*0\.[3-9]/.test(lower)) return true
+    // Short hex
+    if (/^#[0-3]/.test(lower)) return true
+    if (/^#[c-f]/.test(lower)) return false
+    return null
+  }
   for (const s of r.sections) {
     if (!s.style?.background) continue
-    const bg = String(s.style.background).toLowerCase()
-    // Detect dark backgrounds: hex starting with low values, or rgba with low lightness
-    const isDark = /^#[0-3]/.test(bg) || /^#[0-9a-f]{6}$/i.test(bg) && (() => {
-      const hex = bg.slice(1)
-      const r2 = parseInt(hex.slice(0, 2), 16), g2 = parseInt(hex.slice(2, 4), 16), b2 = parseInt(hex.slice(4, 6), 16)
-      return (r2 + g2 + b2) / 3 < 100 // average RGB < 100 = dark
-    })() || bg.includes('linear-gradient') && /rgb[a]?\(\s*\d{1,2}\s*,/.test(bg)
-    if (isDark && !s.style.textColor) {
+    const dark = isBgDark(String(s.style.background))
+    if (dark === true && !s.style.textColor) {
       s.style.textColor = '#ffffff'
       if (!s.style.textMutedColor) s.style.textMutedColor = 'rgba(255,255,255,0.75)'
+    } else if (dark === false && s.style.textColor === '#ffffff') {
+      // Light bg but AI set white text → remove to fall back to dark default
+      delete s.style.textColor
+      delete s.style.textMutedColor
     }
   }
 
