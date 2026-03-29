@@ -371,15 +371,41 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
     throw new Error(`Page has too little content (${words} words). Use "📋 Paste Code" mode.`)
   }
 
-  // Step 2: Clone — single proven path for ALL tiers
-  // For large HTML: use sanitize-html to strip noise, keeps semantic content
-  const cloneHtml = html.length > 60_000 ? cleanForStructure(rawHtml).slice(0, 80_000) : html
-  const r = await directClone(apiKey, cloneHtml, intent || '', url)
-  // Extract H2 headings from markdown/HTML for missing section detection
+  // Step 2: Choose best input format
+  // Tier 1 (< 60K): use HTML directly (proven)
+  // Tier 2+ (> 60K): use Markdown if available (compact, full page), else cleaned HTML
+  let cloneInput: string
+  if (html.length <= 60_000) {
+    cloneInput = html
+  } else if (_lastMarkdown.length > 500) {
+    cloneInput = _lastMarkdown.slice(0, 50_000)
+  } else {
+    cloneInput = cleanForStructure(rawHtml).slice(0, 80_000)
+  }
+
+  const r = await directClone(apiKey, cloneInput, intent || '', url)
+
+  // Detect missing sections — compare page H2s vs cloned headings
   const headingSource = _lastMarkdown || html
   const pageHeadings = [...headingSource.matchAll(/^##\s+(.+)/gm)].map(m => m[1].trim())
     .concat([...headingSource.matchAll(/<h2[^>]*>([^<]+)<\/h2>/gi)].map(m => m[1].trim()))
     .filter(h => h.length > 3 && h.length < 100)
+
+  const clonedHeadings = r.sections.map(s => {
+    const d = (s.data || {}) as Record<string, unknown>
+    return String(d.headline || d.heading || d.text || d.brandName || '').toLowerCase()
+  }).filter(Boolean)
+
+  const missingSections = pageHeadings.filter(h => {
+    const hLower = h.toLowerCase()
+    return !clonedHeadings.some(ch => ch.includes(hLower.slice(0, 15)) || hLower.includes(ch.slice(0, 15)))
+  })
+
+  // Attach missing sections info to result
+  if (missingSections.length > 0) {
+    (r as any).missingSections = missingSections
+  }
+
   try { logCloneSections(url, r.sections, words, pageHeadings) } catch {}
   return r
 }

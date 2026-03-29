@@ -350,6 +350,21 @@ export function LandingCloneModal({ onClose, onCloned }: Props) {
               })}
             </div>
 
+            {/* Missing sections warning */}
+            {(result as any).missingSections?.length > 0 && (
+              <div style={{ marginBottom: '0.75rem', padding: '0.6rem 0.85rem', background: '#fef2f2', borderRadius: '10px', borderLeft: '3px solid #dc2626' }}>
+                <p style={{ fontSize: '0.72rem', fontWeight: 600, color: '#dc2626', marginBottom: '0.3rem' }}>
+                  {(result as any).missingSections.length} sections from original page not cloned:
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                  {((result as any).missingSections as string[]).map((h: string, i: number) => (
+                    <span key={i} style={{ fontSize: '0.65rem', color: '#991b1b', background: '#fee2e2', padding: '0.15rem 0.5rem', borderRadius: '4px' }}>{h}</span>
+                  ))}
+                </div>
+                <p style={{ fontSize: '0.6rem', color: '#94a3b8', marginTop: '0.3rem' }}>Add these manually after applying clone results</p>
+              </div>
+            )}
+
             <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
               <button onClick={() => setStep('input')} style={{ padding: '0.5rem 1rem', borderRadius: '10px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', fontSize: '0.82rem' }}>← Back</button>
               <button onClick={onClose} style={{ padding: '0.5rem 1rem', borderRadius: '10px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', fontSize: '0.82rem' }}>Cancel</button>
