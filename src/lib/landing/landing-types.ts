@@ -340,4 +340,6 @@ export interface LandingPageConfig {
   template?: string
   design?: LandingDesign
   sections: LandingSection[]
+  /** AI-generated scoped CSS for visual fidelity — injected as <style> block */
+  scopedCss?: Array<{ selector: string; css: string }>
 }

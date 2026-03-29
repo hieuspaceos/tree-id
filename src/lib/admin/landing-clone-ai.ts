@@ -272,6 +272,77 @@ async function extractSectionStyles(
   return { styles: parsed?.styles || [], promptTokens, outputTokens }
 }
 
+/** Scoped CSS generation prompt — generates custom CSS per section to match original */
+const SCOPED_CSS_PROMPT = `You are an expert CSS designer. I cloned a landing page into structured sections. Now I need you to generate CUSTOM CSS for each section to make it visually match the original page.
+
+Each section in my system renders inside a wrapper with attribute data-section="section-{type}" (e.g. data-section="section-hero", data-section="section-testimonials").
+
+Inside each section, the HTML uses these classes:
+- .landing-section — main section container (padding, background)
+- .lp-section-heading — section headings (font-family, size)
+- .lp-card-hover — cards with hover effects
+- .lp-icon-bg — icon circle backgrounds
+- .lp-stars — star rating display
+- .lp-quote-mark — large quote character
+- .lp-avatar — circular avatar images
+- .landing-grid-2, .landing-grid-3, .landing-grid-4 — responsive grids
+- .landing-btn-primary, .landing-btn-outline — buttons
+- .landing-stat-value — large stat numbers
+- .glass-card — generic cards
+
+For each section, write CSS that:
+1. Targets [data-section="section-{type}"] as the scope
+2. Overrides backgrounds, colors, spacing, typography to match the ORIGINAL page design
+3. Adds visual polish: gradients, shadows, hover effects, transitions
+4. Creates visual rhythm — alternate dark/light sections as in the original
+5. Makes hero sections feel immersive (large padding, overlay gradients)
+6. Makes CTA sections stand out (gradient backgrounds, large text)
+7. Makes testimonial sections atmospheric (dark bg, italic serif quotes)
+
+Rules:
+- Use CSS custom properties where possible: var(--lp-primary), var(--lp-text), etc.
+- Keep CSS concise — only override what's needed per section
+- NO @import, NO url(data:), NO javascript:, NO position:fixed
+- Do NOT change layout structure — only visual styling
+
+CRITICAL: Generate one CSS block per section. Each block MUST be scoped to its data-section selector. Do NOT use :root or global selectors. Every CSS rule inside a block is relative to its section selector.
+
+Return ONLY valid JSON with one entry PER section (not just a few — cover ALL sections):
+{
+  "sectionCss": [
+    { "selector": "[data-section=\\"section-hero\\"]", "css": ".landing-section { background: #1a2e28; min-height: 85vh; padding: 6rem 2rem; } h1 { font-size: clamp(2.5rem,6vw,5rem); color: #fff; letter-spacing: -0.02em; } p { color: rgba(255,255,255,0.8); }" },
+    { "selector": "[data-section=\\"section-stats\\"]", "css": ".landing-section { background: #2d4a3e; padding: 2rem 2rem; } .landing-stat-value { color: #d4a853; } p { color: rgba(255,255,255,0.7); }" },
+    { "selector": "[data-section=\\"section-testimonials\\"]", "css": ".landing-section { background: #1a2e28; padding: 4rem 2rem; } h2 { color: #fff; } .lp-card-hover { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); } p { color: rgba(255,255,255,0.85); } .lp-stars { color: #d4a853; }" },
+    { "selector": "[data-section=\\"section-cta\\"]", "css": ".landing-section { background: linear-gradient(135deg, #2d4a3e, #1a2e28); padding: 5rem 2rem; } h2 { color: #fff; font-size: clamp(1.8rem,4vw,3rem); } p { color: rgba(255,255,255,0.7); } .landing-btn-primary { background: #e65f2b; }" },
+    { "selector": "[data-section=\\"section-features\\"]", "css": ".lp-card-hover { border: 1px solid rgba(0,0,0,0.08); } .lp-icon-bg { background: rgba(230,95,43,0.1); }" },
+    { "selector": "[data-section=\\"section-footer\\"]", "css": ".landing-section { background: #1a2e28; padding: 3rem 2rem; } p, a, h4 { color: rgba(255,255,255,0.7); } h4 { color: #fff; }" }
+  ]
+}`
+
+/** Generate scoped CSS for each section to match original site's visual quality */
+async function generateScopedCss(
+  apiKey: string, html: string, sections: Array<{ type: string; data: Record<string, unknown> }>
+): Promise<{ cssBlocks: Array<{ selector: string; css: string }>; promptTokens: number; outputTokens: number }> {
+  const designHtml = html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<svg[\s\S]*?<\/svg>/gi, '')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .slice(0, 40_000)
+  const sectionList = sections.map((s, i) => {
+    const d = s.data as Record<string, unknown>
+    const heading = String(d?.headline || d?.heading || d?.brandName || d?.text || '').slice(0, 50)
+    return `- [data-section="section-${s.type}${i > 0 && sections.slice(0, i).some(p => p.type === s.type) ? `-${i + 1}` : ''}"] → ${s.type}${heading ? `: "${heading}"` : ''}`
+  }).join('\n')
+  const userPrompt = `My sections:\n${sectionList}\n\nOriginal page HTML+CSS:\n${designHtml}`
+  const { text, promptTokens, outputTokens } = await geminiCall(apiKey, SCOPED_CSS_PROMPT, userPrompt, 8192)
+  const parsed = safeJsonParse(text) as { sectionCss?: Array<{ selector: string; css: string }> } | null
+
+  // Sanitize CSS — strip dangerous patterns
+  const dangerous = /javascript:|@import|url\s*\(\s*data:|expression\s*\(|position\s*:\s*fixed/gi
+  const blocks = (parsed?.sectionCss || []).filter(b => b.selector && b.css && !dangerous.test(b.css))
+  return { cssBlocks: blocks, promptTokens, outputTokens }
+}
+
 /** ===== TIER 1: Direct clone (proven stable for SaaS) ===== */
 async function directClone(apiKey: string, html: string, intent: string, url: string): Promise<CloneResult> {
   const intentCtx = intent ? `\n\nUser intent: ${intent}` : ''
@@ -368,6 +439,53 @@ async function retryMissingSections(
   return { sections: parsed.sections, promptTokens, outputTokens }
 }
 
+/** Build scoped CSS blocks from per-section style overrides — reliable, no AI guessing */
+function buildScopedCssFromStyles(sections: CloneResult['sections']): Array<{ selector: string; css: string }> {
+  const blocks: Array<{ selector: string; css: string }> = []
+  const typeCounts = new Map<string, number>()
+
+  for (const s of sections) {
+    const count = (typeCounts.get(s.type) || 0) + 1
+    typeCounts.set(s.type, count)
+    const sectionId = count === 1 ? `section-${s.type}` : `section-${s.type}-${count}`
+    const style = s.style as Record<string, unknown> | undefined
+    if (!style) continue
+
+    const rules: string[] = []
+    const bg = style.background as string | undefined
+    const textColor = style.textColor as string | undefined
+    const textMuted = style.textMutedColor as string | undefined
+    const accent = style.accentColor as string | undefined
+    const isDark = textColor && ['#fff', '#ffffff', '#fafafa', 'white'].includes(textColor.toLowerCase())
+
+    // Section background
+    if (bg && bg.toLowerCase() !== '#ffffff' && bg.toLowerCase() !== '#fff') {
+      rules.push(`.landing-section { background: ${bg}; }`)
+    }
+
+    // Dark section — override all text colors
+    if (isDark) {
+      rules.push(`h1, h2, h3, h4 { color: ${textColor}; }`)
+      rules.push(`p, li, span { color: ${textMuted || 'rgba(255,255,255,0.7)'}; }`)
+      rules.push(`.lp-card-hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); }`)
+      rules.push(`.glass-card { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: ${textColor}; }`)
+      rules.push(`.lp-icon-bg { background: rgba(255,255,255,0.1); }`)
+    }
+
+    // Accent color for stats, stars
+    if (accent) {
+      rules.push(`.landing-stat-value { color: ${accent}; }`)
+      rules.push(`.lp-stars { color: ${accent}; }`)
+      rules.push(`.lp-icon-bg { color: ${accent}; }`)
+    }
+
+    if (rules.length > 0) {
+      blocks.push({ selector: `[data-section="${sectionId}"]`, css: rules.join(' ') })
+    }
+  }
+  return blocks
+}
+
 /** ===== MAIN ENTRY — single path: best HTML → directClone ===== */
 export async function cloneLandingPage(url: string, intent?: string): Promise<CloneResult> {
   const apiKey = import.meta.env.GEMINI_API_KEY
@@ -442,6 +560,12 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
       }
       addUsage(r, styleResult.promptTokens, styleResult.outputTokens)
     } catch {} // Section style extraction failure is non-critical
+
+    // Generate scoped CSS from section styles — programmatic, not AI
+    const cssBlocks = buildScopedCssFromStyles(r.sections)
+    if (cssBlocks.length > 0) {
+      r.scopedCss = cssBlocks
+    }
   }
 
   // Detect missing sections — compare page H2s vs cloned headings

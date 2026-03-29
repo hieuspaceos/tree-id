@@ -23,7 +23,9 @@ try { products = await getCollection('products') } catch {}
 const product = products.find((pr: any) => pr.data?.landingPage === landing) ?? null
 
 const sections = page.data.sections as unknown as LandingSection[]
-const design = (page.data as Record<string, unknown>).design as LandingDesign | undefined
+const pageData = page.data as Record<string, unknown>
+const design = pageData.design as LandingDesign | undefined
+const scopedCss = pageData.scopedCss as Array<{ selector: string; css: string }> | undefined
 // If nav/footer section exists (even disabled), hide layout's nav/footer
 // User controls visibility via section enabled toggle — layout never overrides
 const hasNav = sections.some(s => s.type === 'nav')
@@ -40,5 +42,5 @@ const hasFooter = sections.some(s => s.type === 'footer')
   hideFooter={hasFooter}
   design={design}
 >
-  <LandingSectionRenderer sections={sections} pageTitle={page.data.title} />
+  <LandingSectionRenderer sections={sections} pageTitle={page.data.title} scopedCss={scopedCss} />
 </LandingLayout>
