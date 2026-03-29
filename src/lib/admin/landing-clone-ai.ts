@@ -807,9 +807,9 @@ function postProcessCloneResult(r: CloneResult, rawHtml: string, url: string) {
       .filter(u => u.startsWith('http') && !u.includes('logo') && !u.includes('icon') && !u.includes('flag') && !u.includes('dropdown'))
     // Prefer JPG/JPEG (photos) over PNG (usually illustrations/logos)
     const jpgUrls = bgUrls.filter(u => /\.(jpg|jpeg|webp)/i.test(u))
-    // Prioritize URLs with hero-related keywords (most specific first)
-    const heroKeywords = ['slider', 'hero', 'banner', 'header-', 'cover']
-    const heroUrl = jpgUrls.find(u => heroKeywords.some(k => u.toLowerCase().includes(k)))
+    // Prioritize slider images first (most likely the real hero photo), then other hero keywords
+    const sliderUrl = jpgUrls.find(u => u.toLowerCase().includes('slider'))
+    const heroUrl = sliderUrl || jpgUrls.find(u => ['hero', 'banner', 'cover'].some(k => u.toLowerCase().includes(k)))
     // Also check <img> tags near slider/hero areas as fallback
     const imgUrls = [...rawHtml.matchAll(/<img[^>]*src=["']([^"']+)["'][^>]*>/g)]
       .map(m => m[1])
@@ -914,6 +914,24 @@ function postProcessCloneResult(r: CloneResult, rawHtml: string, url: string) {
       .filter(m => (m.ctx.includes('logo') || m.ctx.includes('brand')) && m.src.startsWith('http'))
     if (logoUrls.length > 0) {
       nav.data.logo = logoUrls[0].src
+    }
+  }
+
+  // Fix 8: Testimonials with dark bg + cards variant → switch to light bg
+  // Dark bg with card layout causes white-text-on-invisible-card readability issues
+  const testimonials = r.sections.find(s => s.type === 'testimonials')
+  if (testimonials?.style) {
+    const bg = String(testimonials.style.background || '').toLowerCase()
+    const isDark = bg.startsWith('#1') || bg.startsWith('#2') || bg.startsWith('#0') || bg.includes('rgb(') && parseInt(bg.split(',')[0].replace(/\D/g, '')) < 80
+    if (isDark) {
+      testimonials.style.background = '#faf6f1'
+      delete testimonials.style.textColor
+      delete testimonials.style.textMutedColor
+      // Also fix scoped CSS for testimonials
+      const scopedTest = r.scopedCss?.find((c: { selector: string }) => c.selector.includes('testimonials'))
+      if (scopedTest) {
+        scopedTest.css = `.landing-section { background: #faf6f1; } .lp-card-hover { background: #fff; border-color: rgba(0,0,0,0.08); } .lp-stars { color: #e67e22; }`
+      }
     }
   }
 }
