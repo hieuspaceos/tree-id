@@ -486,6 +486,133 @@ function buildScopedCssFromStyles(sections: CloneResult['sections']): Array<{ se
   return blocks
 }
 
+/** Apply smart style defaults when AI extraction misses section backgrounds.
+ * Uses common design patterns: hero=dark+fullWidth, CTA=gradient, testimonials=dark, etc.
+ * Only applies to sections that don't already have style.background set to non-white. */
+function applySmartStyleDefaults(
+  sections: CloneResult['sections'],
+  design?: CloneResult['design']
+) {
+  const primary = design?.colors?.primary || '#2d4a3e'
+  const secondary = design?.colors?.secondary || '#1a2e28'
+  const accent = design?.colors?.accent || '#d4a853'
+
+  // Darken a hex color by mixing with black
+  const darken = (hex: string, amount = 0.3) => {
+    const c = hex.replace('#', '')
+    const r = Math.round(parseInt(c.slice(0, 2), 16) * (1 - amount))
+    const g = Math.round(parseInt(c.slice(2, 4), 16) * (1 - amount))
+    const b = Math.round(parseInt(c.slice(4, 6), 16) * (1 - amount))
+    return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`
+  }
+  const darkPrimary = darken(primary, 0.4)
+
+  // Track which body sections (non-nav/footer) to consider for rhythm
+  const bodySections = sections.filter(s => s.type !== 'nav' && s.type !== 'footer')
+
+  for (const s of sections) {
+    const style = (s.style || {}) as Record<string, unknown>
+    const bg = (style.background as string || '').toLowerCase()
+    const hasCustomBg = bg && bg !== '#ffffff' && bg !== '#fff' && bg !== 'white'
+
+    // Skip if already has non-white background
+    if (hasCustomBg) continue
+
+    // Hero: always fullWidth with dark overlay when it has a background image
+    if (s.type === 'hero') {
+      s.style = {
+        ...s.style,
+        fullWidth: true,
+        background: darkPrimary,
+        textColor: '#ffffff',
+        textMutedColor: 'rgba(255,255,255,0.8)',
+        padding: '6rem 2rem',
+      }
+      // If hero has backgroundImage, add overlay
+      const data = s.data as Record<string, unknown>
+      if (data.backgroundImage) {
+        s.style.backgroundOverlay = `linear-gradient(160deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.25) 55%, ${primary}33 100%)`
+      }
+      continue
+    }
+
+    // Testimonials: dark background for contrast
+    if (s.type === 'testimonials') {
+      s.style = {
+        ...s.style,
+        fullWidth: true,
+        background: darkPrimary,
+        textColor: '#ffffff',
+        textMutedColor: 'rgba(255,255,255,0.7)',
+        accentColor: accent,
+        padding: '4rem 2rem',
+      }
+      continue
+    }
+
+    // Stats: brand color background
+    if (s.type === 'stats') {
+      s.style = {
+        ...s.style,
+        fullWidth: true,
+        background: primary,
+        textColor: '#ffffff',
+        textMutedColor: 'rgba(255,255,255,0.75)',
+        accentColor: accent,
+        padding: '2.5rem 2rem',
+      }
+      continue
+    }
+
+    // CTA (banner/default variants): gradient background — but not ALL CTAs
+    // Only apply to standalone CTAs, not inline "see more" links
+    if (s.type === 'cta') {
+      const data = s.data as Record<string, unknown>
+      const variant = data.variant as string | undefined
+      const headline = String(data.headline || '')
+      // Only style CTAs with headlines (not tiny "see more" links)
+      if (headline.length > 15 || variant === 'banner' || variant === 'with-image') {
+        s.style = {
+          ...s.style,
+          fullWidth: true,
+          background: `linear-gradient(135deg, ${primary}, ${darkPrimary})`,
+          textColor: '#ffffff',
+          textMutedColor: 'rgba(255,255,255,0.75)',
+          padding: '4rem 2rem',
+        }
+      }
+      continue
+    }
+
+    // Nav: fullWidth always
+    if (s.type === 'nav' && !style.fullWidth) {
+      s.style = { ...s.style, fullWidth: true }
+      continue
+    }
+
+    // Footer: dark background
+    if (s.type === 'footer') {
+      s.style = {
+        ...s.style,
+        fullWidth: true,
+        background: darkPrimary,
+        textColor: '#ffffff',
+        textMutedColor: 'rgba(255,255,255,0.6)',
+      }
+      continue
+    }
+
+    // Alternating surface color for remaining body sections (every other gets subtle tint)
+    const bodyIndex = bodySections.indexOf(s)
+    if (bodyIndex >= 0 && bodyIndex % 2 === 1 && !['hero', 'testimonials', 'stats', 'cta'].includes(s.type)) {
+      s.style = {
+        ...s.style,
+        background: `color-mix(in srgb, ${primary} 5%, #ffffff)`,
+      }
+    }
+  }
+}
+
 /** ===== MAIN ENTRY — single path: best HTML → directClone ===== */
 export async function cloneLandingPage(url: string, intent?: string): Promise<CloneResult> {
   const apiKey = import.meta.env.GEMINI_API_KEY
@@ -560,6 +687,9 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
       }
       addUsage(r, styleResult.promptTokens, styleResult.outputTokens)
     } catch {} // Section style extraction failure is non-critical
+
+    // Apply smart style defaults for sections without AI-detected styles
+    applySmartStyleDefaults(r.sections, r.design)
 
     // Generate scoped CSS from section styles — programmatic, not AI
     const cssBlocks = buildScopedCssFromStyles(r.sections)
