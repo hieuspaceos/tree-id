@@ -31,7 +31,7 @@ export interface FeaturesData {
   heading?: string
   subheading?: string
   items: FeatureItem[]
-  columns?: 2 | 3 | 4
+  columns?: 2 | 3 | 4 | 5
   /** Layout variant: grid (default), list (icon left + text right), alternating (zigzag rows) */
   variant?: 'grid' | 'list' | 'alternating'
 }

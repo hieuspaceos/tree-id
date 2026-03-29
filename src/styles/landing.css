@@ -69,16 +69,19 @@ html:has(.landing-nav) {
 .landing-grid-2 { display: grid; grid-template-columns: repeat(1, 1fr); gap: 1.5rem; }
 .landing-grid-3 { display: grid; grid-template-columns: repeat(1, 1fr); gap: 1.5rem; }
 .landing-grid-4 { display: grid; grid-template-columns: repeat(1, 1fr); gap: 1.5rem; }
+.landing-grid-5 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
 
 @media (min-width: 640px) {
   .landing-grid-2 { grid-template-columns: repeat(2, 1fr); }
   .landing-grid-3 { grid-template-columns: repeat(2, 1fr); }
   .landing-grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .landing-grid-5 { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (min-width: 1024px) {
   .landing-grid-3 { grid-template-columns: repeat(3, 1fr); }
   .landing-grid-4 { grid-template-columns: repeat(4, 1fr); }
+  .landing-grid-5 { grid-template-columns: repeat(5, 1fr); }
 }
 
 /* Pricing card highlight ring */
