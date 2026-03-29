@@ -55,6 +55,7 @@ MEDIA:
 Rules:
 - Map each visual section to the BEST matching section type
 - Extract ALL text content, image URLs as absolute URLs
+- CRITICAL: ONLY use image URLs that ACTUALLY EXIST in the HTML source. NEVER invent or fabricate image URLs. If no image URL found for a section, omit the image field entirely — do NOT make up a URL.
 - Order sections top-to-bottom (nav=-1, footer=999, others 0,1,2...)
 - Extract colors from CSS/inline styles — find dominant brand color
 - Keep content in ORIGINAL language
