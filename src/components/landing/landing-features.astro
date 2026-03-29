@@ -10,6 +10,8 @@ import type { FeaturesData } from '@/lib/landing/landing-types'
 interface Props extends FeaturesData {}
 const { heading, subheading, items = [], columns = 3, variant = 'grid' } = Astro.props
 const gridClass = `landing-grid-${columns}` as const
+/** Auto-detect if items have images — switches to image-card mode */
+const hasImages = items.some(item => item.image)
 ---
 
 {/* Grid: default card grid */}
@@ -18,21 +20,27 @@ const gridClass = `landing-grid-${columns}` as const
     {heading && <h2 class="mb-2 text-center text-3xl font-bold">{heading}</h2>}
     {subheading && <p class="mx-auto mb-8 max-w-2xl text-center" style="color: var(--lp-text-muted)">{subheading}</p>}
     <div class={gridClass}>
-      {items.map((item) => (
-        <div class="lp-card-hover p-6" style="background: color-mix(in srgb, var(--lp-primary) 5%, var(--lp-surface)); border-radius: var(--lp-radius); border: 1px solid color-mix(in srgb, var(--lp-primary) 8%, transparent)">
-          {item.icon && (item.icon.startsWith('http') ? <img src={item.icon} alt={item.title} class="mb-3 h-10 w-10 object-contain" /> : <div class="lp-icon-bg mb-3">{item.icon}</div>)}
-          <h3 class="mb-2 text-lg font-semibold">{item.title}</h3>
-          <p class="text-sm" style="color: var(--lp-text-muted); line-height: 1.7">{item.description}</p>
-          {item.price && (
-            <div style="margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid color-mix(in srgb, var(--lp-text) 10%, transparent); display: flex; align-items: center; justify-content: space-between">
-              <span style="font-size: 0.9375rem; color: var(--lp-accent, var(--lp-primary)); font-weight: 500">{item.price}</span>
-              {item.priceType && (
-                <span style="font-size: 0.75rem; color: var(--lp-text-muted); background: color-mix(in srgb, var(--lp-text) 5%, transparent); padding: 0.25rem 0.625rem; border-radius: 100px">{item.priceType}</span>
+      {items.map((item) => {
+        const cardContent = (
+          <div class="lp-card-hover" style={`background: color-mix(in srgb, var(--lp-primary) 5%, var(--lp-surface)); border-radius: var(--lp-radius); border: 1px solid color-mix(in srgb, var(--lp-primary) 8%, transparent); overflow: hidden; ${item.url ? 'cursor: pointer' : ''}`}>
+            {item.image && <img src={item.image} alt={item.title} style="width: 100%; height: 180px; object-fit: cover" loading="lazy" />}
+            <div style={`padding: ${item.image ? '1rem 1.25rem' : '1.5rem'}`}>
+              {!item.image && item.icon && (item.icon.startsWith('http') ? <img src={item.icon} alt={item.title} class="mb-3 h-10 w-10 object-contain" /> : <div class="lp-icon-bg mb-3">{item.icon}</div>)}
+              <h3 class={`font-semibold ${item.image ? 'text-base' : 'text-lg mb-2'}`}>{item.title}</h3>
+              {item.description && <p class="text-sm mt-1" style="color: var(--lp-text-muted); line-height: 1.7">{item.description}</p>}
+              {item.price && (
+                <div style="margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid color-mix(in srgb, var(--lp-text) 10%, transparent); display: flex; align-items: center; justify-content: space-between">
+                  <span style="font-size: 0.9375rem; color: var(--lp-accent, var(--lp-primary)); font-weight: 500">{item.price}</span>
+                  {item.priceType && (
+                    <span style="font-size: 0.75rem; color: var(--lp-text-muted); background: color-mix(in srgb, var(--lp-text) 5%, transparent); padding: 0.25rem 0.625rem; border-radius: 100px">{item.priceType}</span>
+                  )}
+                </div>
               )}
             </div>
-          )}
-        </div>
-      ))}
+          </div>
+        )
+        return item.url ? <a href={item.url} style="text-decoration: none; color: inherit">{cardContent}</a> : cardContent
+      })}
     </div>
   </section>
 )}

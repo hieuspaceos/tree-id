@@ -2,7 +2,7 @@
 import type { VideoData } from '@/lib/landing/landing-types'
 
 interface Props extends VideoData {}
-const { url = '', caption, autoplay } = Astro.props
+const { url = '', caption, autoplay, heading, subheading, cta } = Astro.props as VideoData & { heading?: string; subheading?: string; cta?: { text: string; url: string } }
 
 /** Convert YouTube/Vimeo watch URLs to embed URLs. Returns null for unrecognised URLs. */
 function toEmbedUrl(raw: string): string | null {
@@ -28,6 +28,8 @@ const isDirectVideo = embedUrl === url
 ---
 
 <section class="landing-section">
+  {heading && <h2 class="mb-2 text-center text-3xl font-bold">{heading}</h2>}
+  {subheading && <p class="mx-auto mb-6 max-w-2xl text-center" style="color: var(--lp-text-muted)">{subheading}</p>}
   <div class="mx-auto max-w-4xl">
     {isDirectVideo ? (
       <video class="w-full rounded-xl" controls autoplay={autoplay} muted={autoplay}>
@@ -48,5 +50,6 @@ const isDirectVideo = embedUrl === url
       <p class="text-slate-400 text-sm">Unsupported video URL</p>
     )}
     {caption && <p class="mt-3 text-center text-sm text-slate-500">{caption}</p>}
+    {cta && <div class="mt-4 text-center"><a href={cta.url} class="inline-block rounded-xl px-6 py-2.5 text-sm font-semibold transition-colors" style="background: color-mix(in srgb, var(--lp-text) 8%, transparent); border-radius: var(--lp-radius)">{cta.text}</a></div>}
   </div>
 </section>

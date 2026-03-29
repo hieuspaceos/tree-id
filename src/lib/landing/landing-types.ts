@@ -18,6 +18,10 @@ export interface FeatureItem {
   icon?: string
   title: string
   description: string
+  /** Cover image URL for image-card style features */
+  image?: string
+  /** Link URL — makes the card clickable */
+  url?: string
   /** Optional price tag displayed at bottom of card */
   price?: string
   /** Price type badge (e.g. "one-time", "ai-addon", "bundled") */
@@ -38,6 +42,8 @@ export interface PricingPlan {
   period?: string
   description?: string
   badge?: string
+  /** Cover image URL for travel/product cards */
+  image?: string
   features: string[]
   cta: { text: string; url: string }
   highlighted?: boolean
@@ -159,6 +165,9 @@ export interface VideoData {
   url: string
   caption?: string
   autoplay?: boolean
+  heading?: string
+  subheading?: string
+  cta?: { text: string; url: string }
 }
 
 export interface ImageData {
@@ -190,6 +199,8 @@ export interface MapData {
 
 export interface RichTextData {
   content: string
+  heading?: string
+  subheading?: string
 }
 
 export interface DividerData {

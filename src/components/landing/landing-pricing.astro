@@ -18,24 +18,29 @@ const { heading, subheading, plans = [], variant = 'cards' } = Astro.props
     {subheading && <p class="mx-auto mb-8 max-w-2xl text-center" style="color: var(--lp-text-muted)">{subheading}</p>}
     <div class={plans.length <= 2 ? 'landing-grid-2' : 'landing-grid-3'} style={plans.length <= 2 ? 'max-width: 720px; margin: 0 auto' : undefined}>
       {plans.map((plan) => (
-        <div class={`p-6 flex flex-col ${plan.highlighted ? 'landing-pricing-highlight' : ''}`} style="background: var(--lp-surface); border-radius: var(--lp-radius)">
-          {plan.badge && (
-            <span style="display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--lp-primary); padding: 0.25rem 0.75rem; background: color-mix(in srgb, var(--lp-primary) 15%, transparent); border-radius: 999px; margin-bottom: 0.75rem; width: fit-content">{plan.badge}</span>
-          )}
-          <h3 class="text-lg font-semibold">{plan.name}</h3>
-          <div class="mt-2 flex items-baseline gap-1">
-            <span class="text-3xl font-bold">{plan.price}</span>
-            {plan.period && <span class="text-sm" style="color: var(--lp-text-muted)">{plan.period}</span>}
+        <div class={`flex flex-col ${plan.highlighted ? 'landing-pricing-highlight' : ''}`} style={`background: var(--lp-surface); border-radius: var(--lp-radius); overflow: hidden`}>
+          {plan.image && <img src={plan.image} alt={plan.name} style="width: 100%; height: 200px; object-fit: cover" loading="lazy" />}
+          <div class="p-6 flex flex-col flex-1">
+            {plan.badge && (
+              <span style="display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--lp-primary); padding: 0.25rem 0.75rem; background: color-mix(in srgb, var(--lp-primary) 15%, transparent); border-radius: 999px; margin-bottom: 0.75rem; width: fit-content">{plan.badge}</span>
+            )}
+            <h3 class="text-lg font-semibold">{plan.name}</h3>
+            <div class="mt-2 flex items-baseline gap-1">
+              {plan.price && <span class="text-3xl font-bold">{plan.price}</span>}
+              {plan.period && <span class="text-sm" style="color: var(--lp-text-muted)">{plan.period}</span>}
+            </div>
+            {plan.description && <p class="mt-2 text-sm" style="color: var(--lp-text-muted)">{plan.description}</p>}
+            {(plan.features ?? []).length > 0 && (
+              <ul class="mt-4 flex-1 space-y-2 text-sm">
+                {plan.features.map((f) => <li class="flex items-start gap-2"><span style="color: var(--lp-primary)">✓</span>{f}</li>)}
+              </ul>
+            )}
+            <a
+              href={plan.cta?.url}
+              class={`mt-6 block px-4 py-2.5 text-center text-sm font-semibold transition-colors ${plan.highlighted ? 'landing-btn-primary' : ''}`}
+              style={plan.highlighted ? undefined : `background: color-mix(in srgb, var(--lp-text) 8%, transparent); border-radius: var(--lp-radius)`}
+            >{plan.cta?.text}</a>
           </div>
-          {plan.description && <p class="mt-2 text-sm" style="color: var(--lp-text-muted)">{plan.description}</p>}
-          <ul class="mt-4 flex-1 space-y-2 text-sm">
-            {(plan.features ?? []).map((f) => <li class="flex items-start gap-2"><span style="color: var(--lp-primary)">✓</span>{f}</li>)}
-          </ul>
-          <a
-            href={plan.cta?.url}
-            class={`mt-6 block px-4 py-2.5 text-center text-sm font-semibold transition-colors ${plan.highlighted ? 'landing-btn-primary' : ''}`}
-            style={plan.highlighted ? undefined : `background: color-mix(in srgb, var(--lp-text) 8%, transparent); border-radius: var(--lp-radius)`}
-          >{plan.cta?.text}</a>
         </div>
       ))}
     </div>

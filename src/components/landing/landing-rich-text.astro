@@ -7,7 +7,7 @@
 import type { RichTextData } from '@/lib/landing/landing-types'
 
 interface Props extends RichTextData {}
-const { content } = Astro.props
+const { content, heading, subheading } = Astro.props as RichTextData & { heading?: string; subheading?: string }
 
 /** Minimal Markdown-to-HTML parser (no external deps) */
 function parseMarkdown(md: string): string {
@@ -50,5 +50,7 @@ const safe = html.replace(/<script[\s\S]*?<\/script>/gi, '')
 ---
 
 <section class="landing-section">
+  {heading && <h2 class="mb-2 text-center text-3xl font-bold">{heading}</h2>}
+  {subheading && <p class="mx-auto mb-8 max-w-2xl text-center" style="color: var(--lp-text-muted)">{subheading}</p>}
   <div class="prose prose-slate mx-auto max-w-3xl" set:html={safe} />
 </section>

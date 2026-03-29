@@ -783,7 +783,7 @@ function assessSectionQuality(
   if (!hasHeading && !['divider','social-proof','nav','footer','image','video','map'].includes(s.type))
     return { index, score: 'partial', issue: 'Missing heading' }
 
-  const itemKey = s.type === 'team' ? 'members' : s.type === 'gallery' ? 'images' : 'items'
+  const itemKey = s.type === 'team' ? 'members' : s.type === 'gallery' ? 'images' : s.type === 'pricing' ? 'plans' : 'items'
   if (['features','stats','faq','how-it-works','testimonials','pricing','team','gallery'].includes(s.type)) {
     const items = d[itemKey]
     if (!Array.isArray(items) || items.length === 0) return { index, score: 'poor', issue: 'Empty items list' }
@@ -794,4 +794,102 @@ function assessSectionQuality(
     return { index, score: 'partial', issue: 'No image or media' }
 
   return { index, score: 'good' }
+}
+
+/** Prompt for improving existing sections based on quality issues */
+const IMPROVE_SECTION_PROMPT = `You are a web design expert. You're improving sections of a landing page that have quality issues.
+
+Available section types: ${SECTION_TYPES.join(', ')}
+
+For each section below, fix the specific issue described. Rules:
+- Keep the SAME section type and order — only improve the data
+- Extract missing content from the provided page content
+- Icons → emoji, text max 200 chars, images as absolute URLs
+- cta is ALWAYS an array [{text, url}]
+- If the issue says "missing heading" — find the correct heading text
+- If the issue says "empty items" or "only 1 item" — extract all items from the page
+- If the issue says "no image" — find the image URL from the page, or omit if truly none
+- Preserve existing good data, only fill in what's missing or broken
+
+Return ONLY valid JSON: { "sections": [{ "type":"...", "order":N, "enabled":true, "data":{...}, "style":{...} }] }`
+
+/** Improve specific sections of an existing landing page using AI */
+export async function improveSections(
+  slug: string,
+  sectionIndices: number[],
+  pageUrl?: string
+): Promise<{ improved: number; sections: CloneResult['sections']; usage: CloneResult['usage'] }> {
+  const apiKey = import.meta.env.GEMINI_API_KEY
+  if (!apiKey) throw new Error('GEMINI_API_KEY not configured')
+
+  // Read current landing page config
+  const { readLandingConfig, writeLandingConfig } = await import('@/lib/landing/landing-config-reader')
+  const config = readLandingConfig(slug)
+  if (!config) throw new Error(`Landing page "${slug}" not found`)
+
+  // Assess quality of requested sections
+  const toImprove: Array<{ index: number; section: { type: string; order: number; data: Record<string, unknown>; style?: Record<string, unknown> }; quality: { score: string; issue?: string } }> = []
+  for (const i of sectionIndices) {
+    const s = config.sections?.[i]
+    if (!s) continue
+    const q = assessSectionQuality({ type: s.type, data: s.data as unknown as Record<string, unknown> }, i)
+    if (q.score !== 'good') {
+      toImprove.push({ index: i, section: { type: s.type, order: s.order, data: s.data as unknown as Record<string, unknown>, style: s.style as unknown as Record<string, unknown> }, quality: q })
+    }
+  }
+
+  if (toImprove.length === 0) return { improved: 0, sections: [], usage: { promptTokens: 0, outputTokens: 0, totalTokens: 0, estimatedCostUsd: 0 } }
+
+  // Get page content for context — use stored markdown or fetch from URL
+  let pageContent = getLastMarkdown()
+  if ((!pageContent || pageContent.length < 100) && pageUrl) {
+    try {
+      const html = await directFetch(pageUrl)
+      pageContent = cleanBasic(html)
+    } catch {
+      pageContent = ''
+    }
+  }
+
+  // Build improvement request
+  const sectionDescs = toImprove.map(({ index, section, quality }) =>
+    `Section #${index} (type: ${section.type}, order: ${section.order}):\n  Issue: ${quality.issue}\n  Current data: ${JSON.stringify(section.data || {}).slice(0, 500)}`
+  ).join('\n\n')
+
+  const userPrompt = `Sections to improve:\n${sectionDescs}\n\nPage content for reference:\n${pageContent.slice(0, 30000)}`
+
+  const { text, promptTokens, outputTokens } = await geminiCall(apiKey, IMPROVE_SECTION_PROMPT, userPrompt, 8192)
+  const parsed = safeJsonParse(text) as { sections?: CloneResult['sections'] } | null
+
+  if (!parsed?.sections?.length) {
+    return { improved: 0, sections: [], usage: { promptTokens, outputTokens, totalTokens: promptTokens + outputTokens, estimatedCostUsd: (promptTokens * 0.00000015) + (outputTokens * 0.0000006) } }
+  }
+
+  // Merge improved sections back into config
+  let improvedCount = 0
+  for (const improved of parsed.sections) {
+    const match = toImprove.find(t =>
+      t.section.type === improved.type && t.section.order === improved.order
+    ) || toImprove.find(t => t.section.type === improved.type)
+
+    if (match && config.sections) {
+      // Preserve style, merge improved data
+      const existing = config.sections[match.index] as unknown as Record<string, unknown>
+      existing.data = { ...(existing.data as Record<string, unknown> || {}), ...(improved.data || {}) }
+      if (improved.style) existing.style = { ...(existing.style as Record<string, unknown> || {}), ...improved.style }
+      improvedCount++
+    }
+  }
+
+  // Save updated config
+  if (improvedCount > 0) {
+    writeLandingConfig(slug, config)
+  }
+
+  const totalTokens = promptTokens + outputTokens
+  return {
+    improved: improvedCount,
+    sections: parsed.sections,
+    usage: { promptTokens, outputTokens, totalTokens, estimatedCostUsd: (promptTokens * 0.00000015) + (outputTokens * 0.0000006) },
+  }
 }

@@ -19,6 +19,7 @@ export function LandingPagesList() {
   const [pages, setPages] = useState<PageMeta[]>([])
   const [loading, setLoading] = useState(true)
   const [backlog, setBacklog] = useState<{ totalClones: number; needsReview: boolean; sections: BacklogItem[] } | null>(null)
+  const [improving, setImproving] = useState<string | null>(null)
 
   useEffect(() => {
     api.landing.list().then((res) => {
@@ -27,6 +28,32 @@ export function LandingPagesList() {
     })
     fetch('/api/admin/landing/clone-stats').then(r => r.json()).then(d => setBacklog(d)).catch(() => {})
   }, [])
+
+  /** Trigger AI improvement for a single landing page's poor/partial sections */
+  async function handleImprove(slug: string) {
+    if (improving) return
+    setImproving(slug)
+    try {
+      const res = await fetch('/api/admin/landing/improve-sections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug }),
+      })
+      const data = await res.json()
+      if (data.ok) {
+        const count = data.data?.improved || 0
+        alert(count > 0 ? `Improved ${count} section(s) for "${slug}"` : `All sections already good quality`)
+        // Refresh page list to update section counts
+        api.landing.list().then((r) => setPages((r.data as any)?.entries || []))
+      } else {
+        alert(`Improve failed: ${data.error}`)
+      }
+    } catch (e) {
+      alert(`Improve failed: ${(e as Error).message}`)
+    } finally {
+      setImproving(null)
+    }
+  }
 
   async function handleDelete(slug: string, title: string) {
     if (!confirm(`Delete "${title}"?`)) return
@@ -76,10 +103,15 @@ export function LandingPagesList() {
             <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '1rem', fontFamily: 'monospace' }}>
               /{page.slug}
             </p>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               <button className="admin-btn admin-btn-primary" style={{ flex: 1, fontSize: '0.8rem' }}
                 onClick={() => navigate(`/landing/${page.slug}`)}>
                 Edit
+              </button>
+              <button className="admin-btn" style={{ fontSize: '0.8rem' }}
+                disabled={improving === page.slug}
+                onClick={() => handleImprove(page.slug)}>
+                {improving === page.slug ? 'Improving...' : 'AI Improve'}
               </button>
               <a href={`/${page.slug}`} target="_blank" rel="noopener noreferrer"
                 className="admin-btn" style={{ fontSize: '0.8rem' }}>
