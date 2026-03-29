@@ -929,7 +929,18 @@ function postProcessCloneResult(r: CloneResult, rawHtml: string, url: string) {
     }
   }
 
-  // Fix 8: Ensure dark-bg sections have white text (contrast fix)
+  // Fix 8a: Clean broken color values (e.g. "#" without hex digits)
+  for (const s of r.sections) {
+    if (!s.style) continue
+    for (const key of ['textColor', 'textMutedColor', 'accentColor', 'background'] as const) {
+      const val = s.style[key]
+      if (typeof val === 'string' && val.startsWith('#') && val.length < 4) {
+        delete s.style[key] // Remove broken values like "#" or "#f"
+      }
+    }
+  }
+
+  // Fix 8b: Ensure dark-bg sections have white text (contrast fix)
   for (const s of r.sections) {
     if (!s.style?.background) continue
     const bg = String(s.style.background).toLowerCase()
