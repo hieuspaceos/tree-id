@@ -148,25 +148,20 @@ function analyzeHtml(html: string): SiteAnalysis {
   return { tier, score, label: labels[tier], framework, details, canClone: score >= 20 }
 }
 
-/** Fetch HTML — tries direct fetch first, falls back to Firecrawl if content too thin */
+/** Fetch HTML — Firecrawl first (best quality), direct fetch as fallback */
 async function fetchPageHtml(url: string): Promise<string> {
-  // Try direct fetch first (fast, free)
-  const directHtml = await directFetch(url)
-  const words = directHtml.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '').replace(/<[^>]+>/g, ' ').split(/\s+/).filter(w => w.length > 2)
-
-  // If enough content, use direct fetch
-  if (words.length >= 50) return directHtml
-
-  // Fallback to Firecrawl (renders JS, handles SPA)
   const firecrawlKey = import.meta.env.FIRECRAWL_API_KEY || process.env.FIRECRAWL_API_KEY
+
+  // Firecrawl = best quality (renders JS, clean HTML, covers all site types)
   if (firecrawlKey) {
     try {
       const fcHtml = await firecrawlFetch(url, firecrawlKey)
-      if (fcHtml.length > directHtml.length) return fcHtml
+      if (fcHtml.length > 500) return fcHtml
     } catch {}
   }
 
-  return directHtml
+  // Fallback: direct fetch (free, no JS rendering)
+  return await directFetch(url)
 }
 
 /** Direct HTTP fetch */
