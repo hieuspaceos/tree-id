@@ -375,6 +375,6 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
   // For large HTML: use sanitize-html to strip noise, keeps semantic content
   const cloneHtml = html.length > 60_000 ? cleanForStructure(rawHtml).slice(0, 80_000) : html
   const r = await directClone(apiKey, cloneHtml, intent || '', url)
-  try { logCloneSections(url, r.sections, r.structure) } catch {}
+  try { logCloneSections(url, r.sections, words) } catch {}
   return r
 }

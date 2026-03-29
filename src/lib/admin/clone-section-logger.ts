@@ -43,15 +43,26 @@ function saveBacklog(b: Backlog) {
   writeFileSync(LOG_PATH, JSON.stringify(b, null, 2))
 }
 
-/** Log ALL sections from a clone — assess quality of each */
+/** Log ALL sections from a clone — assess quality + detect missing sections */
 export function logCloneSections(
   url: string,
-  sections: Array<{ type: string; data?: Record<string, unknown> }>
+  sections: Array<{ type: string; data?: Record<string, unknown> }>,
+  /** HTML word count — used to estimate expected sections */
+  wordCount?: number
 ) {
   const b = readBacklog()
   b.totalClones++
   b.updatedAt = new Date().toISOString()
   const now = b.updatedAt
+
+  // Estimate expected sections based on page size
+  const sectionCount = sections.filter(s => s.type !== 'nav' && s.type !== 'footer' && s.type !== 'divider').length
+  const wc = wordCount || 500
+  const expectedMin = Math.max(3, Math.floor(wc / 150)) // ~1 section per 150 words
+  if (sectionCount < expectedMin) {
+    const gap = expectedMin - sectionCount
+    addEntry(b, 'missing', 'gap', `Page has ~${wc} words but only ${sectionCount} sections extracted (expected ~${expectedMin}). ${gap} sections likely missing from clone.`, url, now)
+  }
 
   for (const s of sections) {
     const data = s.data || {}
@@ -95,22 +106,25 @@ export function logCloneSections(
       }
     }
 
-    // Only log partial/poor/missing (good sections don't need improvement)
     if (quality !== 'good') {
-      const key = `${type}:${issue.slice(0, 40)}`
-      let entry = b.sections.find(e => `${e.type}:${e.issue.slice(0, 40)}` === key)
-      if (!entry) {
-        entry = { type, quality, issue, count: 0, urls: [], firstSeen: now, lastSeen: now }
-        b.sections.push(entry)
-      }
-      entry.count++
-      entry.lastSeen = now
-      entry.quality = quality
-      if (!entry.urls.includes(url) && entry.urls.length < 10) entry.urls.push(url)
+      addEntry(b, quality, type, issue, url, now)
     }
   }
 
   saveBacklog(b)
+}
+
+function addEntry(b: Backlog, quality: SectionLog['quality'], type: string, issue: string, url: string, now: string) {
+  const key = `${type}:${issue.slice(0, 40)}`
+  let entry = b.sections.find(e => `${e.type}:${e.issue.slice(0, 40)}` === key)
+  if (!entry) {
+    entry = { type, quality, issue, count: 0, urls: [], firstSeen: now, lastSeen: now }
+    b.sections.push(entry)
+  }
+  entry.count++
+  entry.lastSeen = now
+  entry.quality = quality
+  if (!entry.urls.includes(url) && entry.urls.length < 10) entry.urls.push(url)
 }
 
 /** Get backlog sorted by count */
