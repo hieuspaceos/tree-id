@@ -371,8 +371,8 @@ export async function cloneLandingPage(url: string, intent?: string): Promise<Cl
   }
 
   // Step 2: Clone — single proven path for ALL tiers
-  // Truncate to 60K (fits in Gemini context with prompt)
-  const cloneHtml = html.slice(0, 60_000)
+  // For large HTML: use sanitize-html to strip noise, keeps semantic content
+  const cloneHtml = html.length > 60_000 ? cleanForStructure(rawHtml).slice(0, 80_000) : html
   const r = await directClone(apiKey, cloneHtml, intent || '', url)
   try { logCloneSections(url, r.sections, r.structure) } catch {}
   return r
