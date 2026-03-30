@@ -830,6 +830,20 @@ export function RichTextSectionForm({ data, onChange }: FormProps<RichTextData>)
   const parts = isHtml ? parseHtmlParts(content) : []
 
   /** Rebuild HTML from edited parts */
+  /** Find position of the Nth button/text occurrence in HTML (matching by part index among same-type parts) */
+  function findNthOccurrence(html: string, searchStr: string, partIdx: number, allParts: typeof parts, type: string): number {
+    // Count how many parts of same type appear before this index
+    let sameTypeBefore = 0
+    for (let j = 0; j < partIdx; j++) { if (allParts[j].type === type) sameTypeBefore++ }
+    // Find the Nth occurrence in HTML
+    let pos = -1
+    for (let n = 0; n <= sameTypeBefore; n++) {
+      pos = html.indexOf(searchStr, pos + 1)
+      if (pos < 0) return -1
+    }
+    return pos
+  }
+
   function updatePart(idx: number, field: 'text' | 'href' | 'src', value: string) {
     // Use the original text to find + replace the Nth occurrence
     let html = content
@@ -846,13 +860,25 @@ export function RichTextSectionForm({ data, onChange }: FormProps<RichTextData>)
       const re = new RegExp(`(<${part.tag}\\b[^>]*>)${escText}(<\\/${part.tag}>)`, 'i')
       html = html.replace(re, `$1${value}$2`)
     } else if (part.type === 'button' && field === 'text') {
-      // Find <a> containing exact text — use text to disambiguate, not href
-      const re = new RegExp(`(<a\\b[^>]*>)${escText}(<\\/a>)`, 'i')
-      html = html.replace(re, `$1${value}$2`)
+      // Find the Nth <a> tag containing this exact text using indexOf
+      const searchStr = `>${oldText}</a>`
+      const pos = findNthOccurrence(html, searchStr, idx, parts, 'button')
+      if (pos >= 0) {
+        html = html.slice(0, pos + 1) + value + html.slice(pos + 1 + oldText.length)
+      }
     } else if (part.type === 'button' && field === 'href') {
       // Find <a> containing the button text, then replace its href
-      const re = new RegExp(`(<a\\b[^>]*?)href=["'][^"']*["']([^>]*>${escText}<\\/a>)`, 'i')
-      html = html.replace(re, `$1href="${value}"$2`)
+      const textPos = html.indexOf(`>${oldText}</a>`)
+      if (textPos >= 0) {
+        // Search backwards from text position to find href="..."
+        const before = html.slice(0, textPos)
+        const hrefMatch = before.match(/.*href=["']([^"']*)["']/)
+        if (hrefMatch) {
+          const hrefStart = before.lastIndexOf('href=')
+          const hrefEnd = before.indexOf('"', before.indexOf('"', hrefStart) + 1) + 1
+          html = before.slice(0, hrefStart) + `href="${value}"` + before.slice(hrefEnd) + html.slice(textPos)
+        }
+      }
     } else if ((part.type === 'text' || part.type === 'raw') && field === 'text') {
       // Direct text replacement — first occurrence only
       const pos = html.indexOf(oldText)
