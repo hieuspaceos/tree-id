@@ -737,8 +737,17 @@ function PreviewGallery({ data }: { data: GalleryData }) {
       )}
       {v === 'grid' && <div className={`landing-grid-${Math.min(cols, 5)}`} style={{ gap: '0.75rem' }}>{images.map((img, i) => imgEl(img, i))}</div>}
       {v === 'masonry' && <div className="lp-gallery-masonry">{images.map((img, i) => imgEl(img, i))}</div>}
-      {v === 'carousel' && <div style={{ display: 'flex', gap: '0.75rem', overflowX: 'auto' }}>{images.map((img, i) => <div key={i} style={{ flexShrink: 0, width: '200px', height: '150px', borderRadius: '8px', overflow: 'hidden' }}>{img.src ? <img src={img.src} alt={img.alt || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ background: '#e2e8f0', height: '100%' }} />}</div>)}</div>}
-      {v === 'filmstrip' && <div style={{ display: 'flex', gap: '0.75rem', overflowX: 'auto' }}>{images.map((img, i) => <div key={i} style={{ flexShrink: 0, width: '180px', height: '130px', borderRadius: '8px', overflow: 'hidden' }}>{img.src ? <img src={img.src} alt={img.alt || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ background: '#e2e8f0', height: '100%' }} />}</div>)}</div>}
+      {(v === 'carousel' || v === 'filmstrip') && (
+        <div style={{ display: 'flex', gap: '0.75rem', overflowX: 'auto' }}>
+          {images.map((img, i) => (
+            <div key={i} style={{ flexShrink: 0, width: v === 'carousel' ? '200px' : '180px', borderRadius: '8px', overflow: 'hidden', position: 'relative' }}>
+              {img.src ? <img src={img.src} alt={img.alt || ''} style={{ width: '100%', height: v === 'carousel' ? '150px' : '130px', objectFit: 'cover', display: 'block' }} />
+                : <div style={{ background: '#e2e8f0', height: v === 'carousel' ? '150px' : '130px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', color: '#94a3b8' }}>No image</div>}
+              {img.caption && <p style={{ padding: '0.3rem 0.5rem', fontSize: '0.65rem', color: 'var(--lp-text-muted)', background: 'var(--lp-surface, #f8fafc)', margin: 0 }}>{img.caption}</p>}
+            </div>
+          ))}
+        </div>
+      )}
       {v === 'lightbox' && <div className={`landing-grid-${Math.min(cols, 5)}`} style={{ gap: '0.75rem' }}>{images.map((img, i) => <div key={i} style={{ position: 'relative' }}>{imgEl(img, i)}<div style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(0,0,0,0.5)', color: '#fff', borderRadius: '4px', padding: '1px 5px', fontSize: '0.6rem' }}>🔍</div></div>)}</div>}
       {images.length === 0 && <p style={{ textAlign: 'center', color: 'var(--lp-text-muted)', fontSize: '0.8rem' }}>No images added</p>}
     </div>
