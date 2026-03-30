@@ -945,6 +945,7 @@ export function LayoutSectionForm({ data, onChange }: FormProps<LayoutData>) {
   const columns = data.columns || [1, 1]
   const gap = data.gap || '1rem'
   const children: LayoutChild[] = data.children || []
+  const [editingNested, setEditingNested] = useState<string | null>(null) // "colIdx-secIdx"
 
   function setColumns(cols: number[]) {
     // Preserve existing column children, add empty entries for new columns
@@ -961,6 +962,17 @@ export function LayoutSectionForm({ data, onChange }: FormProps<LayoutData>) {
       if (i !== colIdx) return col
       const newSection = { type: type as any, order: col.sections.length, enabled: true, data: nestedSectionDefault(type) }
       return { ...col, sections: [...col.sections, newSection] }
+    })
+    onChange({ ...data, children: newChildren })
+  }
+
+  function updateNestedSection(colIdx: number, secIdx: number, newData: SectionData) {
+    const newChildren = columns.map((_, i) => {
+      const col = children.find(c => c.column === i) || { column: i, sections: [] }
+      if (i !== colIdx) return col
+      const secs = [...col.sections]
+      secs[secIdx] = { ...secs[secIdx], data: newData }
+      return { ...col, sections: secs }
     })
     onChange({ ...data, children: newChildren })
   }
@@ -1045,13 +1057,27 @@ export function LayoutSectionForm({ data, onChange }: FormProps<LayoutData>) {
                   Empty — add sections below
                 </div>
               )}
-              {col.sections.map((s, si) => (
-                <div key={si} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem', background: 'white', borderRadius: '6px', padding: '6px 8px', border: '1px solid #e2e8f0' }}>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#1e293b', flex: 1 }}>{SECTION_LABELS[s.type] || s.type}</span>
-                  <button type="button" onClick={() => removeNestedSection(colIdx, si)}
-                    style={{ padding: '2px 6px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.7rem' }}>×</button>
-                </div>
-              ))}
+              {col.sections.map((s, si) => {
+                const key = `${colIdx}-${si}`
+                const isEditing = editingNested === key
+                const FormComp = sectionFormMap[s.type]
+                return (
+                  <div key={si} style={{ marginBottom: '0.3rem', background: 'white', borderRadius: '6px', border: isEditing ? '1px solid #3b82f6' : '1px solid #e2e8f0', overflow: 'hidden' }}>
+                    <div onClick={() => setEditingNested(isEditing ? null : key)}
+                      style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.35rem 0.5rem', cursor: 'pointer', userSelect: 'none' }}>
+                      <span style={{ fontSize: '0.55rem', color: '#94a3b8', transform: isEditing ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s' }}>▶</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#1e293b', flex: 1 }}>{SECTION_LABELS[s.type] || s.type}</span>
+                      <button type="button" onClick={(e) => { e.stopPropagation(); removeNestedSection(colIdx, si) }}
+                        style={{ padding: '2px 5px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '0.6rem' }}>×</button>
+                    </div>
+                    {isEditing && FormComp && (
+                      <div style={{ padding: '0.5rem', borderTop: '1px solid #e2e8f0', background: '#fafbfc' }}>
+                        <FormComp data={s.data as any} onChange={(newData: any) => updateNestedSection(colIdx, si, newData)} />
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
               {/* Quick-add buttons for common section types */}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem', marginTop: '0.5rem' }}>
                 {NESTED_SECTION_TYPES.map(t => (
