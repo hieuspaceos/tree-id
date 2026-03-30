@@ -19,26 +19,33 @@ const DIRECT_CLONE_PROMPT = `You are an expert web designer. Analyze the HTML of
 Available section types, their variants, and fields:
 
 STRUCTURE:
-- nav: variants=[default, centered, transparent]. Fields: brandName, logo (image URL of site logo), topBar[{icon,text,href}] (phone/email/social info bar above nav), links[{label,href}], variant, socialLinks[{icon,url,label}]
-  IMPORTANT: Extract the site logo IMAGE URL (not text). Look for <img> inside header/nav with "logo" in class/src. Set variant="centered" if logo is centered with links split left/right.
-  If site has a top info bar (phone, email, social links), extract to topBar array.
-- footer: variants=[simple, columns, minimal]. Fields: text, links[{label,href}], columns[{heading,links[{label,href}]}], variant
+- nav: variants=[default, centered, transparent, hamburger, mega]. Fields: brandName, logo (image URL), topBar[{icon,text,href}], links[{label,href}], variant, socialLinks[{icon,url,label}], groups[{label,links[{label,href,description}]}]
+  IMPORTANT: Extract logo IMAGE URL. Set variant="centered" if logo centered. Use "hamburger" for minimal mobile-first sites. Use "mega" if nav has dropdown panels with grouped links.
+  If site has top info bar (phone, email), extract to topBar array.
+- footer: variants=[simple, columns, minimal, mega, centered-social]. Fields: text, links[{label,href}], columns[{heading,links[]}], variant, socialLinks[{icon,url,label}], newsletter{heading,placeholder,buttonText}
+  Use "mega" for large footers with newsletter signup. Use "centered-social" for minimal footer with large social icon row.
 
 HERO (exactly ONE per page):
-- hero: variants=[centered, split, video-bg, minimal]. Fields: headline, subheadline, variant, backgroundImage, embed (video/iframe URL). cta: ARRAY of buttons [{text, url, variant("primary"|"secondary"|"outline")}]. IMPORTANT: cta is always an ARRAY.
+- hero: variants=[centered, split, video-bg, minimal, fullscreen, slider]. Fields: headline, subheadline, variant, backgroundImage, embed (video/iframe URL). cta: ARRAY of buttons [{text, url, variant}]. items[{headline,subheadline,backgroundImage}] for slider variant.
+  Use "fullscreen" for 100vh hero with immersive bg. Use "slider" if hero has multiple rotating slides. IMPORTANT: cta is always an ARRAY.
 
 CONTENT:
-- features: variants=[grid, list, alternating]. Fields: heading, subheading, items[{icon,title,description,image,url}], columns(2|3|4|5)
-  IMPORTANT: When items have PHOTOS (not icons), set "image" field with the photo URL. For travel/portfolio cards, use image + title + url (makes clickable image overlay cards). Use "icon" only for emoji/small icons. Set columns to match the visual grid (3 for 3-col, 4 for 4-col, 5 for icon bars).
-- stats: variants=[row, cards, large]. Fields: heading, subheading, items[{value,label,prefix,suffix}]
+- features: variants=[grid, list, alternating, masonry, icon-strip, bento]. Fields: heading, subheading, items[{icon,title,description,image,url}], columns(2|3|4|5)
+  Use "icon-strip" for horizontal icon bars (5+ small icons with labels, no descriptions — common under hero). Use "bento" for asymmetric grid where first item is larger. Use "masonry" for Pinterest-style varying-height cards.
+  IMPORTANT: When items have PHOTOS, set "image" field. For icon bars, use "icon" with image URL. Set columns to match visual grid.
+- stats: variants=[row, cards, large, counter]. Fields: heading, subheading, items[{value,label,prefix,suffix}]
+  Use "counter" for animated count-up numbers on scroll.
 - how-it-works: variants=[numbered, timeline, cards]. Fields: heading, subheading, items[{number,title,description,icon}]
 - team: variants=[grid, list, compact]. Fields: heading, subheading, members[{name,role,photo,bio}]
-- faq: variants=[accordion, two-column, simple]. Fields: heading, items[{question,answer}]
+- faq: variants=[accordion, two-column, simple, searchable]. Fields: heading, items[{question,answer}]
+  Use "searchable" if FAQ has many items (10+) — adds client-side search input.
 - rich-text: Fields: heading, subheading, content (HTML string — can include <p>, <a>, <img>, <div> with inline styles for custom layouts)
 
 CONVERSION:
-- pricing: variants=[cards, simple, highlight-center]. Fields: heading, subheading, plans[{name, price, period, description, image (cover photo URL), features[], cta{text,url}, highlighted, badge}]. Count actual plan CARDS only. IMPORTANT: Extract cover images for travel/product cards.
-- testimonials: variants=[cards, single, minimal, carousel]. Fields: heading, items[{quote, name, role, company, avatar, image}]. Use "carousel" if they scroll horizontally.
+- pricing: variants=[cards, simple, highlight-center, comparison, toggle]. Fields: heading, subheading, plans[{name, price, period, description, image, features[], cta{text,url}, highlighted, badge}], comparisonRows[{label,values[],highlight}], annualPlans[].
+  Use "comparison" for feature comparison tables. Use "toggle" if monthly/annual pricing switch exists. IMPORTANT: Extract cover images for travel/product cards.
+- testimonials: variants=[cards, single, minimal, carousel, quote-wall, logo-strip]. Fields: heading, items[{quote,name,role,company,avatar,image}], logos[{name,image,url}].
+  Use "quote-wall" for masonry grid of quotes. Use "logo-strip" if trust logos (Google, TripAdvisor) shown with testimonials. Use "carousel" if they scroll horizontally.
 - cta: variants=[default, split, banner, minimal, with-image]. Fields: headline, subheadline, backgroundImage, variant. cta: ARRAY of buttons [{text, url, variant}].
   IMPORTANT: Most pages have a CTA section before the footer. Always add one with variant="with-image" if a background image is available.
 - social-proof: variants=[inline, banner]. Fields: text, icon, link
