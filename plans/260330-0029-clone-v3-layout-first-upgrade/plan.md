@@ -1,7 +1,7 @@
 ---
 title: "Clone v3 — Layout-First, Production-Quality Upgrade"
 description: "Upgrade AI clone pipeline from flat section lists to layout-first approach with real-world layouts, responsive mobile, and design presets"
-status: pending
+status: complete
 priority: P1
 effort: 72h
 branch: main
@@ -50,35 +50,35 @@ Clone any URL -> production-quality landing page in 1 click:
 
 Add layout variants + responsive breakpoints to `landing-layout.astro`.
 
-**Status:** pending
+**Status:** ✅ complete (commit `1e9e886`)
 
 ## Phase 2: Section Variant Expansion (18h)
 > [Detailed plan](./phase-02-section-variant-expansion.md)
 
 Add 2-3 new variants per major section type; ensure all work on dark/light + responsive.
 
-**Status:** pending
+**Status:** ✅ complete (commit `1e9e886` — 48 variants, 15 new components)
 
 ## Phase 3: Clone Pipeline v3 — Layout-First (16h)
 > [Detailed plan](./phase-03-clone-pipeline-v3.md)
 
 New Gemini call for layout skeleton extraction; map content into skeleton; variant auto-selection.
 
-**Status:** pending
+**Status:** ✅ complete — modularized 1183→364 lines, v3 layout-first pipeline, v2/v3/auto selection
 
 ## Phase 4: Design Presets & Theme System (10h)
 > [Detailed plan](./phase-04-design-presets.md)
 
-5 built-in presets; admin preset switcher; CSS var override system.
+8 built-in presets; admin preset switcher; CSS var override system; clone preset matching.
 
-**Status:** pending
+**Status:** ✅ complete — 8 presets, resolveDesign, designToCssVars, Google Fonts, admin panel, RGB color matching
 
 ## Phase 5: Mobile & Polish (12h)
 > [Detailed plan](./phase-05-mobile-polish.md)
 
 Hamburger nav, responsive audit, dark theme fixes, image optimization, a11y.
 
-**Status:** pending
+**Status:** ✅ complete — hamburger all nav variants, .lp-dark-section, skip-to-content, focus indicators, image lazy/async
 
 ---
 
@@ -95,9 +95,9 @@ Phases 1 + 2 can run in parallel. Phase 3 depends on 1+2. Phase 4 can start afte
 
 ## Success Criteria
 
-- [ ] Clone claudekit.cc -> layout matches (sidebar, grid, multi-col)
-- [ ] Clone aucoeurvietnam.com -> travel layout matches (hero, gallery grid, pricing cards)
-- [ ] Mobile: hamburger nav works, all sections readable at 375px
-- [ ] Preset switch changes entire page look in admin
-- [ ] Existing v2 YAML pages render unchanged
-- [ ] Gemini API cost: max 2 additional calls per clone (layout + variant selection)
+- [x] Clone claudekit.cc -> layout matches (sidebar, grid, multi-col)
+- [x] Clone aucoeurvietnam.com -> travel layout matches (hero, gallery grid, pricing cards)
+- [x] Mobile: hamburger nav works, all sections readable at 375px
+- [x] Preset switch changes entire page look in admin
+- [x] Existing v2 YAML pages render unchanged
+- [x] Gemini API cost: max 2 additional calls per clone (layout + variant selection)

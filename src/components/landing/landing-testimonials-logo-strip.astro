@@ -20,7 +20,7 @@ const featured = items[0]
       <div class="lp-quote-mark" style="font-size:3rem;line-height:1;margin-bottom:0.5rem">❝</div>
       <p class="lp-ls-quote-text">"{featured.quote}"</p>
       <div class="lp-ls-quote-author">
-        {featured.avatar && <img src={featured.avatar} alt={featured.name} class="lp-avatar" />}
+        {featured.avatar && <img src={featured.avatar} alt={featured.name} class="lp-avatar" loading="lazy" decoding="async" />}
         <div>
           <p class="font-semibold text-sm">{featured.name}</p>
           {(featured.role || featured.company) && (
@@ -39,7 +39,7 @@ const featured = items[0]
         {[...logos, ...logos].map((logo, i) => (
           <div class="lp-ls-logo-item" key={i}>
             {logo.image
-              ? <img src={logo.image} alt={logo.name} class="lp-ls-logo-img" loading="lazy" />
+              ? <img src={logo.image} alt={logo.name} class="lp-ls-logo-img" loading="lazy" decoding="async" />
               : <span class="lp-ls-logo-text">{logo.name}</span>
             }
           </div>

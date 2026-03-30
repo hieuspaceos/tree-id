@@ -13,6 +13,7 @@ import SpeedInsights from '@vercel/speed-insights/astro'
 import { designToCssVars, designFontsUrl } from '@/lib/landing/landing-design-presets'
 import type { LandingDesign } from '@/lib/landing/landing-types'
 import '@/styles/globals.css'
+import '@/styles/landing.css'
 
 interface Props {
   title?: string
@@ -68,6 +69,7 @@ const canonicalUrl = new URL(Astro.url.pathname, siteConfig.url).href
   </head>
   <body>
     <div class="landing-page-root" style={`${styleString};font-family:var(--lp-font-body, ${theme.fontFamily});background:var(--lp-bg);color:var(--lp-text)`}>
+      <a href="#lp-main-content" class="lp-skip-link">Skip to content</a>
       {/* Layout nav — hidden when page has its own nav section */}
       {!hideNav && (
         <nav class="glass-nav sticky top-0 z-50" aria-label="Main navigation">
@@ -87,7 +89,7 @@ const canonicalUrl = new URL(Astro.url.pathname, siteConfig.url).href
         </nav>
       )}
 
-      <main class={hideNav ? '' : 'mx-auto max-w-5xl px-4 py-10 sm:px-6'}>
+      <main id="lp-main-content" class={hideNav ? '' : 'mx-auto max-w-5xl px-4 py-10 sm:px-6'}>
         <slot />
       </main>
 

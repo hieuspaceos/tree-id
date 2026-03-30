@@ -505,6 +505,42 @@ html:has(.landing-nav) {
   .lp-layout--reverse > :last-child  { order: unset; }
 }
 
+/* ─── DARK SECTION UTILITY ───────────────────── */
+
+/* Auto-applied when section has light text on dark background */
+.lp-dark-section .lp-card-hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); }
+.lp-dark-section .glass-card { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); }
+.lp-dark-section .landing-btn-outline { border-color: rgba(255,255,255,0.3); color: #fff; }
+.lp-dark-section input, .lp-dark-section textarea { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: #fff; }
+.lp-dark-section .lp-icon-bg { background: rgba(255,255,255,0.1); }
+
+/* ─── SKIP TO CONTENT ────────────────────────── */
+
+.lp-skip-link {
+  position: absolute; left: -9999px; top: auto;
+  width: 1px; height: 1px; overflow: hidden;
+  z-index: 9999; padding: 0.5rem 1rem;
+  background: var(--lp-primary, #3b82f6); color: #fff;
+  border-radius: 0 0 8px 0; font-size: 0.875rem;
+  text-decoration: none; font-weight: 600;
+}
+.lp-skip-link:focus {
+  position: fixed; left: 0; top: 0;
+  width: auto; height: auto;
+}
+
+/* ─── FOCUS INDICATORS ───────────────────────── */
+
+.landing-page-root :focus-visible {
+  outline: 2px solid var(--lp-primary, #3b82f6);
+  outline-offset: 2px;
+}
+.landing-page-root button:focus-visible,
+.landing-page-root a:focus-visible {
+  outline: 2px solid var(--lp-primary, #3b82f6);
+  outline-offset: 2px;
+}
+
 /* ─── CTA GRADIENT BACKGROUND ────────────────── */
 
 .lp-cta-gradient {

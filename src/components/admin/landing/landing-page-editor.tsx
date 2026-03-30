@@ -2,7 +2,8 @@
  * Landing page editor — metadata form + sortable section list with drag-and-drop.
  * New mode when no slug provided. Loads config from API when slug given.
  */
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
+// useRef used for configRef (Ctrl+S handler closure)
 import { useLocation } from 'wouter'
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
@@ -111,6 +112,11 @@ export function LandingPageEditor({ slug }: Props) {
   const [cloneOpen, setCloneOpen] = useState(false)
   const [selectedSectionIdx, setSelectedSectionIdx] = useState<number | null>(null)
 
+  const configRef = useRef(config)
+  configRef.current = config
+  const [editorWidth, setEditorWidth] = useState(40) // percentage
+  const resizing = useRef(false)
+
   useEffect(() => {
     if (!slug) return
     api.landing.read(slug).then((res) => {
@@ -119,6 +125,18 @@ export function LandingPageEditor({ slug }: Props) {
       setLoading(false)
     })
   }, [slug])
+
+  /** Ctrl+S shortcut: save */
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault()
+        handleSave()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [slug, isNew, config])
 
   function updateSection(index: number, data: SectionData) {
     setConfig((c) => {
@@ -436,19 +454,54 @@ export function LandingPageEditor({ slug }: Props) {
 
   // Preview device width presets
   const DEVICE_PRESETS = [
-    { label: '📱', width: 375, title: 'Mobile (375px)' },
-    { label: '📱', width: 768, title: 'Tablet (768px)' },
-    { label: '🖥', width: '100%', title: 'Desktop (full)' },
+    { label: '📱 Mobile', width: 375, title: 'Mobile (375px)' },
+    { label: '🖥 Desktop', width: '100%', title: 'Desktop (full)' },
   ] as const
 
   // Split view: editor left + live React preview right (real-time, no save needed)
+  /** Handle drag to resize editor/preview panels */
+  function onResizeStart(e: React.MouseEvent) {
+    e.preventDefault()
+    resizing.current = true
+    const startX = e.clientX
+    const startWidth = editorWidth
+    const container = (e.target as HTMLElement).parentElement!
+    const totalWidth = container.offsetWidth
+
+    function onMouseMove(ev: MouseEvent) {
+      if (!resizing.current) return
+      const delta = ev.clientX - startX
+      const newPct = Math.min(80, Math.max(20, startWidth + (delta / totalWidth) * 100))
+      setEditorWidth(newPct)
+    }
+    function onMouseUp() {
+      resizing.current = false
+      document.removeEventListener('mousemove', onMouseMove)
+      document.removeEventListener('mouseup', onMouseUp)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+    document.addEventListener('mousemove', onMouseMove)
+    document.addEventListener('mouseup', onMouseUp)
+  }
+
   if (splitView) {
     return (
       <div style={{ display: 'flex', height: 'calc(100vh - 80px)' }}>
-        <div style={{ flex: 1, minWidth: 0, overflowY: 'auto', scrollbarWidth: 'thin' }}>
+        <div style={{ width: `${editorWidth}%`, minWidth: 0, overflowY: 'auto', scrollbarWidth: 'thin', flexShrink: 0 }}>
           {editorContent}
         </div>
-        <div style={{ width: '1px', background: '#e2e8f0', flexShrink: 0 }} />
+        {/* Draggable resizer handle */}
+        <div
+          onMouseDown={onResizeStart}
+          style={{ width: '6px', cursor: 'col-resize', background: '#e2e8f0', flexShrink: 0, transition: 'background 0.15s', position: 'relative' }}
+          onMouseEnter={e => (e.currentTarget.style.background = '#94a3b8')}
+          onMouseLeave={e => { if (!resizing.current) e.currentTarget.style.background = '#e2e8f0' }}
+        >
+          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '2px', height: '24px', borderRadius: '1px', background: '#94a3b8' }} />
+        </div>
         <div style={{ flex: 1, minWidth: 0, position: 'relative', display: 'flex', flexDirection: 'column' }}>
           {/* Device toggle bar */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '6px 12px', borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
@@ -462,16 +515,35 @@ export function LandingPageEditor({ slug }: Props) {
                   background: previewWidth === d.width ? '#1e293b' : 'transparent',
                   color: previewWidth === d.width ? 'white' : '#64748b',
                 }}
-              >{d.label} {typeof d.width === 'number' ? `${d.width}` : 'Full'}</button>
+              >{d.label}</button>
             ))}
             <span style={{ flex: 1 }} />
+            {!isNew && slug && (
+              <a href={`/${slug}`} target="_blank" rel="noopener noreferrer" title="Open full page in new tab"
+                style={{ fontSize: '0.7rem', color: '#3b82f6', textDecoration: 'none', padding: '2px 6px' }}>
+                View Page ↗
+              </a>
+            )}
             <span style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Live Preview</span>
           </div>
-          {/* Preview container with device width */}
-          <div style={{ flex: 1, overflow: 'auto', scrollbarWidth: 'thin', display: 'flex', justifyContent: 'center', background: '#e2e8f0', padding: typeof previewWidth === 'number' ? '1rem' : 0 }}>
-            <div style={{ width: typeof previewWidth === 'number' ? `${previewWidth}px` : '100%', maxWidth: '100%', background: 'white', height: 'fit-content', minHeight: '100%' }}>
-              <LandingLivePreview sections={config.sections} pageTitle={config.title} design={config.design} selectedSectionIdx={selectedSectionIdx} />
-            </div>
+          {/* Preview container — Full: React preview, Mobile: iframe for accurate media queries */}
+          <div style={{ flex: 1, overflow: 'auto', scrollbarWidth: 'thin', display: 'flex', justifyContent: 'center', background: '#e2e8f0', padding: typeof previewWidth === 'number' ? '1rem 0' : 0 }}>
+            {typeof previewWidth === 'number' && !isNew && slug ? (
+              /* Mobile: iframe at exact width so CSS media queries fire correctly */
+              <div style={{ width: `${previewWidth}px`, maxWidth: '100%', height: '100%', margin: '0 auto' }}>
+                <iframe
+                  key={previewKey}
+                  src={`/${slug}`}
+                  style={{ width: `${previewWidth}px`, height: '100%', border: '1px solid #cbd5e1', borderRadius: '24px', background: 'white', boxShadow: '0 4px 24px rgba(0,0,0,0.1)' }}
+                  title="Mobile preview"
+                />
+              </div>
+            ) : (
+              /* Full: React preview for realtime editing */
+              <div style={{ width: '100%', minHeight: '100%' }}>
+                <LandingLivePreview sections={config.sections} pageTitle={config.title} design={config.design} selectedSectionIdx={selectedSectionIdx} />
+              </div>
+            )}
           </div>
         </div>
       </div>

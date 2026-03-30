@@ -31,11 +31,11 @@ const carouselId = `lp-carousel-${Math.random().toString(36).slice(2, 8)}`
         <div class="lp-card-hover" style="padding: 1.75rem; background: color-mix(in srgb, var(--lp-primary) 4%, var(--lp-surface)); border-radius: var(--lp-radius); border: 1px solid color-mix(in srgb, var(--lp-primary) 8%, transparent)">
           <div class="lp-stars mb-3">★★★★★</div>
           {t.image && (
-            <img src={t.image} alt={t.name} class="mb-4 w-full rounded-lg object-cover" style="max-height: 200px" loading="lazy" />
+            <img src={t.image} alt={t.name} class="mb-4 w-full rounded-lg object-cover" style="max-height: 200px" loading="lazy" decoding="async" />
           )}
           <p style="font-family: var(--lp-font-heading), serif; font-size: 1rem; line-height: 1.7; color: var(--lp-text-muted); font-style: italic; margin-bottom: 1.25rem">"{t.quote}"</p>
           <div class="flex items-center gap-3" style="border-top: 1px solid color-mix(in srgb, var(--lp-text) 8%, transparent); padding-top: 1rem">
-            {t.avatar ? <img src={t.avatar} alt={t.name} class="lp-avatar" /> : (
+            {t.avatar ? <img src={t.avatar} alt={t.name} class="lp-avatar" loading="lazy" decoding="async" /> : (
               <div style="width: 40px; height: 40px; border-radius: 50%; background: color-mix(in srgb, var(--lp-primary) 15%, var(--lp-surface)); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: var(--lp-primary); flex-shrink: 0">
                 {t.name?.split(' ').map(w => w[0]).join('').slice(0, 2)}
               </div>
@@ -67,7 +67,7 @@ const carouselId = `lp-carousel-${Math.random().toString(36).slice(2, 8)}`
           {carouselItems.map((t) => (
             <div class="lp-testimonial-slide glass-card" style="overflow: hidden">
               {t.image && (
-                <img src={t.image} alt={t.name} class="w-full object-cover" style="height: 180px" loading="lazy" />
+                <img src={t.image} alt={t.name} class="w-full object-cover" style="height: 180px" loading="lazy" decoding="async" />
               )}
               <div class="p-4">
                 <p class="mb-2 text-xs italic" style="color: var(--lp-text-muted); line-height: 1.5">"{t.quote}"</p>
@@ -104,7 +104,7 @@ const carouselId = `lp-carousel-${Math.random().toString(36).slice(2, 8)}`
           "{items[0].quote}"
         </p>
         <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem">
-          {items[0].avatar && <img src={items[0].avatar} alt={items[0].name} style="width: 3rem; height: 3rem; border-radius: 50%; object-fit: cover" />}
+          {items[0].avatar && <img src={items[0].avatar} alt={items[0].name} style="width: 3rem; height: 3rem; border-radius: 50%; object-fit: cover" loading="lazy" decoding="async" />}
           <div style="text-align: left">
             <p class="font-semibold">{items[0].name}</p>
             {(items[0].role || items[0].company) && (

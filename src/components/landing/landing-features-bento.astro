@@ -27,13 +27,14 @@ const { heading, subheading, items = [] } = Astro.props
               src={item.image}
               alt={item.title}
               loading="lazy"
+              decoding="async"
               style={`width: 100%; object-fit: cover; ${isFeatured ? 'height: 200px' : 'height: 140px'}`}
             />
           )}
           <div style={`padding: ${isFeatured ? '1.75rem' : '1.25rem'}`}>
             {item.icon && !hasImage && (
               item.icon.startsWith('http')
-                ? <img src={item.icon} alt="" class="mb-3 h-10 w-10 object-contain" />
+                ? <img src={item.icon} alt="" class="mb-3 h-10 w-10 object-contain" loading="lazy" decoding="async" />
                 : <div class="lp-icon-bg mb-3" style={isFeatured ? 'width: 3.5rem; height: 3.5rem; font-size: 1.5rem' : ''}>{item.icon}</div>
             )}
             <h3 class={`font-semibold mb-1 ${isFeatured ? 'text-xl' : 'text-base'}`}>{item.title}</h3>

@@ -18,7 +18,7 @@ const { heading, subheading, items = [] } = Astro.props
       <div class="lp-icon-strip-item">
         {item.icon && (
           item.icon.startsWith('http')
-            ? <img src={item.icon} alt={item.title} class="lp-icon-strip-img" loading="lazy" />
+            ? <img src={item.icon} alt={item.title} class="lp-icon-strip-img" loading="lazy" decoding="async" />
             : <span class="lp-icon-strip-emoji" aria-hidden="true">{item.icon}</span>
         )}
         {!item.icon && (

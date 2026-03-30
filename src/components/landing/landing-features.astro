@@ -29,7 +29,7 @@ const hasImages = items.some(item => item.image)
         /* Image-overlay card: photo with title at bottom (like travel/portfolio cards) */
         const imageOverlayCard = (
           <div class="lp-card-hover" style="position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 4/3">
-            <img src={item.image} alt={item.title} style="width: 100%; height: 100%; object-fit: cover" loading="lazy" />
+            <img src={item.image} alt={item.title} style="width: 100%; height: 100%; object-fit: cover" loading="lazy" decoding="async" />
             <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.1) 50%, transparent 100%)"></div>
             <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 1rem 1.25rem">
               <h3 style="color: #fff; font-weight: 600; font-size: 0.95rem; text-shadow: 0 1px 3px rgba(0,0,0,0.4)">{item.title}</h3>
@@ -40,7 +40,7 @@ const hasImages = items.some(item => item.image)
         /* Standard icon/text card */
         const standardCard = (
           <div class="lp-card-hover" style="background: color-mix(in srgb, var(--lp-primary) 5%, var(--lp-surface)); border-radius: var(--lp-radius); border: 1px solid color-mix(in srgb, var(--lp-primary) 8%, transparent); overflow: hidden; padding: 1.5rem">
-            {item.icon && (item.icon.startsWith('http') ? <img src={item.icon} alt={item.title} class="mb-3 h-10 w-10 object-contain" /> : <div class="lp-icon-bg mb-3">{item.icon}</div>)}
+            {item.icon && (item.icon.startsWith('http') ? <img src={item.icon} alt={item.title} class="mb-3 h-10 w-10 object-contain" loading="lazy" decoding="async" /> : <div class="lp-icon-bg mb-3">{item.icon}</div>)}
             <h3 class="text-lg mb-2 font-semibold">{item.title}</h3>
             {item.description && <p class="text-sm mt-1" style="color: var(--lp-text-muted); line-height: 1.7">{item.description}</p>}
             {item.price && (
@@ -69,7 +69,7 @@ const hasImages = items.some(item => item.image)
       {items.map((item) => (
         <div style="display: flex; align-items: flex-start; gap: 1.25rem; padding: 1.25rem; background: color-mix(in srgb, var(--lp-primary) 5%, var(--lp-surface)); border-radius: var(--lp-radius)">
           {item.icon && (
-            item.icon.startsWith('http') ? <img src={item.icon} alt={item.title} style="width: 2.5rem; height: 2.5rem; object-fit: contain; flex-shrink: 0" /> : <span style="font-size: 1.75rem; flex-shrink: 0; width: 2.5rem; text-align: center">{item.icon}</span>
+            item.icon.startsWith('http') ? <img src={item.icon} alt={item.title} style="width: 2.5rem; height: 2.5rem; object-fit: contain; flex-shrink: 0" loading="lazy" decoding="async" /> : <span style="font-size: 1.75rem; flex-shrink: 0; width: 2.5rem; text-align: center">{item.icon}</span>
           )}
           {!item.icon && (
             <span style="width: 2.5rem; height: 2.5rem; flex-shrink: 0; border-radius: 50%; background: color-mix(in srgb, var(--lp-primary) 15%, transparent); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; color: var(--lp-primary)">✓</span>
@@ -116,10 +116,10 @@ const hasImages = items.some(item => item.image)
           class="lp-card-hover"
           style="break-inside: avoid; margin-bottom: 1rem; padding: 1.5rem; background: color-mix(in srgb, var(--lp-primary) 5%, var(--lp-surface)); border-radius: var(--lp-radius); border: 1px solid color-mix(in srgb, var(--lp-primary) 8%, transparent)"
         >
-          {item.image && <img src={item.image} alt={item.title} style="width: 100%; border-radius: 8px; margin-bottom: 0.875rem; object-fit: cover" loading="lazy" />}
+          {item.image && <img src={item.image} alt={item.title} style="width: 100%; border-radius: 8px; margin-bottom: 0.875rem; object-fit: cover" loading="lazy" decoding="async" />}
           {item.icon && !item.image && (
             item.icon.startsWith('http')
-              ? <img src={item.icon} alt="" class="mb-3 h-9 w-9 object-contain" />
+              ? <img src={item.icon} alt="" class="mb-3 h-9 w-9 object-contain" loading="lazy" decoding="async" />
               : <div class="lp-icon-bg mb-3">{item.icon}</div>
           )}
           <h3 class="font-semibold text-base mb-1">{item.title}</h3>

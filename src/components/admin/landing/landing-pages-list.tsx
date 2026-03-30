@@ -20,6 +20,8 @@ export function LandingPagesList() {
   const [loading, setLoading] = useState(true)
   const [backlog, setBacklog] = useState<{ totalClones: number; needsReview: boolean; sections: BacklogItem[] } | null>(null)
   const [improving, setImproving] = useState<string | null>(null)
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     api.landing.list().then((res) => {
@@ -58,7 +60,34 @@ export function LandingPagesList() {
   async function handleDelete(slug: string, title: string) {
     if (!confirm(`Delete "${title}"?`)) return
     const res = await api.landing.delete(slug)
-    if (res.ok) setPages((prev) => prev.filter((p) => p.slug !== slug))
+    if (res.ok) {
+      setPages((prev) => prev.filter((p) => p.slug !== slug))
+      setSelected((prev) => { const n = new Set(prev); n.delete(slug); return n })
+    }
+  }
+
+  function toggleSelect(slug: string) {
+    setSelected((prev) => {
+      const n = new Set(prev)
+      n.has(slug) ? n.delete(slug) : n.add(slug)
+      return n
+    })
+  }
+
+  function toggleSelectAll() {
+    setSelected((prev) => prev.size === pages.length ? new Set() : new Set(pages.map(p => p.slug)))
+  }
+
+  async function handleBulkDelete() {
+    if (selected.size === 0) return
+    if (!confirm(`Delete ${selected.size} landing page(s)?`)) return
+    setDeleting(true)
+    const slugs = [...selected]
+    const results = await Promise.allSettled(slugs.map(slug => api.landing.delete(slug)))
+    const deleted = slugs.filter((_, i) => results[i].status === 'fulfilled' && (results[i] as PromiseFulfilledResult<any>).value.ok)
+    setPages((prev) => prev.filter((p) => !deleted.includes(p.slug)))
+    setSelected(new Set())
+    setDeleting(false)
   }
 
   return (
@@ -86,11 +115,33 @@ export function LandingPagesList() {
         </div>
       )}
 
+      {/* Bulk action bar — visible when pages exist */}
+      {!loading && pages.length > 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem', padding: '0.5rem 0.75rem', background: selected.size > 0 ? '#eff6ff' : '#f8fafc', borderRadius: '10px', transition: 'background 0.15s' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontSize: '0.8rem', color: '#475569', userSelect: 'none' }}>
+            <input type="checkbox" checked={pages.length > 0 && selected.size === pages.length} onChange={toggleSelectAll}
+              style={{ accentColor: '#3b82f6', width: '15px', height: '15px', cursor: 'pointer' }} />
+            Select all
+          </label>
+          {selected.size > 0 && (
+            <>
+              <span style={{ fontSize: '0.75rem', color: '#3b82f6', fontWeight: 600 }}>{selected.size} selected</span>
+              <button className="admin-btn" onClick={handleBulkDelete} disabled={deleting}
+                style={{ marginLeft: 'auto', fontSize: '0.75rem', color: '#fff', background: '#ef4444', border: 'none', padding: '0.35rem 0.85rem', borderRadius: '8px', cursor: deleting ? 'wait' : 'pointer' }}>
+                {deleting ? 'Deleting...' : `Delete ${selected.size}`}
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
         {pages.map((page) => (
-          <div key={page.slug} className="glass-card" style={{ padding: '1.25rem', borderRadius: '12px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
-              <h3 style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.95rem' }}>{page.title}</h3>
+          <div key={page.slug} className="glass-card" style={{ padding: '1.25rem', borderRadius: '12px', outline: selected.has(page.slug) ? '2px solid #3b82f6' : 'none', outlineOffset: '-2px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem', gap: '0.5rem' }}>
+              <input type="checkbox" checked={selected.has(page.slug)} onChange={() => toggleSelect(page.slug)}
+                style={{ accentColor: '#3b82f6', width: '15px', height: '15px', cursor: 'pointer', flexShrink: 0, marginTop: '2px' }} />
+              <h3 style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.95rem', flex: 1 }}>{page.title}</h3>
               <span style={{ fontSize: '0.7rem', background: '#f1f5f9', color: '#64748b', padding: '2px 8px', borderRadius: '99px' }}>
                 {page.sectionCount} sections
               </span>

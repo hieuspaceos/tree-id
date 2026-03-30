@@ -10,7 +10,7 @@ const { heading, images = [] } = Astro.props
   <div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
     {images.map((img) => (
       <div class="overflow-hidden rounded-xl">
-        <img src={img.src} alt={img.alt || ''} class="w-full object-cover aspect-square hover:scale-105 transition-transform duration-300" loading="lazy" />
+        <img src={img.src} alt={img.alt || ''} class="w-full object-cover aspect-square hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
         {img.caption && <p class="mt-1 text-center text-xs text-slate-500">{img.caption}</p>}
       </div>
     ))}

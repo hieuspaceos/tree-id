@@ -11,10 +11,10 @@ const { heading, logos = [] } = Astro.props
     {logos.map((logo) =>
       logo.url ? (
         <a href={logo.url} target="_blank" rel="noopener noreferrer" title={logo.name}>
-          <img src={logo.image} alt={logo.name} class="h-10 opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition" />
+          <img src={logo.image} alt={logo.name} class="h-10 opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition" loading="lazy" decoding="async" />
         </a>
       ) : (
-        <img src={logo.image} alt={logo.name} class="h-10 opacity-60 grayscale" />
+        <img src={logo.image} alt={logo.name} class="h-10 opacity-60 grayscale" loading="lazy" decoding="async" />
       )
     )}
   </div>
