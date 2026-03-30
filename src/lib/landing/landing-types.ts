@@ -341,7 +341,7 @@ export interface PopupData {
   showOnce?: boolean
   /** Dismiss button label (default: "✕") */
   dismissLabel?: string
-  variant?: 'centered' | 'bottom-bar' | 'slide-in-right'
+  variant?: 'centered' | 'bottom-bar' | 'slide-in-right' | 'slide-in-left' | 'fullscreen' | 'top-bar' | 'notification'
 }
 
 /** Per-page design settings — colors, fonts, border radius */

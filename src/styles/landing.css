@@ -601,6 +601,48 @@ html:has(.landing-nav) {
 .lp-popup--slide-in-right .lp-popup__content { max-width: 360px; text-align: left; }
 .lp-popup--slide-in-right[open] { animation: popup-slide-in 0.3s ease-out; }
 
+/* Slide-in-left variant */
+.lp-popup--slide-in-left { margin: 1rem auto 1rem 1rem; }
+.lp-popup--slide-in-left .lp-popup__content { max-width: 360px; text-align: left; }
+.lp-popup--slide-in-left[open] { animation: popup-slide-in-left 0.3s ease-out; }
+
+/* Fullscreen variant — welcome mat / email gate */
+.lp-popup--fullscreen { margin: 0; width: 100vw; height: 100vh; max-width: 100vw; max-height: 100vh; }
+.lp-popup--fullscreen .lp-popup__content {
+  width: 100%; height: 100%; max-width: none; border-radius: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 3rem 2rem; background: var(--lp-bg, #fff);
+}
+.lp-popup--fullscreen .lp-popup__heading { font-size: 2rem; }
+.lp-popup--fullscreen .lp-popup__text { font-size: 1.1rem; max-width: 540px; }
+.lp-popup--fullscreen .lp-popup__image { max-height: 300px; }
+.lp-popup--fullscreen .lp-popup__close { top: 1.5rem; right: 1.5rem; font-size: 1.5rem; }
+
+/* Top bar variant — sticky notification strip */
+.lp-popup--top-bar { margin: 0 auto auto; width: 100%; }
+.lp-popup--top-bar .lp-popup__content {
+  border-radius: 0 0 var(--lp-radius, 12px) var(--lp-radius, 12px);
+  display: flex; align-items: center; gap: 1.5rem; text-align: left; padding: 1rem 2rem;
+}
+.lp-popup--top-bar .lp-popup__heading { margin: 0; font-size: 1rem; white-space: nowrap; }
+.lp-popup--top-bar .lp-popup__text { margin: 0; font-size: 0.85rem; flex: 1; }
+.lp-popup--top-bar .lp-popup__image { max-height: 50px; margin: 0; }
+.lp-popup--top-bar[open] { animation: popup-slide-down 0.3s ease-out; }
+
+/* Notification variant — small corner card, bottom-right */
+.lp-popup--notification { margin: auto 1.25rem 1.25rem auto; }
+.lp-popup--notification::backdrop { background: transparent; backdrop-filter: none; }
+.lp-popup--notification .lp-popup__content {
+  max-width: 320px; text-align: left; padding: 1.25rem;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
+}
+.lp-popup--notification .lp-popup__heading { font-size: 0.95rem; }
+.lp-popup--notification .lp-popup__text { font-size: 0.82rem; margin-bottom: 0.75rem; }
+.lp-popup--notification .lp-popup__cta { padding: 0.5rem 1.25rem; font-size: 0.82rem; }
+.lp-popup--notification .lp-popup__image { max-height: 120px; }
+.lp-popup--notification .lp-popup__close { top: 0.5rem; right: 0.5rem; font-size: 1rem; }
+.lp-popup--notification[open] { animation: popup-slide-up 0.3s ease-out; }
+
 @keyframes popup-appear {
   from { opacity: 0; transform: scale(0.95) translateY(10px); }
   to { opacity: 1; transform: scale(1) translateY(0); }
@@ -608,5 +650,17 @@ html:has(.landing-nav) {
 @keyframes popup-slide-in {
   from { opacity: 0; transform: translateX(100%); }
   to { opacity: 1; transform: translateX(0); }
+}
+@keyframes popup-slide-in-left {
+  from { opacity: 0; transform: translateX(-100%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes popup-slide-down {
+  from { opacity: 0; transform: translateY(-100%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes popup-slide-up {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 

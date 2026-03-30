@@ -150,6 +150,10 @@ export const VARIANT_LABELS: Record<string, Record<string, string>> = {
   popup: {
     centered: 'Centered Modal',
     'bottom-bar': 'Bottom Bar',
+    'top-bar': 'Top Notification Bar',
     'slide-in-right': 'Slide In from Right',
+    'slide-in-left': 'Slide In from Left',
+    fullscreen: 'Full Screen Takeover',
+    notification: 'Corner Notification',
   },
 }
