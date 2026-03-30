@@ -299,6 +299,7 @@ export function TestimonialsSectionForm({ data, onChange }: FormProps<Testimonia
                     <input placeholder="Company" style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.8rem' }} value={item.company || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], company: e.target.value }; set('items', n) }} />
                     <input placeholder="Avatar URL" style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.8rem' }} value={item.avatar || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], avatar: e.target.value }; set('items', n) }} />
                   </div>
+                  <input placeholder="Image URL (screenshot/photo)" style={{ ...inputStyle, padding: '4px 8px', fontSize: '0.8rem' }} value={item.image || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], image: e.target.value }; set('items', n) }} />
                 </div>
               )}
             </div>
