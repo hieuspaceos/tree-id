@@ -846,16 +846,23 @@ function PreviewContactForm({ data }: { data: ContactFormData }) {
 }
 
 function PreviewBanner({ data }: { data: BannerData }) {
-  const colors: Record<string, { bg: string; text: string }> = {
-    info: { bg: '#eff6ff', text: '#1d4ed8' },
-    warning: { bg: '#fffbeb', text: '#92400e' },
-    success: { bg: '#f0fdf4', text: '#166534' },
+  const v = data.variant || 'info'
+  const styles: Record<string, { bg: string; text: string; btn?: string }> = {
+    info: { bg: '#eff6ff', text: '#1d4ed8', btn: '#2563eb' },
+    warning: { bg: '#fffbeb', text: '#92400e', btn: '#d97706' },
+    success: { bg: '#f0fdf4', text: '#166534', btn: '#16a34a' },
+    promo: { bg: 'linear-gradient(135deg, var(--lp-primary), var(--lp-secondary, var(--lp-primary)))', text: '#fff', btn: 'rgba(255,255,255,0.2)' },
+    announcement: { bg: '#1e293b', text: '#f1f5f9', btn: 'var(--lp-primary)' },
+    countdown: { bg: '#fef2f2', text: '#991b1b', btn: '#dc2626' },
+    minimal: { bg: 'var(--lp-surface, #f8fafc)', text: 'var(--lp-text-muted)' },
   }
-  const c = colors[data.variant || 'info']
+  const c = styles[v] || styles.info
   return (
-    <div style={{ background: c.bg, color: c.text, padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', fontSize: '0.8rem', borderRadius: 'var(--lp-radius, 6px)' }}>
-      <span>{data.text}</span>
-      {data.cta && <span style={{ fontWeight: 700, textDecoration: 'underline' }}>{data.cta.text}</span>}
+    <div style={{ background: c.bg, color: c.text, padding: v === 'promo' ? '1rem 1.5rem' : '0.5rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', fontSize: '0.8rem', flexWrap: 'wrap' }}>
+      {data.icon && <span style={{ fontSize: '1.1rem' }}>{data.icon}</span>}
+      <span style={{ fontWeight: v === 'promo' || v === 'countdown' ? 700 : 600 }}>{data.text}</span>
+      {data.subtext && <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>{data.subtext}</span>}
+      {data.cta && <span style={{ fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '4px', background: c.btn, color: v === 'promo' ? '#fff' : '#fff', fontSize: '0.7rem' }}>{data.cta.text}</span>}
     </div>
   )
 }
