@@ -739,7 +739,10 @@ export function GallerySectionForm({ data, onChange }: FormProps<GalleryData>) {
               {isOpen && (
                 <div style={{ padding: '0 0.5rem 0.4rem' }}>
                   <input placeholder="Image URL" style={{ ...inputStyle, marginBottom: '3px', padding: '3px 6px', fontSize: '0.75rem' }} value={img.src} onChange={(e) => { const n = [...images]; n[i] = { ...n[i], src: e.target.value }; set('images', n) }} />
-                  <input placeholder="Alt text" style={{ ...inputStyle, padding: '3px 6px', fontSize: '0.75rem' }} value={img.alt || ''} onChange={(e) => { const n = [...images]; n[i] = { ...n[i], alt: e.target.value }; set('images', n) }} />
+                  <div style={{ display: 'flex', gap: '0.3rem' }}>
+                    <input placeholder="Alt text" style={{ ...inputStyle, flex: 1, padding: '3px 6px', fontSize: '0.75rem' }} value={img.alt || ''} onChange={(e) => { const n = [...images]; n[i] = { ...n[i], alt: e.target.value }; set('images', n) }} />
+                    <input placeholder="Caption" style={{ ...inputStyle, flex: 1, padding: '3px 6px', fontSize: '0.75rem' }} value={img.caption || ''} onChange={(e) => { const n = [...images]; n[i] = { ...n[i], caption: e.target.value }; set('images', n) }} />
+                  </div>
                 </div>
               )}
             </div>
