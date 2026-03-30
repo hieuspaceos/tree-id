@@ -784,26 +784,42 @@ export function MapSectionForm({ data, onChange }: FormProps<MapData>) {
 }
 
 export function RichTextSectionForm({ data, onChange }: FormProps<RichTextData>) {
-  const [mode, setMode] = useState<'edit' | 'preview'>('edit')
+  const [showCode, setShowCode] = useState(false)
   const content = data.content || ''
-  const isHtml = content.includes('<') && content.includes('>')
+
+  // Extract plain text from HTML for quick summary
+  const plainText = content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+  const summary = plainText.slice(0, 120) + (plainText.length > 120 ? '...' : '')
+
   return (
     <>
       {data.heading !== undefined && <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => onChange({ ...data, heading: e.target.value })} /></Field>}
-      <div style={{ display: 'flex', gap: '0.3rem', marginBottom: '0.4rem' }}>
-        <button type="button" onClick={() => setMode('edit')}
-          style={{ padding: '2px 8px', fontSize: '0.7rem', border: 'none', borderRadius: '4px', cursor: 'pointer', background: mode === 'edit' ? '#1e293b' : '#f1f5f9', color: mode === 'edit' ? '#fff' : '#64748b' }}>Edit</button>
-        <button type="button" onClick={() => setMode('preview')}
-          style={{ padding: '2px 8px', fontSize: '0.7rem', border: 'none', borderRadius: '4px', cursor: 'pointer', background: mode === 'preview' ? '#1e293b' : '#f1f5f9', color: mode === 'preview' ? '#fff' : '#64748b' }}>Preview</button>
-        {isHtml && <span style={{ fontSize: '0.6rem', color: '#f59e0b', alignSelf: 'center', marginLeft: '0.3rem' }}>HTML content</span>}
-      </div>
-      {mode === 'edit' ? (
-        <Suspense fallback={<textarea style={{ ...textareaStyle, minHeight: '100px', fontFamily: 'monospace', fontSize: '0.75rem' }} value={content} onChange={(e) => onChange({ ...data, content: e.target.value })} />}>
-          <MarkdocEditor value={content} onChange={(v) => onChange({ ...data, content: v })} />
-        </Suspense>
-      ) : (
-        <div style={{ padding: '0.75rem', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '0.85rem', minHeight: '60px', background: '#fafbfc' }}
-          dangerouslySetInnerHTML={{ __html: content }} />
+
+      {/* Visual preview (default view) — click to see rendered content */}
+      {!showCode && (
+        <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
+          <div style={{ padding: '0.75rem', fontSize: '0.82rem', minHeight: '50px', background: '#fafbfc', lineHeight: 1.5 }}
+            dangerouslySetInnerHTML={{ __html: content }} />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.35rem 0.6rem', background: '#f1f5f9', borderTop: '1px solid #e2e8f0' }}>
+            <span style={{ fontSize: '0.65rem', color: '#94a3b8' }}>{plainText.length} chars</span>
+            <button type="button" onClick={() => setShowCode(true)}
+              style={{ fontSize: '0.68rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>Edit HTML</button>
+          </div>
+        </div>
+      )}
+
+      {/* Code editor (toggle) */}
+      {showCode && (
+        <>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
+            <span style={{ fontSize: '0.7rem', color: '#64748b' }}>HTML Editor</span>
+            <button type="button" onClick={() => setShowCode(false)}
+              style={{ fontSize: '0.68rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>Done</button>
+          </div>
+          <Suspense fallback={<textarea style={{ ...textareaStyle, minHeight: '100px', fontFamily: 'monospace', fontSize: '0.75rem' }} value={content} onChange={(e) => onChange({ ...data, content: e.target.value })} />}>
+            <MarkdocEditor value={content} onChange={(v) => onChange({ ...data, content: v })} />
+          </Suspense>
+        </>
       )}
     </>
   )
