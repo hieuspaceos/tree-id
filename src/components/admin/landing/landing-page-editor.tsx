@@ -430,18 +430,21 @@ export function LandingPageEditor({ slug }: Props) {
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={sectionIds} strategy={verticalListSortingStrategy}>
             {config.sections.map((section, i) => (
-              <LandingSectionCard key={sectionIds[i]} id={sectionIds[i]} section={section} index={i} total={config.sections.length}
+              <div key={sectionIds[i]} id={`section-card-${i}`}>
+              <LandingSectionCard id={sectionIds[i]} section={section} index={i} total={config.sections.length}
                 onChange={(data) => updateSection(i, data)}
                 onMove={(dir) => moveSection(i, dir)}
                 onRemove={() => removeSection(i)}
                 onToggle={(enabled) => toggleSection(i, enabled)}
-                onSelect={() => setSelectedSectionIdx(i)}
+                onSelect={() => setSelectedSectionIdx(prev => prev === i ? null : i)}
+                selected={selectedSectionIdx === i}
                 layoutTargets={layoutOptions.map(lo => ({
                   layoutIndex: lo.index,
                   layoutLabel: `Layout #${lo.index + 1}`,
                   columns: (lo.section.data as any).columns || [1, 1],
                 }))}
                 onMoveToLayout={(layoutIdx, colIdx) => moveToLayout(i, layoutIdx, colIdx)} />
+              </div>
             ))}
           </SortableContext>
         </DndContext>
@@ -541,7 +544,15 @@ export function LandingPageEditor({ slug }: Props) {
             ) : (
               /* Full: React preview for realtime editing */
               <div style={{ width: '100%', minHeight: '100%' }}>
-                <LandingLivePreview sections={config.sections} pageTitle={config.title} design={config.design} selectedSectionIdx={selectedSectionIdx} />
+                <LandingLivePreview sections={config.sections} pageTitle={config.title} design={config.design} selectedSectionIdx={selectedSectionIdx}
+                  onSectionClick={(idx) => {
+                    setSelectedSectionIdx(idx)
+                    // Scroll builder sidebar to the section card
+                    setTimeout(() => {
+                      const card = document.getElementById(`section-card-${idx}`)
+                      card?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                    }, 50)
+                  }} />
               </div>
             )}
           </div>

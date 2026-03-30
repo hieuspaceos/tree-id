@@ -15,6 +15,8 @@ interface Props {
   design?: LandingDesign
   /** Index of section being edited — preview scrolls to and highlights it */
   selectedSectionIdx?: number | null
+  /** Called when user clicks a section in preview — passes original section index */
+  onSectionClick?: (sectionIdx: number) => void
 }
 
 /** Section type to readable label for nav auto-links */
@@ -994,7 +996,7 @@ function renderSection(section: LandingSection, allSections: LandingSection[], p
   }
 }
 
-export function LandingLivePreview({ sections, pageTitle, design, selectedSectionIdx }: Props) {
+export function LandingLivePreview({ sections, pageTitle, design, selectedSectionIdx, onSectionClick }: Props) {
   const enabled = sections.filter(s => s.enabled !== false)
   const navSection = enabled.find(s => s.type === 'nav')
   const footerSection = enabled.find(s => s.type === 'footer')
@@ -1063,7 +1065,7 @@ export function LandingLivePreview({ sections, pageTitle, design, selectedSectio
         .landing-page-root .lp-fade-up{opacity:1!important;transform:none!important}
       `}</style>
       {navSection && (
-        <div id="lp-preview-nav" style={{ ...(isSelected(sections.indexOf(navSection)) ? highlightStyle : {}) }}>
+        <div id="lp-preview-nav" onClick={() => onSectionClick?.(sections.indexOf(navSection))} style={{ cursor: 'pointer', ...(isSelected(sections.indexOf(navSection)) ? highlightStyle : {}) }}>
           <PreviewNav data={navSection.data as NavData} sections={enabled} pageTitle={pageTitle} />
         </div>
       )}
@@ -1078,7 +1080,8 @@ export function LandingLivePreview({ sections, pageTitle, design, selectedSectio
             <div key={`${section.type}-${i}`} id={`section-${section.type}-prev-${origIdx}`}
               data-section={`section-${section.type}`}
               className={classes}
-              style={{ ...sectionInlineStyle(section), ...(isSelected(origIdx) ? highlightStyle : {}) }}>
+              onClick={() => onSectionClick?.(origIdx)}
+              style={{ cursor: 'pointer', ...sectionInlineStyle(section), ...(isSelected(origIdx) ? highlightStyle : {}) }}>
               {/* Background image layer — matches Astro lp-section-bg-img */}
               {hasBgImage && (
                 <div className="lp-section-bg-img" style={{ backgroundImage: `url(${s.backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
@@ -1097,7 +1100,8 @@ export function LandingLivePreview({ sections, pageTitle, design, selectedSectio
         <div id="lp-preview-footer"
           data-section="section-footer"
           className={`lp-full-width ${isDarkSection(footerSection) ? 'lp-dark-section' : ''}`}
-          style={{ ...sectionInlineStyle(footerSection), ...(isSelected(sections.indexOf(footerSection)) ? highlightStyle : {}) }}>
+          onClick={() => onSectionClick?.(sections.indexOf(footerSection))}
+          style={{ cursor: 'pointer', ...sectionInlineStyle(footerSection), ...(isSelected(sections.indexOf(footerSection)) ? highlightStyle : {}) }}>
           <PreviewFooter data={footerSection.data as FooterData} pageTitle={pageTitle} />
         </div>
       )}

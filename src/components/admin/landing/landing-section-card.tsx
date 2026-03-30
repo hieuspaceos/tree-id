@@ -4,7 +4,7 @@
  * Collapsed: drag handle + type label + enabled toggle + remove.
  * Expanded: inline form fields based on section type.
  */
-import { useState } from 'react'
+import 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import type { LandingSection, SectionData } from '@/lib/landing/landing-types'
@@ -22,6 +22,8 @@ interface Props {
   onToggle: (enabled: boolean) => void
   /** Called when section is expanded/selected for editing */
   onSelect?: () => void
+  /** Whether this card is selected (from preview click) — auto-expands when true */
+  selected?: boolean
   /** Available layout columns to move this section into */
   layoutTargets?: Array<{ layoutIndex: number; layoutLabel: string; columns: number[] }>
   onMoveToLayout?: (layoutIndex: number, columnIndex: number) => void
@@ -56,8 +58,8 @@ const TYPE_LABELS: Record<string, string> = {
   layout: 'Layout',
 }
 
-export function LandingSectionCard({ section, index, total, id, onChange, onMove, onRemove, onToggle, onSelect, layoutTargets, onMoveToLayout }: Props) {
-  const [expanded, setExpanded] = useState(false)
+export function LandingSectionCard({ section, index, total, id, onChange, onMove, onRemove, onToggle, onSelect, selected, layoutTargets, onMoveToLayout }: Props) {
+  const expanded = !!selected
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
 
   const FormComponent = sectionFormMap[section.type]
@@ -94,7 +96,7 @@ export function LandingSectionCard({ section, index, total, id, onChange, onMove
           cursor: 'pointer',
           userSelect: 'none',
         }}
-        onClick={() => { setExpanded((e) => !e); if (!expanded) onSelect?.() }}
+        onClick={() => onSelect?.()}
       >
         {/* Drag handle */}
         <span
