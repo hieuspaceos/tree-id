@@ -1,0 +1,149 @@
+/**
+ * Centralized label registry for the landing page editor.
+ * Maps internal type/variant names to user-friendly display labels.
+ * All user-facing strings live here — zero developer jargon shown to users.
+ */
+
+/** User-friendly names for section types */
+export const SECTION_TYPE_LABELS: Record<string, string> = {
+  nav: 'Menu Bar',
+  hero: 'Hero Banner',
+  features: 'Feature Cards',
+  pricing: 'Pricing Plans',
+  testimonials: 'Customer Reviews',
+  faq: 'Questions & Answers',
+  cta: 'Action Banner',
+  stats: 'Key Numbers',
+  'how-it-works': 'Step-by-Step',
+  team: 'Team Members',
+  'logo-wall': 'Partner Logos',
+  footer: 'Page Footer',
+  video: 'Video',
+  image: 'Image',
+  'image-text': 'Image & Text',
+  gallery: 'Photo Gallery',
+  map: 'Map',
+  'rich-text': 'Text Block',
+  divider: 'Spacer',
+  countdown: 'Countdown Timer',
+  'contact-form': 'Contact Form',
+  banner: 'Notice Banner',
+  comparison: 'Comparison Table',
+  'ai-search': 'Smart Search',
+  'social-proof': 'Trust Badge',
+  layout: 'Columns',
+}
+
+/** User-friendly variant labels per section type */
+export const VARIANT_LABELS: Record<string, Record<string, string>> = {
+  hero: {
+    centered: 'Centered',
+    split: 'Text & Image Side by Side',
+    'video-bg': 'Video Background',
+    minimal: 'Text Only',
+    fullscreen: 'Full Screen',
+    slider: 'Slideshow',
+  },
+  features: {
+    grid: 'Card Grid',
+    list: 'Icon + Text Rows',
+    alternating: 'Zigzag Rows',
+    masonry: 'Pinterest-style',
+    'icon-strip': 'Scrollable Icon Bar',
+    bento: 'Bento Grid',
+  },
+  pricing: {
+    cards: 'Side-by-Side Cards',
+    simple: 'Compact Row',
+    'highlight-center': 'Featured Plan in Center',
+    comparison: 'Comparison Table',
+    toggle: 'Monthly / Annual Switch',
+  },
+  testimonials: {
+    cards: 'Quote Cards',
+    carousel: 'Sliding Carousel',
+    single: 'Single Large Quote',
+    minimal: 'Text Only',
+    'quote-wall': 'Quote Gallery',
+    'logo-strip': 'Logos + Featured Quote',
+  },
+  faq: {
+    accordion: 'Expandable (click to open)',
+    'two-column': 'Questions Left, Answers Right',
+    simple: 'All Expanded',
+    searchable: 'With Search Filter',
+  },
+  cta: {
+    default: 'Centered',
+    split: 'Text Left, Button Right',
+    banner: 'Full-Width Gradient',
+    minimal: 'Simple Text Link',
+    'with-image': 'With Background Image',
+    floating: 'Floating Bottom Bar',
+  },
+  stats: {
+    row: 'Horizontal Row',
+    cards: 'Number Cards',
+    large: 'Large Numbers Stacked',
+    counter: 'Animated Count-Up',
+  },
+  'how-it-works': {
+    numbered: 'Numbered Steps',
+    timeline: 'Vertical Timeline',
+    cards: 'Step Cards',
+  },
+  team: {
+    grid: 'Photo Grid',
+    list: 'Horizontal List',
+    compact: 'Names Only',
+  },
+  nav: {
+    default: 'Standard',
+    centered: 'Centered Logo',
+    transparent: 'See-Through',
+    hamburger: 'Mobile Menu',
+    mega: 'Dropdown Panels',
+  },
+  footer: {
+    simple: 'Simple Centered',
+    columns: 'Multi-Column',
+    minimal: 'Copyright Only',
+    mega: 'Full Footer (columns + newsletter)',
+    'centered-social': 'Centered with Social Icons',
+  },
+  gallery: {
+    grid: 'Even Grid',
+    masonry: 'Pinterest-style',
+    carousel: 'Sliding Carousel',
+    lightbox: 'Click to Enlarge',
+    filmstrip: 'Horizontal Strip',
+  },
+  banner: {
+    info: 'Information',
+    warning: 'Warning',
+    success: 'Success',
+    promo: 'Promotion',
+    announcement: 'Announcement',
+    countdown: 'With Timer',
+    minimal: 'Simple',
+  },
+  'social-proof': {
+    inline: 'Inline Text',
+    banner: 'Full-Width Bar',
+  },
+  layout: {
+    grid: 'Custom Grid',
+    'sidebar-left': 'Sidebar on Left',
+    'sidebar-right': 'Sidebar on Right',
+    asymmetric: 'Wide + Narrow',
+    thirds: 'Three Equal Columns',
+    'hero-split': 'Text & Image Side by Side',
+    stacked: 'Full Width (Single Column)',
+    masonry: 'Pinterest-style',
+  },
+  divider: {
+    line: 'Horizontal Line',
+    dots: 'Dotted Line',
+    space: 'Empty Space',
+  },
+}

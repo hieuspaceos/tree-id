@@ -5,17 +5,26 @@
  */
 import type { SectionData, HeroData, FeaturesData, PricingData, TestimonialsData, FaqData, CtaData, StatsData, HowItWorksData, TeamData, LogoWallData, NavData, FooterData, VideoData, ImageData, ImageTextData, GalleryData, MapData, RichTextData, DividerData, CountdownData, ContactFormData, BannerData, ContactFormField, LayoutData, LayoutChild, ComparisonData, AiSearchData, SocialProofData } from '@/lib/landing/landing-types'
 import { IconPicker } from './landing-icon-picker'
-import { lazy, Suspense, useState, useRef } from 'react'
+import { lazy, Suspense, useState } from 'react'
+import { VariantPicker } from './landing-variant-picker'
+import { HelpTip } from './landing-help-tip'
+import { FIELD_HELP } from './landing-help-text'
+import { SECTION_TYPE_LABELS } from './landing-label-maps'
+import { getSmartDefault } from './landing-smart-defaults'
+import { ImageField } from './landing-image-field'
 
 /** Lazy-load MarkdocEditor (CodeMirror) to avoid bundling in main chunk */
 const MarkdocEditor = lazy(() => import('../field-renderers/markdoc-editor'))
 
 type FormProps<T extends SectionData> = { data: T; onChange: (data: T) => void }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, help, children }: { label: string; help?: string; children: React.ReactNode }) {
   return (
     <div style={{ marginBottom: '0.75rem' }}>
-      <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '0.25rem' }}>{label}</label>
+      <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '0.25rem' }}>
+        {label}
+        {help && <HelpTip text={help} />}
+      </label>
       {children}
     </div>
   )
@@ -88,7 +97,7 @@ function CtaListEditor({ cta, onChange }: { cta: unknown; onChange: (v: Array<{ 
   const list: Array<{ text: string; url: string; variant?: string }> = Array.isArray(cta) ? cta : cta ? [cta as { text: string; url: string }] : []
   const update = (i: number, patch: Record<string, string>) => { const n = [...list]; n[i] = { ...n[i], ...patch }; onChange(n) }
   return (
-    <Field label="CTA Buttons">
+    <Field label="Action Buttons">
       {list.map((item, i) => (
         <div key={i} style={{ display: 'flex', gap: '0.3rem', marginBottom: '0.35rem', alignItems: 'center' }}>
           <input style={{ ...inputStyle, flex: 2, padding: '4px 8px', fontSize: '0.8rem' }} value={item.text} placeholder="Button text" onChange={(e) => update(i, { text: e.target.value })} />
@@ -130,26 +139,25 @@ export function HeroSectionForm({ data, onChange }: FormProps<HeroData>) {
   const set = (k: keyof HeroData, v: unknown) => onChange({ ...data, [k]: v })
   return (
     <>
-      <InlineRow>
-        <div style={{ flex: 1 }}><Field label="Headline"><input style={inputStyle} value={data.headline || ''} onChange={(e) => set('headline', e.target.value)} /></Field></div>
-        <div style={{ width: '140px', flexShrink: 0 }}><Field label="Variant">
-          <select style={inputStyle} value={data.variant || 'centered'} onChange={(e) => set('variant', e.target.value)}>
-            <option value="centered">Centered</option>
-            <option value="split">Split</option>
-            <option value="video-bg">Video BG</option>
-            <option value="minimal">Minimal</option>
-          </select>
-        </Field></div>
-      </InlineRow>
-      <Field label="Subheadline"><textarea style={textareaStyle} value={data.subheadline || ''} onChange={(e) => set('subheadline', e.target.value)} /></Field>
+      <Field label="Headline" help={FIELD_HELP['hero.headline']}>
+        <input style={inputStyle} value={data.headline || ''} onChange={(e) => set('headline', e.target.value)} />
+      </Field>
+      <Field label="Subtitle" help={FIELD_HELP['hero.subheadline']}>
+        <textarea style={textareaStyle} value={data.subheadline || ''} onChange={(e) => set('subheadline', e.target.value)} />
+      </Field>
+      <VariantPicker sectionType="hero" value={data.variant || 'centered'} onChange={(v) => set('variant', v)} />
       {data.variant !== 'minimal' && (
         <CtaListEditor cta={data.cta} onChange={(v) => set('cta', v)} />
       )}
       {(data.variant === 'video-bg' || data.variant === 'split') && (
-        <Field label="Background Image URL"><input style={inputStyle} value={data.backgroundImage || ''} onChange={(e) => set('backgroundImage', e.target.value)} placeholder="https://..." /></Field>
+        <Field label="Background Photo" help={FIELD_HELP['hero.backgroundImage']}>
+          <ImageField value={data.backgroundImage || ''} onChange={(v) => set('backgroundImage', v)} uploadPath="hero" placeholder="https://..." />
+        </Field>
       )}
       {(data.variant === 'split' || data.variant === 'centered' || data.variant === 'video-bg') && (
-        <Field label="Embed URL (video/iframe)"><input style={inputStyle} value={data.embed || ''} onChange={(e) => set('embed', e.target.value)} placeholder="https://cdn.example.com/video.mp4 or YouTube embed" /></Field>
+        <Field label="Media URL (video or embed)" help={FIELD_HELP['hero.embed']}>
+          <input style={inputStyle} value={data.embed || ''} onChange={(e) => set('embed', e.target.value)} placeholder="https://cdn.example.com/video.mp4 or YouTube embed" />
+        </Field>
       )}
     </>
   )
@@ -163,17 +171,13 @@ export function FeaturesSectionForm({ data, onChange }: FormProps<FeaturesData>)
     <>
       <InlineRow>
         <div style={{ flex: 1 }}><Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field></div>
-        <div style={{ width: '60px', flexShrink: 0 }}><Field label="Cols">
+        <div style={{ width: '70px', flexShrink: 0 }}><Field label="Columns" help={FIELD_HELP['features.columns']}>
           <select style={inputStyle} value={data.columns || 3} onChange={(e) => set('columns', Number(e.target.value))}>
             <option value={2}>2</option><option value={3}>3</option><option value={4}>4</option>
           </select>
         </Field></div>
-        <div style={{ width: '110px', flexShrink: 0 }}><Field label="Variant">
-          <select style={inputStyle} value={data.variant || 'grid'} onChange={(e) => set('variant', e.target.value)}>
-            <option value="grid">Grid</option><option value="list">List</option><option value="alternating">Alternating</option>
-          </select>
-        </Field></div>
       </InlineRow>
+      <VariantPicker sectionType="features" value={data.variant || 'grid'} onChange={(v) => set('variant', v)} />
       <CollapsibleItems label="Features" count={items.length} defaultOpen
         addButton={<button type="button" onClick={() => set('items', [...items, { title: '', description: '' }])}
           style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Feature</button>}>
@@ -253,17 +257,9 @@ export function PricingSectionForm({ data, onChange }: FormProps<PricingData>) {
   const plans = data.plans || []
   return (
     <>
-      <InlineRow>
-        <div style={{ flex: 1 }}><Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field></div>
-        <div style={{ width: '140px', flexShrink: 0 }}><Field label="Variant">
-          <select style={inputStyle} value={data.variant || 'cards'} onChange={(e) => set('variant', e.target.value)}>
-            <option value="cards">Cards</option>
-            <option value="simple">Simple</option>
-            <option value="highlight-center">Highlight Center</option>
-          </select>
-        </Field></div>
-      </InlineRow>
-      <Field label="Subheading"><input style={inputStyle} value={data.subheading || ''} onChange={(e) => set('subheading', e.target.value)} /></Field>
+      <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
+      <Field label="Subtitle"><input style={inputStyle} value={data.subheading || ''} onChange={(e) => set('subheading', e.target.value)} /></Field>
+      <VariantPicker sectionType="pricing" value={data.variant || 'cards'} onChange={(v) => set('variant', v)} />
       <CollapsibleItems label="Plans" count={plans.length} defaultOpen
         addButton={<button type="button" onClick={() => set('plans', [...plans, { name: '', price: '', features: [], cta: { text: 'Get started', url: '#' } }])}
           style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Plan</button>}>
@@ -281,17 +277,8 @@ export function TestimonialsSectionForm({ data, onChange }: FormProps<Testimonia
   const [openItem, setOpenItem] = useState<number | null>(null)
   return (
     <>
-      <InlineRow>
-        <div style={{ flex: 1 }}><Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field></div>
-        <div style={{ width: '140px', flexShrink: 0 }}><Field label="Variant">
-          <select style={inputStyle} value={data.variant || 'cards'} onChange={(e) => set('variant', e.target.value)}>
-            <option value="cards">Cards</option>
-            <option value="carousel">Carousel</option>
-            <option value="single">Single</option>
-            <option value="minimal">Minimal</option>
-          </select>
-        </Field></div>
-      </InlineRow>
+      <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
+      <VariantPicker sectionType="testimonials" value={data.variant || 'cards'} onChange={(v) => set('variant', v)} />
       <CollapsibleItems label="Testimonials" count={items.length} defaultOpen
         addButton={<button type="button" onClick={() => set('items', [...items, { quote: '', name: '' }])}
           style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Testimonial</button>}>
@@ -313,11 +300,17 @@ export function TestimonialsSectionForm({ data, onChange }: FormProps<Testimonia
                     <input placeholder="Name" style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.8rem' }} value={item.name} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], name: e.target.value }; set('items', n) }} />
                     <input placeholder="Role" style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.8rem' }} value={item.role || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], role: e.target.value }; set('items', n) }} />
                   </div>
-                  <div style={{ display: 'flex', gap: '0.4rem' }}>
+                  <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '4px' }}>
                     <input placeholder="Company" style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.8rem' }} value={item.company || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], company: e.target.value }; set('items', n) }} />
-                    <input placeholder="Avatar URL" style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.8rem' }} value={item.avatar || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], avatar: e.target.value }; set('items', n) }} />
                   </div>
-                  <input placeholder="Image URL (screenshot/photo)" style={{ ...inputStyle, padding: '4px 8px', fontSize: '0.8rem' }} value={item.image || ''} onChange={(e) => { const n = [...items]; n[i] = { ...n[i], image: e.target.value }; set('items', n) }} />
+                  <div style={{ marginBottom: '4px' }}>
+                    <label style={{ display: 'block', fontSize: '0.7rem', color: '#64748b', marginBottom: '2px' }}>Photo (avatar)</label>
+                    <ImageField compact value={item.avatar || ''} onChange={(v) => { const n = [...items]; n[i] = { ...n[i], avatar: v }; set('items', n) }} uploadPath="testimonials" placeholder="Avatar URL" previewSize={32} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.7rem', color: '#64748b', marginBottom: '2px' }}>Screenshot / Photo</label>
+                    <ImageField value={item.image || ''} onChange={(v) => { const n = [...items]; n[i] = { ...n[i], image: v }; set('items', n) }} uploadPath="testimonials" placeholder="Image URL" />
+                  </div>
                 </div>
               )}
             </div>
@@ -333,16 +326,8 @@ export function FaqSectionForm({ data, onChange }: FormProps<FaqData>) {
   const items = data.items || []
   return (
     <>
-      <InlineRow>
-        <div style={{ flex: 1 }}><Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field></div>
-        <div style={{ width: '140px', flexShrink: 0 }}><Field label="Variant">
-          <select style={inputStyle} value={data.variant || 'accordion'} onChange={(e) => set('variant', e.target.value)}>
-            <option value="accordion">Accordion</option>
-            <option value="two-column">Two Column</option>
-            <option value="simple">Simple</option>
-          </select>
-        </Field></div>
-      </InlineRow>
+      <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
+      <VariantPicker sectionType="faq" value={data.variant || 'accordion'} onChange={(v) => set('variant', v)} />
       <CollapsibleItems label="FAQ Items" count={items.length} defaultOpen
         addButton={<button type="button" onClick={() => set('items', [...items, { question: '', answer: '' }])}
           style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add FAQ</button>}>
@@ -363,22 +348,14 @@ export function CtaSectionForm({ data, onChange }: FormProps<CtaData>) {
   const set = (k: keyof CtaData, v: unknown) => onChange({ ...data, [k]: v })
   return (
     <>
-      <InlineRow>
-        <div style={{ flex: 1 }}><Field label="Headline"><input style={inputStyle} value={data.headline || ''} onChange={(e) => set('headline', e.target.value)} /></Field></div>
-        <div style={{ width: '140px', flexShrink: 0 }}><Field label="Variant">
-          <select style={inputStyle} value={data.variant || 'default'} onChange={(e) => set('variant', e.target.value)}>
-            <option value="default">Centered</option>
-            <option value="split">Split</option>
-            <option value="banner">Banner</option>
-            <option value="minimal">Minimal</option>
-            <option value="with-image">With Image</option>
-          </select>
-        </Field></div>
-      </InlineRow>
-      <Field label="Subheadline"><input style={inputStyle} value={data.subheadline || ''} onChange={(e) => set('subheadline', e.target.value)} /></Field>
+      <Field label="Headline"><input style={inputStyle} value={data.headline || ''} onChange={(e) => set('headline', e.target.value)} /></Field>
+      <Field label="Subtitle"><input style={inputStyle} value={data.subheadline || ''} onChange={(e) => set('subheadline', e.target.value)} /></Field>
+      <VariantPicker sectionType="cta" value={data.variant || 'default'} onChange={(v) => set('variant', v)} />
       <CtaListEditor cta={data.cta} onChange={(v) => set('cta', v)} />
       {data.variant === 'with-image' && (
-        <Field label="Background Image URL"><input style={inputStyle} value={data.backgroundImage || ''} onChange={(e) => set('backgroundImage', e.target.value)} placeholder="https://..." /></Field>
+        <Field label="Background Photo" help={FIELD_HELP['cta.backgroundImage']}>
+          <ImageField value={data.backgroundImage || ''} onChange={(v) => set('backgroundImage', v)} uploadPath="cta" placeholder="https://..." />
+        </Field>
       )}
     </>
   )
@@ -389,14 +366,8 @@ export function StatsSectionForm({ data, onChange }: FormProps<StatsData>) {
   const items = data.items || []
   return (
     <>
-      <InlineRow>
-        <div style={{ flex: 1 }}><Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field></div>
-        <div style={{ width: '140px', flexShrink: 0 }}><Field label="Variant">
-          <select style={inputStyle} value={data.variant || 'row'} onChange={(e) => set('variant', e.target.value)}>
-            <option value="row">Row</option><option value="cards">Cards</option><option value="large">Large</option><option value="counter">Counter</option>
-          </select>
-        </Field></div>
-      </InlineRow>
+      <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
+      <VariantPicker sectionType="stats" value={data.variant || 'row'} onChange={(v) => set('variant', v)} />
       <CollapsibleItems label="Stats" count={items.length} defaultOpen
         addButton={<button type="button" onClick={() => set('items', [...items, { value: '', label: '' }])}
           style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Stat</button>}>
@@ -418,14 +389,8 @@ export function HowItWorksSectionForm({ data, onChange }: FormProps<HowItWorksDa
   const items = data.items || []
   return (
     <>
-      <InlineRow>
-        <div style={{ flex: 1 }}><Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field></div>
-        <div style={{ width: '140px', flexShrink: 0 }}><Field label="Variant">
-          <select style={inputStyle} value={data.variant || 'numbered'} onChange={(e) => set('variant', e.target.value)}>
-            <option value="numbered">Numbered</option><option value="timeline">Timeline</option><option value="cards">Cards</option>
-          </select>
-        </Field></div>
-      </InlineRow>
+      <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
+      <VariantPicker sectionType="how-it-works" value={data.variant || 'numbered'} onChange={(v) => set('variant', v)} />
       <CollapsibleItems label="Steps" count={items.length}
         addButton={<button type="button" onClick={() => set('items', [...items, { title: '', description: '' }])}
           style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Step</button>}>
@@ -449,17 +414,9 @@ export function TeamSectionForm({ data, onChange }: FormProps<TeamData>) {
   const members = data.members || []
   return (
     <>
-      <InlineRow>
-        <div style={{ flex: 1 }}><Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field></div>
-        <div style={{ width: '140px', flexShrink: 0 }}><Field label="Variant">
-          <select style={inputStyle} value={data.variant || 'grid'} onChange={(e) => set('variant', e.target.value)}>
-            <option value="grid">Grid</option>
-            <option value="list">List</option>
-            <option value="compact">Compact</option>
-          </select>
-        </Field></div>
-      </InlineRow>
-      <Field label="Subheading"><input style={inputStyle} value={data.subheading || ''} onChange={(e) => set('subheading', e.target.value)} /></Field>
+      <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
+      <Field label="Subtitle"><input style={inputStyle} value={data.subheading || ''} onChange={(e) => set('subheading', e.target.value)} /></Field>
+      <VariantPicker sectionType="team" value={data.variant || 'grid'} onChange={(v) => set('variant', v)} />
       <CollapsibleItems label="Members" count={members.length} defaultOpen
         addButton={<button type="button" onClick={() => set('members', [...members, { name: '', role: '' }])}
           style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Member</button>}>
@@ -467,7 +424,9 @@ export function TeamSectionForm({ data, onChange }: FormProps<TeamData>) {
           <div key={i} style={{ background: '#f8fafc', borderRadius: '8px', padding: '0.75rem', marginBottom: '0.5rem' }}>
             <input placeholder="Name" style={{ ...inputStyle, marginBottom: '4px' }} value={m.name} onChange={(e) => { const n = [...members]; n[i] = { ...n[i], name: e.target.value }; set('members', n) }} />
             <input placeholder="Role" style={{ ...inputStyle, marginBottom: '4px' }} value={m.role} onChange={(e) => { const n = [...members]; n[i] = { ...n[i], role: e.target.value }; set('members', n) }} />
-            <input placeholder="Photo URL" style={{ ...inputStyle, marginBottom: '4px' }} value={m.photo || ''} onChange={(e) => { const n = [...members]; n[i] = { ...n[i], photo: e.target.value }; set('members', n) }} />
+            <div style={{ marginBottom: '4px' }}>
+              <ImageField compact value={m.photo || ''} onChange={(v) => { const n = [...members]; n[i] = { ...n[i], photo: v }; set('members', n) }} uploadPath="team" placeholder="Photo URL" previewSize={32} />
+            </div>
             <textarea placeholder="Bio" style={{ ...textareaStyle, minHeight: '50px' }} value={m.bio || ''} onChange={(e) => { const n = [...members]; n[i] = { ...n[i], bio: e.target.value }; set('members', n) }} />
             <button type="button" onClick={() => set('members', members.filter((_, j) => j !== i))}
               style={{ fontSize: '0.75rem', color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer', marginTop: '4px' }}>Remove</button>
@@ -488,7 +447,9 @@ export function LogoWallSectionForm({ data, onChange }: FormProps<LogoWallData>)
         {logos.map((logo, i) => (
           <div key={i} style={{ background: '#f8fafc', borderRadius: '8px', padding: '0.6rem', marginBottom: '0.5rem' }}>
             <input placeholder="Name" style={{ ...inputStyle, marginBottom: '4px' }} value={logo.name} onChange={(e) => { const n = [...logos]; n[i] = { ...n[i], name: e.target.value }; set('logos', n) }} />
-            <input placeholder="Image URL" style={{ ...inputStyle, marginBottom: '4px' }} value={logo.image || ''} onChange={(e) => { const n = [...logos]; n[i] = { ...n[i], image: e.target.value }; set('logos', n) }} />
+            <div style={{ marginBottom: '4px' }}>
+              <ImageField compact value={logo.image || ''} onChange={(v) => { const n = [...logos]; n[i] = { ...n[i], image: v }; set('logos', n) }} uploadPath="logos" placeholder="Image URL" previewSize={32} />
+            </div>
             <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
               <input placeholder="Link URL" style={{ ...inputStyle, flex: 1 }} value={logo.url || ''} onChange={(e) => { const n = [...logos]; n[i] = { ...n[i], url: e.target.value }; set('logos', n) }} />
               <button type="button" onClick={() => set('logos', logos.filter((_, j) => j !== i))}
@@ -509,19 +470,11 @@ function NavSectionForm({ data, onChange }: FormProps<NavData>) {
   const links = data.links || []
   return (
     <>
-      <InlineRow>
-        <div style={{ flex: 1 }}><Field label="Brand Name"><input style={inputStyle} value={data.brandName || ''} onChange={(e) => set('brandName', e.target.value)} placeholder="Auto-uses page title if empty" /></Field></div>
-        <div style={{ width: '140px', flexShrink: 0 }}><Field label="Variant">
-          <select style={inputStyle} value={data.variant || 'default'} onChange={(e) => set('variant', e.target.value)}>
-            <option value="default">Default</option>
-            <option value="centered">Centered</option>
-            <option value="transparent">Transparent</option>
-            <option value="hamburger">Hamburger</option>
-            <option value="mega">Mega</option>
-          </select>
-        </Field></div>
-      </InlineRow>
-      <Field label="Logo URL"><input style={inputStyle} value={data.logo || ''} onChange={(e) => set('logo', e.target.value)} placeholder="https://example.com/logo.png" /></Field>
+      <Field label="Brand Name"><input style={inputStyle} value={data.brandName || ''} onChange={(e) => set('brandName', e.target.value)} placeholder="Auto-uses page title if empty" /></Field>
+      <VariantPicker sectionType="nav" value={data.variant || 'default'} onChange={(v) => set('variant', v)} />
+      <Field label="Logo" help={FIELD_HELP['nav.logo']}>
+        <ImageField compact value={data.logo || ''} onChange={(v) => set('logo', v)} uploadPath="nav" placeholder="https://example.com/logo.png" previewSize={32} />
+      </Field>
       <CollapsibleItems label="Nav Links" count={links.length} defaultOpen
         addButton={<button type="button" onClick={() => set('links', [...links, { label: '', href: '' }])}
           style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add link</button>}>
@@ -588,16 +541,8 @@ function FooterSectionForm({ data, onChange }: FormProps<FooterData>) {
   const [openCol, setOpenCol] = useState<number | null>(null)
   return (
     <>
-      <InlineRow>
-        <div style={{ flex: 1 }}><Field label="Footer Text"><input style={inputStyle} value={data.text || ''} onChange={(e) => set('text', e.target.value)} placeholder="© 2026 Your Brand" /></Field></div>
-        <div style={{ width: '140px', flexShrink: 0 }}><Field label="Variant">
-          <select style={inputStyle} value={data.variant || 'simple'} onChange={(e) => set('variant', e.target.value)}>
-            <option value="simple">Simple</option>
-            <option value="columns">Columns</option>
-            <option value="minimal">Minimal</option>
-          </select>
-        </Field></div>
-      </InlineRow>
+      <Field label="Footer Text"><input style={inputStyle} value={data.text || ''} onChange={(e) => set('text', e.target.value)} placeholder="© 2026 Your Brand" /></Field>
+      <VariantPicker sectionType="footer" value={data.variant || 'simple'} onChange={(v) => set('variant', v)} />
 
       {/* Column groups editor — shown when variant is columns */}
       {data.variant === 'columns' && (
@@ -689,8 +634,12 @@ export function ImageSectionForm({ data, onChange }: FormProps<ImageData>) {
   const set = (k: keyof ImageData, v: unknown) => onChange({ ...data, [k]: v })
   return (
     <>
-      <Field label="Image URL"><input style={inputStyle} value={data.src || ''} onChange={(e) => set('src', e.target.value)} placeholder="https://..." /></Field>
-      <Field label="Alt Text"><input style={inputStyle} value={data.alt || ''} onChange={(e) => set('alt', e.target.value)} /></Field>
+      <Field label="Image">
+        <ImageField value={data.src || ''} onChange={(v) => set('src', v)} uploadPath="images" placeholder="https://..." />
+      </Field>
+      <Field label="Description (for accessibility)" help={FIELD_HELP['image.alt']}>
+        <input style={inputStyle} value={data.alt || ''} onChange={(e) => set('alt', e.target.value)} />
+      </Field>
       <Field label="Caption"><input style={inputStyle} value={data.caption || ''} onChange={(e) => set('caption', e.target.value)} /></Field>
       <Field label="Full Width">
         <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
@@ -705,8 +654,12 @@ export function ImageTextSectionForm({ data, onChange }: FormProps<ImageTextData
   const set = (k: keyof ImageTextData, v: unknown) => onChange({ ...data, [k]: v })
   return (
     <>
-      <Field label="Image URL"><input style={inputStyle} value={data.image?.src || ''} onChange={(e) => set('image', { ...data.image, src: e.target.value })} placeholder="https://..." /></Field>
-      <Field label="Image Alt"><input style={inputStyle} value={data.image?.alt || ''} onChange={(e) => set('image', { ...data.image, alt: e.target.value })} /></Field>
+      <Field label="Image">
+        <ImageField value={data.image?.src || ''} onChange={(v) => set('image', { ...data.image, src: v })} uploadPath="images" placeholder="https://..." />
+      </Field>
+      <Field label="Image Description">
+        <input style={inputStyle} value={data.image?.alt || ''} onChange={(e) => set('image', { ...data.image, alt: e.target.value })} />
+      </Field>
       <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field>
       <Field label="Text"><textarea style={textareaStyle} value={data.text || ''} onChange={(e) => set('text', e.target.value)} /></Field>
       <Field label="Image Position">
@@ -729,18 +682,13 @@ export function GallerySectionForm({ data, onChange }: FormProps<GalleryData>) {
     <>
       <InlineRow>
         <div style={{ flex: 1 }}><Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => set('heading', e.target.value)} /></Field></div>
-        <div style={{ width: '60px', flexShrink: 0 }}><Field label="Cols">
+        <div style={{ width: '70px', flexShrink: 0 }}><Field label="Columns" help={FIELD_HELP['gallery.columns']}>
           <select style={inputStyle} value={data.columns || 4} onChange={(e) => set('columns', Number(e.target.value))}>
             <option value={2}>2</option><option value={3}>3</option><option value={4}>4</option><option value={5}>5</option>
           </select>
         </Field></div>
-        <div style={{ width: '110px', flexShrink: 0 }}><Field label="Variant">
-          <select style={inputStyle} value={data.variant || 'grid'} onChange={(e) => set('variant', e.target.value)}>
-            <option value="grid">Grid</option><option value="masonry">Masonry</option><option value="carousel">Carousel</option>
-            <option value="lightbox">Lightbox</option><option value="filmstrip">Filmstrip</option>
-          </select>
-        </Field></div>
       </InlineRow>
+      <VariantPicker sectionType="gallery" value={data.variant || 'grid'} onChange={(v) => set('variant', v)} />
       <CollapsibleItems label="Images" count={images.length} defaultOpen
         addButton={<button type="button" onClick={() => set('images', [...images, { src: '', alt: '' }])}
           style={{ fontSize: '0.7rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Image</button>}>
@@ -757,7 +705,9 @@ export function GallerySectionForm({ data, onChange }: FormProps<GalleryData>) {
               </div>
               {isOpen && (
                 <div style={{ padding: '0 0.5rem 0.4rem' }}>
-                  <input placeholder="Image URL" style={{ ...inputStyle, marginBottom: '3px', padding: '3px 6px', fontSize: '0.75rem' }} value={img.src} onChange={(e) => { const n = [...images]; n[i] = { ...n[i], src: e.target.value }; set('images', n) }} />
+                  <div style={{ marginBottom: '3px' }}>
+                    <ImageField compact value={img.src} onChange={(v) => { const n = [...images]; n[i] = { ...n[i], src: v }; set('images', n) }} uploadPath="gallery" placeholder="Image URL" previewSize={32} />
+                  </div>
                   <div style={{ display: 'flex', gap: '0.3rem' }}>
                     <input placeholder="Alt text" style={{ ...inputStyle, flex: 1, padding: '3px 6px', fontSize: '0.75rem' }} value={img.alt || ''} onChange={(e) => { const n = [...images]; n[i] = { ...n[i], alt: e.target.value }; set('images', n) }} />
                     <input placeholder="Caption" style={{ ...inputStyle, flex: 1, padding: '3px 6px', fontSize: '0.75rem' }} value={img.caption || ''} onChange={(e) => { const n = [...images]; n[i] = { ...n[i], caption: e.target.value }; set('images', n) }} />
@@ -783,7 +733,7 @@ export function MapSectionForm({ data, onChange }: FormProps<MapData>) {
   )
 }
 
-type HtmlPart = { type: 'heading' | 'text' | 'button' | 'image'; text: string; href?: string; src?: string; tag?: string; el?: Element }
+type HtmlPart = { type: 'heading' | 'text' | 'button' | 'image' | 'raw'; text: string; href?: string; src?: string; tag?: string; el?: Element }
 
 /** Parse HTML into editable parts using DOMParser (reliable, no regex fragility) */
 function parseHtmlParts(html: string): HtmlPart[] {
@@ -963,14 +913,10 @@ export function DividerSectionForm({ data, onChange }: FormProps<DividerData>) {
   const set = (k: keyof DividerData, v: unknown) => onChange({ ...data, [k]: v })
   return (
     <>
-      <Field label="Style">
-        <select style={inputStyle} value={data.style || 'line'} onChange={(e) => set('style', e.target.value)}>
-          <option value="line">Line</option>
-          <option value="dots">Dots</option>
-          <option value="space">Space only</option>
-        </select>
+      <VariantPicker sectionType="divider" value={data.style || 'line'} onChange={(v) => set('style', v)} />
+      <Field label="Height (px)" help={FIELD_HELP['divider.height']}>
+        <input type="number" style={inputStyle} value={data.height || 40} onChange={(e) => set('height', Number(e.target.value))} />
       </Field>
-      <Field label="Height (px)"><input type="number" style={inputStyle} value={data.height || 40} onChange={(e) => set('height', Number(e.target.value))} /></Field>
     </>
   )
 }
@@ -1009,7 +955,9 @@ export function ContactFormSectionForm({ data, onChange }: FormProps<ContactForm
           style={{ fontSize: '0.75rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Field</button>
       </Field>
       <Field label="Submit Button Text"><input style={inputStyle} value={data.submitText || ''} onChange={(e) => set('submitText', e.target.value)} placeholder="Send Message" /></Field>
-      <Field label="Submit URL"><input style={inputStyle} value={data.submitUrl || ''} onChange={(e) => set('submitUrl', e.target.value)} placeholder="/api/contact" /></Field>
+      <Field label="Form Handler URL" help={FIELD_HELP['contact-form.submitUrl']}>
+        <input style={inputStyle} value={data.submitUrl || ''} onChange={(e) => set('submitUrl', e.target.value)} placeholder="/api/contact" />
+      </Field>
     </>
   )
 }
@@ -1018,25 +966,18 @@ export function BannerSectionForm({ data, onChange }: FormProps<BannerData>) {
   const set = (k: keyof BannerData, v: unknown) => onChange({ ...data, [k]: v })
   return (
     <>
-      <InlineRow>
-        <div style={{ flex: 1 }}><Field label="Text"><input style={inputStyle} value={data.text || ''} onChange={(e) => set('text', e.target.value)} placeholder="Announcement text..." /></Field></div>
-        <div style={{ width: '130px', flexShrink: 0 }}><Field label="Variant">
-          <select style={inputStyle} value={data.variant || 'info'} onChange={(e) => set('variant', e.target.value)}>
-            <option value="info">Info</option><option value="warning">Warning</option><option value="success">Success</option>
-            <option value="promo">Promo</option><option value="announcement">Announce</option><option value="countdown">Countdown</option><option value="minimal">Minimal</option>
-          </select>
-        </Field></div>
-      </InlineRow>
+      <Field label="Text"><input style={inputStyle} value={data.text || ''} onChange={(e) => set('text', e.target.value)} placeholder="Announcement text..." /></Field>
+      <VariantPicker sectionType="banner" value={data.variant || 'info'} onChange={(v) => set('variant', v)} />
       <InlineRow>
         <div style={{ width: '40px', flexShrink: 0 }}><IconPicker value={data.icon || ''} onChange={(v) => set('icon', v)} compact /></div>
         <div style={{ flex: 1 }}><Field label="Subtext"><input style={inputStyle} value={data.subtext || ''} onChange={(e) => set('subtext', e.target.value)} placeholder="Optional secondary text" /></Field></div>
       </InlineRow>
       <InlineRow>
-        <div style={{ flex: 1 }}><Field label="CTA Text"><input style={inputStyle} value={data.cta?.text || ''} onChange={(e) => set('cta', { ...data.cta, text: e.target.value, url: data.cta?.url || '#' })} /></Field></div>
-        <div style={{ flex: 1 }}><Field label="CTA URL"><input style={inputStyle} value={data.cta?.url || ''} onChange={(e) => set('cta', { ...data.cta, url: e.target.value, text: data.cta?.text || 'Learn more' })} /></Field></div>
-        <div style={{ width: '80px', flexShrink: 0 }}><Field label="Dismiss">
+        <div style={{ flex: 1 }}><Field label="Action Button Text"><input style={inputStyle} value={data.cta?.text || ''} onChange={(e) => set('cta', { ...data.cta, text: e.target.value, url: data.cta?.url || '#' })} /></Field></div>
+        <div style={{ flex: 1 }}><Field label="Action Button URL"><input style={inputStyle} value={data.cta?.url || ''} onChange={(e) => set('cta', { ...data.cta, url: e.target.value, text: data.cta?.text || 'Learn more' })} /></Field></div>
+        <div style={{ width: '90px', flexShrink: 0 }}><Field label="Closeable" help={FIELD_HELP['banner.dismissible']}>
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', cursor: 'pointer' }}>
-            <input type="checkbox" checked={!!data.dismissible} onChange={(e) => set('dismissible', e.target.checked)} /> ×
+            <input type="checkbox" checked={!!data.dismissible} onChange={(e) => set('dismissible', e.target.checked)} /> Show ×
           </label>
         </Field></div>
       </InlineRow>
@@ -1067,44 +1008,9 @@ const NESTED_SECTION_TYPES = [
   'comparison', 'ai-search', 'social-proof',
 ] as const
 
-/** Minimal defaults for nested sections added via layout column */
+/** Nested section default — delegates to smart defaults for rich placeholders */
 function nestedSectionDefault(type: string): SectionData {
-  const map: Record<string, SectionData> = {
-    hero: { headline: 'Headline', subheadline: '', cta: { text: 'Get Started', url: '#' } },
-    features: { heading: 'Features', items: [{ title: 'Feature', description: '' }] },
-    pricing: { heading: 'Pricing', plans: [] },
-    testimonials: { heading: '', items: [] },
-    faq: { heading: '', items: [] },
-    cta: { headline: 'Call to action', cta: { text: 'Get Started', url: '#' } },
-    stats: { items: [{ value: '', label: '' }] },
-    'how-it-works': { heading: '', items: [] },
-    team: { heading: '', members: [] },
-    'logo-wall': { logos: [] },
-    video: { url: '' },
-    image: { src: '', alt: '' },
-    'image-text': { image: { src: '' }, text: '', imagePosition: 'left' },
-    gallery: { images: [] },
-    map: { address: '' },
-    'rich-text': { content: '' },
-    divider: { style: 'line', height: 40 },
-    countdown: { targetDate: '', heading: '' },
-    'contact-form': { heading: '', fields: [], submitText: 'Send' },
-    banner: { text: '', variant: 'info' },
-    comparison: { heading: '', columns: [{ label: '' }], rows: [] },
-    'ai-search': { placeholder: '', thinkingText: '', resultsHeader: '', hints: [], defaultSuggestions: [], intents: [] },
-    'social-proof': { text: '', variant: 'inline' },
-  }
-  return map[type] || ({} as SectionData)
-}
-
-/** Section type labels for display in layout column list */
-const SECTION_LABELS: Record<string, string> = {
-  hero: 'Hero', features: 'Features', pricing: 'Pricing', testimonials: 'Testimonials',
-  faq: 'FAQ', cta: 'CTA', stats: 'Stats', 'how-it-works': 'How It Works',
-  team: 'Team', 'logo-wall': 'Logo Wall', video: 'Video', image: 'Image',
-  'image-text': 'Image+Text', gallery: 'Gallery', map: 'Map', 'rich-text': 'Rich Text',
-  divider: 'Divider', countdown: 'Countdown', 'contact-form': 'Contact Form', banner: 'Banner',
-  comparison: 'Comparison', 'ai-search': 'AI Search', 'social-proof': 'Social Proof',
+  return getSmartDefault(type as any)
 }
 
 export function LayoutSectionForm({ data, onChange }: FormProps<LayoutData>) {
@@ -1177,40 +1083,36 @@ export function LayoutSectionForm({ data, onChange }: FormProps<LayoutData>) {
           }
         }
         return (
-          <InlineRow>
-            <div style={{ flex: 1 }}>
-              {isFixed ? (
-                <Field label="Columns">
-                  <div style={{ padding: '5px 10px', background: '#f1f5f9', borderRadius: '6px', fontSize: '0.78rem', color: '#64748b' }}>
-                    {fixedVariants[v].desc} <span style={{ fontSize: '0.65rem', color: '#94a3b8' }}>(fixed by variant)</span>
-                  </div>
-                </Field>
-              ) : (
-                <Field label="Columns">
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px' }}>
-                    {LAYOUT_PRESETS.map(p => {
-                      const active = p.cols.join(',') === columns.join(',')
-                      return (
-                        <button key={p.label} type="button" onClick={() => setColumns(p.cols)}
-                          style={{ padding: '2px 7px', borderRadius: '4px', border: `1px solid ${active ? '#3b82f6' : '#e2e8f0'}`, background: active ? '#eff6ff' : 'white', color: active ? '#1d4ed8' : '#64748b', fontSize: '0.68rem', cursor: 'pointer', fontWeight: active ? 600 : 400 }}
-                        >{p.label}</button>
-                      )
-                    })}
-                  </div>
-                </Field>
-              )}
-            </div>
-            <div style={{ width: '120px', flexShrink: 0 }}><Field label="Variant">
-              <select style={inputStyle} value={v} onChange={(e) => handleVariantChange(e.target.value)}>
-                <option value="grid">Grid</option><option value="sidebar-left">Sidebar L</option><option value="sidebar-right">Sidebar R</option>
-                <option value="asymmetric">Asymmetric</option><option value="thirds">Thirds</option><option value="hero-split">Hero Split</option>
-                <option value="stacked">Stacked</option><option value="masonry">Masonry</option>
-              </select>
-            </Field></div>
-            <div style={{ width: '70px', flexShrink: 0 }}><Field label="Gap">
-              <input style={inputStyle} value={gap} onChange={(e) => onChange({ ...data, gap: e.target.value })} placeholder="1rem" />
-            </Field></div>
-          </InlineRow>
+          <>
+            <VariantPicker sectionType="layout" value={v} onChange={handleVariantChange} />
+            <InlineRow>
+              <div style={{ flex: 1 }}>
+                {isFixed ? (
+                  <Field label="Columns" help={FIELD_HELP['layout.columns']}>
+                    <div style={{ padding: '5px 10px', background: '#f1f5f9', borderRadius: '6px', fontSize: '0.78rem', color: '#64748b' }}>
+                      {fixedVariants[v].desc} <span style={{ fontSize: '0.65rem', color: '#94a3b8' }}>(fixed by style)</span>
+                    </div>
+                  </Field>
+                ) : (
+                  <Field label="Columns" help={FIELD_HELP['layout.columns']}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px' }}>
+                      {LAYOUT_PRESETS.map(p => {
+                        const active = p.cols.join(',') === columns.join(',')
+                        return (
+                          <button key={p.label} type="button" onClick={() => setColumns(p.cols)}
+                            style={{ padding: '2px 7px', borderRadius: '4px', border: `1px solid ${active ? '#3b82f6' : '#e2e8f0'}`, background: active ? '#eff6ff' : 'white', color: active ? '#1d4ed8' : '#64748b', fontSize: '0.68rem', cursor: 'pointer', fontWeight: active ? 600 : 400 }}
+                          >{p.label}</button>
+                        )
+                      })}
+                    </div>
+                  </Field>
+                )}
+              </div>
+              <div style={{ width: '70px', flexShrink: 0 }}><Field label="Spacing" help={FIELD_HELP['layout.gap']}>
+                <input style={inputStyle} value={gap} onChange={(e) => onChange({ ...data, gap: e.target.value })} placeholder="1rem" />
+              </Field></div>
+            </InlineRow>
+          </>
         )
       })()}
       {columns.map((_, colIdx) => {
@@ -1232,7 +1134,7 @@ export function LayoutSectionForm({ data, onChange }: FormProps<LayoutData>) {
                     <div onClick={() => setEditingNested(isEditing ? null : key)}
                       style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.35rem 0.5rem', cursor: 'pointer', userSelect: 'none' }}>
                       <span style={{ fontSize: '0.55rem', color: '#94a3b8', transform: isEditing ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s' }}>▶</span>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#1e293b', flex: 1 }}>{SECTION_LABELS[s.type] || s.type}</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#1e293b', flex: 1 }}>{SECTION_TYPE_LABELS[s.type] || s.type}</span>
                       <button type="button" onClick={(e) => { e.stopPropagation(); removeNestedSection(colIdx, si) }}
                         style={{ padding: '2px 5px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '0.6rem' }}>×</button>
                     </div>
@@ -1251,7 +1153,7 @@ export function LayoutSectionForm({ data, onChange }: FormProps<LayoutData>) {
                     style={{ padding: '2px 6px', fontSize: '0.6rem', border: '1px solid #e2e8f0', borderRadius: '4px', background: 'white', cursor: 'pointer', color: '#475569' }}
                     onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.background = '#eff6ff' }}
                     onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = 'white' }}
-                  >{SECTION_LABELS[t] || t}</button>
+                  >{SECTION_TYPE_LABELS[t] || t}</button>
                 ))}
               </div>
             </div>
@@ -1343,12 +1245,7 @@ export function SocialProofSectionForm({ data, onChange }: FormProps<SocialProof
       <Field label="Text"><input style={inputStyle} value={data.text || ''} onChange={(e) => set('text', e.target.value)} placeholder="Trusted by 100+ businesses" /></Field>
       <Field label="Icon"><IconPicker value={data.icon || ''} onChange={(v) => set('icon', v)} placeholder="🚀" /></Field>
       <Field label="Link URL (optional)"><input style={inputStyle} value={data.link || ''} onChange={(e) => set('link', e.target.value)} placeholder="https://..." /></Field>
-      <Field label="Variant">
-        <select style={inputStyle} value={data.variant || 'inline'} onChange={(e) => set('variant', e.target.value)}>
-          <option value="inline">Inline</option>
-          <option value="banner">Banner</option>
-        </select>
-      </Field>
+      <VariantPicker sectionType="social-proof" value={data.variant || 'inline'} onChange={(v) => set('variant', v)} />
     </>
   )
 }

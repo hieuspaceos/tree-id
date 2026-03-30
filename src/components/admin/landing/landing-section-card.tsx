@@ -9,6 +9,7 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import type { LandingSection, SectionData } from '@/lib/landing/landing-types'
 import { sectionFormMap } from './landing-section-forms'
+import { SECTION_TYPE_LABELS } from './landing-label-maps'
 
 interface Props {
   section: LandingSection
@@ -29,41 +30,12 @@ interface Props {
   onMoveToLayout?: (layoutIndex: number, columnIndex: number) => void
 }
 
-const TYPE_LABELS: Record<string, string> = {
-  nav: 'Navigation',
-  hero: 'Hero',
-  features: 'Features',
-  pricing: 'Pricing',
-  testimonials: 'Testimonials',
-  faq: 'FAQ',
-  cta: 'Call to Action',
-  stats: 'Stats',
-  'how-it-works': 'How It Works',
-  team: 'Team',
-  'logo-wall': 'Logo Wall',
-  footer: 'Footer',
-  video: 'Video',
-  image: 'Image',
-  'image-text': 'Image + Text',
-  gallery: 'Gallery',
-  map: 'Map',
-  'rich-text': 'Rich Text',
-  divider: 'Divider',
-  countdown: 'Countdown',
-  'contact-form': 'Contact Form',
-  banner: 'Banner',
-  comparison: 'Comparison',
-  'ai-search': 'AI Search',
-  'social-proof': 'Social Proof',
-  layout: 'Layout',
-}
-
 export function LandingSectionCard({ section, index, total, id, onChange, onMove, onRemove, onToggle, onSelect, selected, layoutTargets, onMoveToLayout }: Props) {
   const expanded = !!selected
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
 
   const FormComponent = sectionFormMap[section.type]
-  const label = TYPE_LABELS[section.type] || section.type
+  const label = SECTION_TYPE_LABELS[section.type] || section.type
 
   const style = {
     transform: CSS.Transform.toString(transform),

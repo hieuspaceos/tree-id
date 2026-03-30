@@ -13,86 +13,55 @@ import { LandingSectionCard } from './landing-section-card'
 import { LandingLivePreview } from './landing-live-preview'
 import { LandingDesignPanel } from './landing-design-panel'
 import { LandingCloneModal } from './landing-clone-modal'
+import { getSmartDefault } from './landing-smart-defaults'
 
 interface Props { slug?: string }
 
 /** Section type metadata grouped by category for the picker */
 interface SectionCatalogItem { type: SectionType; label: string; icon: string; desc: string }
 const SECTION_GROUPS: Array<{ group: string; items: SectionCatalogItem[] }> = [
-  { group: 'Structure', items: [
-    { type: 'nav', label: 'Nav', icon: '🧭', desc: 'Sticky navigation bar' },
-    { type: 'hero', label: 'Hero', icon: '🎯', desc: 'Main headline + CTA' },
-    { type: 'footer', label: 'Footer', icon: '📄', desc: 'Page footer' },
-    { type: 'divider', label: 'Divider', icon: '➖', desc: 'Section separator' },
-    { type: 'layout', label: 'Layout', icon: '⬜', desc: 'Column grid with nested sections' },
+  { group: 'Building Blocks', items: [
+    { type: 'nav', label: 'Menu Bar', icon: '🧭', desc: 'Navigation bar that sticks to the top with your brand name and links.' },
+    { type: 'hero', label: 'Hero Banner', icon: '🎯', desc: 'The first thing visitors see — headline, description, and action button.' },
+    { type: 'footer', label: 'Page Footer', icon: '📄', desc: 'Bottom of the page with links, copyright, and social icons.' },
+    { type: 'divider', label: 'Spacer', icon: '➖', desc: 'Visual separator between sections — a line, dots, or empty space.' },
+    { type: 'layout', label: 'Columns', icon: '⬜', desc: 'Create multi-column layouts and nest other sections inside each column.' },
   ]},
-  { group: 'Content', items: [
-    { type: 'features', label: 'Features', icon: '✨', desc: 'Feature grid cards' },
-    { type: 'how-it-works', label: 'How It Works', icon: '🔄', desc: 'Step-by-step process' },
-    { type: 'stats', label: 'Stats', icon: '📊', desc: 'Key numbers' },
-    { type: 'team', label: 'Team', icon: '👥', desc: 'Team members' },
-    { type: 'faq', label: 'FAQ', icon: '❓', desc: 'Questions & answers' },
-    { type: 'rich-text', label: 'Rich Text', icon: '📝', desc: 'Free-form Markdown or HTML content' },
+  { group: 'Information', items: [
+    { type: 'features', label: 'Feature Cards', icon: '✨', desc: 'Show what your product offers using cards with icons and descriptions.' },
+    { type: 'how-it-works', label: 'Step-by-Step', icon: '🔄', desc: 'Walk visitors through your process step by step.' },
+    { type: 'stats', label: 'Key Numbers', icon: '📊', desc: 'Display impressive numbers — users, uptime, countries, ratings.' },
+    { type: 'team', label: 'Team Members', icon: '👥', desc: 'Introduce your team with photos, roles, and short bios.' },
+    { type: 'faq', label: 'Questions & Answers', icon: '❓', desc: 'Answer common questions. Visitors can expand each to read the answer.' },
+    { type: 'rich-text', label: 'Text Block', icon: '📝', desc: 'Write anything in Markdown — articles, policies, or custom content.' },
   ]},
-  { group: 'Conversion', items: [
-    { type: 'cta', label: 'CTA', icon: '🚀', desc: 'Call to action banner' },
-    { type: 'pricing', label: 'Pricing', icon: '💰', desc: 'Pricing plans' },
-    { type: 'testimonials', label: 'Testimonials', icon: '💬', desc: 'Customer quotes' },
-    { type: 'logo-wall', label: 'Logo Wall', icon: '🏢', desc: 'Partner/client logos' },
-    { type: 'banner', label: 'Banner', icon: '📣', desc: 'Announcement banner' },
-    { type: 'countdown', label: 'Countdown', icon: '⏱', desc: 'Countdown timer' },
-    { type: 'contact-form', label: 'Contact', icon: '📬', desc: 'Contact form with fields' },
-    { type: 'comparison', label: 'Comparison', icon: '⚖️', desc: 'Side-by-side comparison table' },
-    { type: 'ai-search', label: 'AI Search', icon: '🔍', desc: 'AI-powered product search input' },
-    { type: 'social-proof', label: 'Social Proof', icon: '🏅', desc: 'Short trust/proof line' },
+  { group: 'Engagement', items: [
+    { type: 'cta', label: 'Action Banner', icon: '🚀', desc: 'A bold section encouraging visitors to sign up, buy, or contact you.' },
+    { type: 'pricing', label: 'Pricing Plans', icon: '💰', desc: 'Display your pricing plans side by side for easy comparison.' },
+    { type: 'testimonials', label: 'Customer Reviews', icon: '💬', desc: 'Show what your customers are saying with quotes and names.' },
+    { type: 'logo-wall', label: 'Partner Logos', icon: '🏢', desc: 'Show logos of partners, clients, or media that featured you.' },
+    { type: 'banner', label: 'Notice Banner', icon: '📣', desc: 'An announcement bar — for sales, news, warnings, or promotions.' },
+    { type: 'countdown', label: 'Countdown Timer', icon: '⏱', desc: 'A ticking countdown to a deadline — great for launches and limited offers.' },
+    { type: 'contact-form', label: 'Contact Form', icon: '📬', desc: 'A form where visitors can send you a message directly.' },
+    { type: 'comparison', label: 'Comparison Table', icon: '⚖️', desc: 'Compare features side by side — you vs competitors.' },
+    { type: 'ai-search', label: 'Smart Search', icon: '🔍', desc: 'A search box that suggests products or services as visitors type.' },
+    { type: 'social-proof', label: 'Trust Badge', icon: '🏅', desc: 'A short trust line like "Trusted by 100+ businesses" — builds credibility.' },
   ]},
-  { group: 'Media', items: [
-    { type: 'video', label: 'Video', icon: '🎬', desc: 'YouTube/Vimeo embed' },
-    { type: 'image', label: 'Image', icon: '🖼', desc: 'Single image block' },
-    { type: 'image-text', label: 'Img+Text', icon: '📰', desc: '50/50 image and text split' },
-    { type: 'gallery', label: 'Gallery', icon: '🗃', desc: 'Responsive image grid' },
-    { type: 'map', label: 'Map', icon: '📍', desc: 'Embedded Google Maps' },
+  { group: 'Images & Video', items: [
+    { type: 'video', label: 'Video', icon: '🎬', desc: 'Embed a YouTube or Vimeo video directly in your page.' },
+    { type: 'image', label: 'Image', icon: '🖼', desc: 'A single image, optionally full-width with a caption.' },
+    { type: 'image-text', label: 'Image & Text', icon: '📰', desc: 'An image on one side and text on the other — great for storytelling.' },
+    { type: 'gallery', label: 'Photo Gallery', icon: '🗃', desc: 'A responsive grid of photos that visitors can click to enlarge.' },
+    { type: 'map', label: 'Map', icon: '📍', desc: 'Embed a Google Map showing your location or office address.' },
   ]},
 ]
 const SECTION_CATALOG = SECTION_GROUPS.flatMap(g => g.items)
 const SECTION_TYPES: SectionType[] = SECTION_CATALOG.map(s => s.type)
 
-function defaultSectionData(type: SectionType): SectionData {
-  const defaults: Record<string, SectionData> = {
-    nav: { brandName: '', links: [] },
-    hero: { headline: 'Your Headline Here', subheadline: 'A short description', cta: { text: 'Get Started', url: '#' } },
-    features: { heading: 'Features', items: [{ title: 'Feature 1', description: 'Description' }] },
-    pricing: { heading: 'Pricing', plans: [] },
-    testimonials: { heading: 'What customers say', items: [] },
-    faq: { heading: 'Frequently Asked Questions', items: [] },
-    cta: { headline: 'Ready to get started?', cta: { text: 'Sign up free', url: '#' } },
-    stats: { items: [{ value: '10k+', label: 'Users' }] },
-    'how-it-works': { heading: 'How It Works', items: [] },
-    team: { heading: 'Meet the team', members: [] },
-    'logo-wall': { logos: [] },
-    footer: { text: '', links: [] },
-    video: { url: '' },
-    image: { src: '', alt: '' },
-    'image-text': { image: { src: '' }, text: '', imagePosition: 'left' },
-    gallery: { images: [] },
-    map: { address: '' },
-    'rich-text': { content: '## Your content here\n\nStart writing in Markdown...' },
-    divider: { style: 'line', height: 40 },
-    countdown: { targetDate: '', heading: 'Offer ends in' },
-    'contact-form': { heading: 'Contact Us', fields: [{ label: 'Name', type: 'text' }, { label: 'Email', type: 'email' }, { label: 'Message', type: 'textarea' }], submitText: 'Send Message' },
-    banner: { text: 'Announcement goes here', variant: 'info' },
-    comparison: { heading: 'Comparison', columns: [{ label: 'Us' }, { label: 'Others' }], rows: [{ label: 'Price', values: ['Free', 'Paid'], highlight: true }] },
-    'ai-search': { placeholder: 'Describe what you need...', thinkingText: 'Analyzing...', resultsHeader: 'Suggestions', hints: [], defaultSuggestions: [], intents: [] },
-    'social-proof': { text: 'Trusted by 100+ businesses', variant: 'inline' },
-    layout: { columns: [1, 1], gap: '1rem', children: [] },
-  }
-  return defaults[type] || {} as SectionData
-}
-
 /** Default sections for new landing pages — nav at top, footer at bottom */
 const DEFAULT_NEW_SECTIONS: LandingSection[] = [
-  { type: 'nav', order: -1, enabled: true, data: defaultSectionData('nav') },
-  { type: 'footer', order: 999, enabled: true, data: defaultSectionData('footer') },
+  { type: 'nav', order: -1, enabled: true, data: getSmartDefault('nav') },
+  { type: 'footer', order: 999, enabled: true, data: getSmartDefault('footer') },
 ]
 
 export function LandingPageEditor({ slug }: Props) {
@@ -170,7 +139,7 @@ export function LandingPageEditor({ slug }: Props) {
 
   function addSection(type?: SectionType) {
     const t = type || newType
-    const section: LandingSection = { type: t, order: config.sections.length, enabled: true, data: defaultSectionData(t) }
+    const section: LandingSection = { type: t, order: config.sections.length, enabled: true, data: getSmartDefault(t) }
     setConfig((c) => ({ ...c, sections: [...c.sections, section] }))
   }
 
