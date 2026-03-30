@@ -784,12 +784,28 @@ export function MapSectionForm({ data, onChange }: FormProps<MapData>) {
 }
 
 export function RichTextSectionForm({ data, onChange }: FormProps<RichTextData>) {
+  const [mode, setMode] = useState<'edit' | 'preview'>('edit')
+  const content = data.content || ''
+  const isHtml = content.includes('<') && content.includes('>')
   return (
-    <Field label="Content (Markdown)">
-      <Suspense fallback={<textarea style={{ ...textareaStyle, minHeight: '120px', fontFamily: 'monospace' }} value={data.content || ''} onChange={(e) => onChange({ ...data, content: e.target.value })} placeholder="Loading editor..." />}>
-        <MarkdocEditor value={data.content || ''} onChange={(v) => onChange({ ...data, content: v })} />
-      </Suspense>
-    </Field>
+    <>
+      {data.heading !== undefined && <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => onChange({ ...data, heading: e.target.value })} /></Field>}
+      <div style={{ display: 'flex', gap: '0.3rem', marginBottom: '0.4rem' }}>
+        <button type="button" onClick={() => setMode('edit')}
+          style={{ padding: '2px 8px', fontSize: '0.7rem', border: 'none', borderRadius: '4px', cursor: 'pointer', background: mode === 'edit' ? '#1e293b' : '#f1f5f9', color: mode === 'edit' ? '#fff' : '#64748b' }}>Edit</button>
+        <button type="button" onClick={() => setMode('preview')}
+          style={{ padding: '2px 8px', fontSize: '0.7rem', border: 'none', borderRadius: '4px', cursor: 'pointer', background: mode === 'preview' ? '#1e293b' : '#f1f5f9', color: mode === 'preview' ? '#fff' : '#64748b' }}>Preview</button>
+        {isHtml && <span style={{ fontSize: '0.6rem', color: '#f59e0b', alignSelf: 'center', marginLeft: '0.3rem' }}>HTML content</span>}
+      </div>
+      {mode === 'edit' ? (
+        <Suspense fallback={<textarea style={{ ...textareaStyle, minHeight: '100px', fontFamily: 'monospace', fontSize: '0.75rem' }} value={content} onChange={(e) => onChange({ ...data, content: e.target.value })} />}>
+          <MarkdocEditor value={content} onChange={(v) => onChange({ ...data, content: v })} />
+        </Suspense>
+      ) : (
+        <div style={{ padding: '0.75rem', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '0.85rem', minHeight: '60px', background: '#fafbfc' }}
+          dangerouslySetInnerHTML={{ __html: content }} />
+      )}
+    </>
   )
 }
 
