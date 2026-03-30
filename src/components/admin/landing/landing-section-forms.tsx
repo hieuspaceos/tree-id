@@ -90,16 +90,34 @@ function CtaListEditor({ cta, onChange }: { cta: unknown; onChange: (v: Array<{ 
   return (
     <Field label="CTA Buttons">
       {list.map((item, i) => (
-        <div key={i} style={{ display: 'flex', gap: '0.35rem', marginBottom: '0.35rem', alignItems: 'center' }}>
-          <input style={{ ...inputStyle, flex: 2 }} value={item.text} placeholder="Button text" onChange={(e) => update(i, { text: e.target.value })} />
-          <input style={{ ...inputStyle, flex: 2 }} value={item.url} placeholder="/page or #section" onChange={(e) => update(i, { url: e.target.value })} />
-          <select style={{ ...inputStyle, flex: 1 }} value={item.variant || (i === 0 ? 'primary' : 'secondary')} onChange={(e) => update(i, { variant: e.target.value })}>
+        <div key={i} style={{ display: 'flex', gap: '0.3rem', marginBottom: '0.35rem', alignItems: 'center' }}>
+          <input style={{ ...inputStyle, flex: 2, padding: '4px 8px', fontSize: '0.8rem' }} value={item.text} placeholder="Button text" onChange={(e) => update(i, { text: e.target.value })} />
+          <select style={{ ...inputStyle, width: '85px', flexShrink: 0, padding: '4px 4px', fontSize: '0.72rem', color: item.url?.startsWith('#') ? '#3b82f6' : '#64748b' }}
+            value={item.url?.startsWith('#section-') ? item.url : '_custom'}
+            onChange={(e) => {
+              const v = e.target.value
+              if (v === '_custom') update(i, { url: '' })
+              else update(i, { url: v, text: item.text || v.replace('#section-', '').replace(/-/g, ' ').replace(/\b\w/g, ch => ch.toUpperCase()) })
+            }}>
+            <option value="_custom">URL...</option>
+            <option value="#section-hero">→ Hero</option>
+            <option value="#section-features">→ Features</option>
+            <option value="#section-pricing">→ Pricing</option>
+            <option value="#section-testimonials">→ Testimonials</option>
+            <option value="#section-faq">→ FAQ</option>
+            <option value="#section-stats">→ Stats</option>
+            <option value="#section-contact-form">→ Contact</option>
+          </select>
+          {!item.url?.startsWith('#section-') && (
+            <input style={{ ...inputStyle, flex: 2, padding: '4px 8px', fontSize: '0.8rem' }} value={item.url} placeholder="https://..." onChange={(e) => update(i, { url: e.target.value })} />
+          )}
+          <select style={{ ...inputStyle, width: '75px', flexShrink: 0, padding: '4px 4px', fontSize: '0.72rem' }} value={item.variant || (i === 0 ? 'primary' : 'secondary')} onChange={(e) => update(i, { variant: e.target.value })}>
             <option value="primary">Primary</option>
-            <option value="secondary">Secondary</option>
+            <option value="secondary">2nd</option>
             <option value="outline">Outline</option>
           </select>
           <button type="button" onClick={() => onChange(list.filter((_, j) => j !== i))}
-            style={{ padding: '2px 6px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>×</button>
+            style={{ padding: '2px 5px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.7rem' }}>×</button>
         </div>
       ))}
       <button type="button" onClick={() => onChange([...list, { text: 'Button', url: '#', variant: list.length === 0 ? 'primary' : 'secondary' }])}
