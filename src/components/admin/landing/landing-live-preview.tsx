@@ -743,7 +743,7 @@ function PreviewGallery({ data }: { data: GalleryData }) {
             <div key={i} style={{ flexShrink: 0, width: v === 'carousel' ? '200px' : '180px', borderRadius: '8px', overflow: 'hidden', position: 'relative' }}>
               {img.src ? <img src={img.src} alt={img.alt || ''} style={{ width: '100%', height: v === 'carousel' ? '150px' : '130px', objectFit: 'cover', display: 'block' }} />
                 : <div style={{ background: '#e2e8f0', height: v === 'carousel' ? '150px' : '130px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', color: '#94a3b8' }}>No image</div>}
-              {img.caption && <p style={{ padding: '0.3rem 0.5rem', fontSize: '0.65rem', color: 'var(--lp-text-muted)', background: 'var(--lp-surface, #f8fafc)', margin: 0 }}>{img.caption}</p>}
+              {img.caption && <p style={{ padding: '0.35rem 0.5rem', fontSize: '0.65rem', color: 'var(--lp-text-muted)', textAlign: 'center', margin: 0 }}>{img.caption}</p>}
             </div>
           ))}
         </div>
