@@ -245,8 +245,13 @@ export interface ContactFormData {
 
 export interface BannerData {
   text: string
+  subtext?: string
+  icon?: string
   cta?: { text: string; url: string }
-  variant?: 'info' | 'warning' | 'success'
+  variant?: 'info' | 'warning' | 'success' | 'promo' | 'announcement' | 'countdown' | 'minimal'
+  dismissible?: boolean
+  /** Background color override */
+  background?: string
 }
 
 /** Social proof — short trust line, inline or banner style */

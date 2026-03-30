@@ -834,16 +834,28 @@ export function BannerSectionForm({ data, onChange }: FormProps<BannerData>) {
   const set = (k: keyof BannerData, v: unknown) => onChange({ ...data, [k]: v })
   return (
     <>
-      <Field label="Text"><input style={inputStyle} value={data.text || ''} onChange={(e) => set('text', e.target.value)} placeholder="Announcement text..." /></Field>
-      <Field label="Variant">
-        <select style={inputStyle} value={data.variant || 'info'} onChange={(e) => set('variant', e.target.value)}>
-          <option value="info">Info (blue)</option>
-          <option value="warning">Warning (amber)</option>
-          <option value="success">Success (green)</option>
-        </select>
-      </Field>
-      <Field label="CTA Text"><input style={inputStyle} value={data.cta?.text || ''} onChange={(e) => set('cta', { ...data.cta, text: e.target.value, url: data.cta?.url || '#' })} /></Field>
-      <Field label="CTA URL"><input style={inputStyle} value={data.cta?.url || ''} onChange={(e) => set('cta', { ...data.cta, url: e.target.value, text: data.cta?.text || 'Learn more' })} /></Field>
+      <InlineRow>
+        <div style={{ flex: 1 }}><Field label="Text"><input style={inputStyle} value={data.text || ''} onChange={(e) => set('text', e.target.value)} placeholder="Announcement text..." /></Field></div>
+        <div style={{ width: '130px', flexShrink: 0 }}><Field label="Variant">
+          <select style={inputStyle} value={data.variant || 'info'} onChange={(e) => set('variant', e.target.value)}>
+            <option value="info">Info</option><option value="warning">Warning</option><option value="success">Success</option>
+            <option value="promo">Promo</option><option value="announcement">Announce</option><option value="countdown">Countdown</option><option value="minimal">Minimal</option>
+          </select>
+        </Field></div>
+      </InlineRow>
+      <InlineRow>
+        <div style={{ width: '40px', flexShrink: 0 }}><IconPicker value={data.icon || ''} onChange={(v) => set('icon', v)} compact /></div>
+        <div style={{ flex: 1 }}><Field label="Subtext"><input style={inputStyle} value={data.subtext || ''} onChange={(e) => set('subtext', e.target.value)} placeholder="Optional secondary text" /></Field></div>
+      </InlineRow>
+      <InlineRow>
+        <div style={{ flex: 1 }}><Field label="CTA Text"><input style={inputStyle} value={data.cta?.text || ''} onChange={(e) => set('cta', { ...data.cta, text: e.target.value, url: data.cta?.url || '#' })} /></Field></div>
+        <div style={{ flex: 1 }}><Field label="CTA URL"><input style={inputStyle} value={data.cta?.url || ''} onChange={(e) => set('cta', { ...data.cta, url: e.target.value, text: data.cta?.text || 'Learn more' })} /></Field></div>
+        <div style={{ width: '80px', flexShrink: 0 }}><Field label="Dismiss">
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', cursor: 'pointer' }}>
+            <input type="checkbox" checked={!!data.dismissible} onChange={(e) => set('dismissible', e.target.checked)} /> ×
+          </label>
+        </Field></div>
+      </InlineRow>
     </>
   )
 }

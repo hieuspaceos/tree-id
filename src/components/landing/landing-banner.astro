@@ -1,26 +1,113 @@
 ---
+/**
+ * Banner section with 7 variants:
+ * - info: blue info bar
+ * - warning: amber warning bar
+ * - success: green success bar
+ * - promo: gradient promotional banner with large text
+ * - announcement: dark full-width announcement with icon
+ * - countdown: urgent banner with countdown feel
+ * - minimal: subtle text-only strip
+ */
 import type { BannerData } from '@/lib/landing/landing-types'
 
 interface Props extends BannerData {}
-const { text, cta, variant = 'info' } = Astro.props
+const { text, subtext, icon, cta, variant = 'info', dismissible = false, background } = Astro.props
 
-const variantStyles: Record<string, string> = {
-  info:    'bg-blue-50 border-blue-200 text-blue-800',
-  warning: 'bg-amber-50 border-amber-200 text-amber-800',
-  success: 'bg-green-50 border-green-200 text-green-800',
-}
-const ctaStyles: Record<string, string> = {
-  info:    'bg-blue-600 hover:bg-blue-700',
-  warning: 'bg-amber-600 hover:bg-amber-700',
-  success: 'bg-green-600 hover:bg-green-700',
-}
+const bgOverride = background ? `background:${background}` : ''
 ---
 
-<div class={`w-full border-y px-6 py-3 flex items-center justify-center gap-4 flex-wrap ${variantStyles[variant]}`}>
-  <p class="text-sm font-medium">{text}</p>
-  {cta && (
-    <a href={cta.url} class={`rounded-lg px-4 py-1.5 text-xs font-semibold text-white transition-colors ${ctaStyles[variant]}`}>
-      {cta.text}
-    </a>
-  )}
-</div>
+{/* Info / Warning / Success — colored bar */}
+{(variant === 'info' || variant === 'warning' || variant === 'success') && (() => {
+  const colors = { info: { bg: '#eff6ff', border: '#bfdbfe', text: '#1e40af', btn: '#2563eb' }, warning: { bg: '#fffbeb', border: '#fde68a', text: '#92400e', btn: '#d97706' }, success: { bg: '#f0fdf4', border: '#bbf7d0', text: '#166534', btn: '#16a34a' } }
+  const c = colors[variant]
+  return (
+    <div class="lp-banner" style={`background:${c.bg};border-top:1px solid ${c.border};border-bottom:1px solid ${c.border};color:${c.text};${bgOverride}`}>
+      {icon && <span class="lp-banner-icon">{icon}</span>}
+      <p class="lp-banner-text">{text}</p>
+      {subtext && <span class="lp-banner-subtext">{subtext}</span>}
+      {cta && <a href={cta.url} class="lp-banner-btn" style={`background:${c.btn}`}>{cta.text}</a>}
+      {dismissible && <button class="lp-banner-dismiss" aria-label="Dismiss">×</button>}
+    </div>
+  )
+})()}
+
+{/* Promo — gradient banner with large text */}
+{variant === 'promo' && (
+  <div class="lp-banner lp-banner-promo" style={bgOverride || 'background:linear-gradient(135deg, var(--lp-primary), var(--lp-secondary, var(--lp-primary)))'}>
+    {icon && <span style="font-size:1.5rem">{icon}</span>}
+    <div style="flex:1;text-align:center">
+      <p class="lp-banner-text" style="color:#fff;font-size:1rem;font-weight:700">{text}</p>
+      {subtext && <p style="color:rgba(255,255,255,0.8);font-size:0.8rem;margin:0.25rem 0 0">{subtext}</p>}
+    </div>
+    {cta && <a href={cta.url} class="lp-banner-btn" style="background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.3)">{cta.text}</a>}
+    {dismissible && <button class="lp-banner-dismiss" style="color:rgba(255,255,255,0.7)" aria-label="Dismiss">×</button>}
+  </div>
+)}
+
+{/* Announcement — dark bar, icon + text */}
+{variant === 'announcement' && (
+  <div class="lp-banner" style={`background:#1e293b;color:#f1f5f9;${bgOverride}`}>
+    {icon && <span class="lp-banner-icon">{icon}</span>}
+    <p class="lp-banner-text" style="color:#f1f5f9">{text}</p>
+    {subtext && <span class="lp-banner-subtext" style="color:#94a3b8">{subtext}</span>}
+    {cta && <a href={cta.url} class="lp-banner-btn" style="background:var(--lp-primary);color:#fff">{cta.text}</a>}
+    {dismissible && <button class="lp-banner-dismiss" style="color:#94a3b8" aria-label="Dismiss">×</button>}
+  </div>
+)}
+
+{/* Countdown — urgent red/orange banner */}
+{variant === 'countdown' && (
+  <div class="lp-banner" style={`background:#fef2f2;border-top:2px solid #fca5a5;border-bottom:2px solid #fca5a5;color:#991b1b;${bgOverride}`}>
+    {icon && <span class="lp-banner-icon">{icon}</span>}
+    {!icon && <span class="lp-banner-icon">⏰</span>}
+    <p class="lp-banner-text" style="color:#991b1b;font-weight:700">{text}</p>
+    {subtext && <span class="lp-banner-subtext" style="color:#b91c1c">{subtext}</span>}
+    {cta && <a href={cta.url} class="lp-banner-btn" style="background:#dc2626;animation:lp-banner-pulse 2s infinite">{cta.text}</a>}
+    {dismissible && <button class="lp-banner-dismiss" aria-label="Dismiss">×</button>}
+  </div>
+)}
+
+{/* Minimal — subtle text strip */}
+{variant === 'minimal' && (
+  <div class="lp-banner" style={`background:var(--lp-surface, #f8fafc);${bgOverride}`}>
+    {icon && <span style="font-size:0.85rem">{icon}</span>}
+    <p style="font-size:0.8rem;color:var(--lp-text-muted);margin:0">{text}</p>
+    {cta && <a href={cta.url} style="font-size:0.8rem;color:var(--lp-primary);text-decoration:underline;font-weight:500">{cta.text}</a>}
+  </div>
+)}
+
+<style>
+  .lp-banner {
+    width: 100%; display: flex; align-items: center; justify-content: center;
+    gap: 0.75rem; padding: 0.6rem 1.5rem; flex-wrap: wrap;
+  }
+  .lp-banner-icon { font-size: 1.1rem; flex-shrink: 0; }
+  .lp-banner-text { font-size: 0.85rem; font-weight: 600; margin: 0; }
+  .lp-banner-subtext { font-size: 0.75rem; opacity: 0.8; }
+  .lp-banner-btn {
+    display: inline-block; padding: 0.3rem 0.85rem; border-radius: 6px;
+    font-size: 0.75rem; font-weight: 600; color: #fff; text-decoration: none;
+    transition: opacity 0.2s; flex-shrink: 0;
+  }
+  .lp-banner-btn:hover { opacity: 0.9; }
+  .lp-banner-dismiss {
+    background: none; border: none; font-size: 1.2rem; cursor: pointer;
+    opacity: 0.6; transition: opacity 0.2s; padding: 0 0.25rem; flex-shrink: 0;
+  }
+  .lp-banner-dismiss:hover { opacity: 1; }
+  .lp-banner-promo { padding: 1rem 2rem; }
+  @keyframes lp-banner-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+</style>
+
+<script>
+  document.querySelectorAll('.lp-banner-dismiss').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const banner = btn.closest('.lp-banner')
+      if (banner) banner.style.display = 'none'
+    })
+  })
+</script>
