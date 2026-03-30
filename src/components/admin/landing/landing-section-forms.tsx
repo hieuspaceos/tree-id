@@ -783,41 +783,117 @@ export function MapSectionForm({ data, onChange }: FormProps<MapData>) {
   )
 }
 
+/** Parse HTML into editable parts: headings, text paragraphs, buttons/links, images */
+function parseHtmlParts(html: string): Array<{ type: 'heading' | 'text' | 'button' | 'image' | 'raw'; text: string; href?: string; src?: string; tag?: string }> {
+  const parts: Array<{ type: 'heading' | 'text' | 'button' | 'image' | 'raw'; text: string; href?: string; src?: string; tag?: string }> = []
+  // Simple regex-based parser for common HTML elements
+  const regex = /<(h[1-6])[^>]*>([\s\S]*?)<\/\1>|<a\s[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>|<button[^>]*>([\s\S]*?)<\/button>|<img[^>]*src=["']([^"']+)["'][^>]*\/?>|<p[^>]*>([\s\S]*?)<\/p>/gi
+  let match: RegExpExecArray | null
+  let lastIndex = 0
+
+  while ((match = regex.exec(html)) !== null) {
+    // Capture any raw content between matches
+    if (match.index > lastIndex) {
+      const between = html.slice(lastIndex, match.index).trim()
+      if (between) parts.push({ type: 'raw', text: between })
+    }
+    if (match[1]) { // heading
+      parts.push({ type: 'heading', text: match[2].replace(/<[^>]+>/g, ''), tag: match[1] })
+    } else if (match[3]) { // link
+      parts.push({ type: 'button', text: match[4].replace(/<[^>]+>/g, ''), href: match[3] })
+    } else if (match[5]) { // button
+      parts.push({ type: 'button', text: match[5].replace(/<[^>]+>/g, ''), href: '#' })
+    } else if (match[6]) { // image
+      parts.push({ type: 'image', text: '', src: match[6] })
+    } else if (match[7]) { // paragraph
+      parts.push({ type: 'text', text: match[7].replace(/<[^>]+>/g, '') })
+    }
+    lastIndex = match.index + match[0].length
+  }
+  if (lastIndex < html.length) {
+    const rest = html.slice(lastIndex).trim()
+    if (rest) parts.push({ type: 'raw', text: rest })
+  }
+  return parts.length > 0 ? parts : [{ type: 'raw', text: html }]
+}
+
 export function RichTextSectionForm({ data, onChange }: FormProps<RichTextData>) {
   const [showCode, setShowCode] = useState(false)
   const content = data.content || ''
-  const editRef = useRef<HTMLDivElement>(null)
+  const parts = parseHtmlParts(content)
 
-  // Sync contentEditable changes back to data
-  function handleInput() {
-    if (editRef.current) {
-      onChange({ ...data, content: editRef.current.innerHTML })
+  /** Rebuild HTML from edited parts */
+  function updatePart(idx: number, field: 'text' | 'href' | 'src', value: string) {
+    // For simple edits, use regex replacement on original HTML
+    // This preserves classes/styles while only changing text content
+    let html = content
+    const part = parts[idx]
+    if (!part) return
+
+    if (part.type === 'heading' && field === 'text') {
+      const re = new RegExp(`(<${part.tag}[^>]*>)[\\s\\S]*?(<\\/${part.tag}>)`, 'i')
+      html = html.replace(re, `$1${value}$2`)
+    } else if (part.type === 'button' && field === 'text') {
+      // Find the link/button with matching href and replace text
+      const escaped = (part.href || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      const re = new RegExp(`(<a[^>]*href=["']${escaped}["'][^>]*>)[\\s\\S]*?(<\\/a>)`, 'i')
+      html = html.replace(re, `$1${value}$2`)
+    } else if (part.type === 'button' && field === 'href') {
+      const escaped = (part.href || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      html = html.replace(new RegExp(`href=["']${escaped}["']`, 'i'), `href="${value}"`)
+    } else if (part.type === 'text' && field === 'text') {
+      const escaped = part.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      html = html.replace(new RegExp(escaped, ''), value)
+    } else if (part.type === 'image' && field === 'src') {
+      const escaped = (part.src || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      html = html.replace(new RegExp(`src=["']${escaped}["']`, 'i'), `src="${value}"`)
     }
+    onChange({ ...data, content: html })
   }
+
+  const icons: Record<string, string> = { heading: '📝', text: '¶', button: '🔘', image: '🖼', raw: '📄' }
 
   return (
     <>
       {data.heading !== undefined && <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => onChange({ ...data, heading: e.target.value })} /></Field>}
 
       {!showCode ? (
-        <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
-          {/* contentEditable — user edits rendered HTML directly */}
-          <div ref={editRef} contentEditable suppressContentEditableWarning
-            onBlur={handleInput}
-            onInput={handleInput}
-            onClick={(e) => {
-              // Prevent links from navigating — allow editing instead
-              const target = e.target as HTMLElement
-              if (target.tagName === 'A' || target.closest('a')) e.preventDefault()
-            }}
-            dangerouslySetInnerHTML={{ __html: content }}
-            style={{ padding: '0.75rem', fontSize: '0.82rem', minHeight: '50px', background: '#fff', lineHeight: 1.6, outline: 'none', cursor: 'text' }} />
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.3rem 0.6rem', background: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
-            <span style={{ fontSize: '0.6rem', color: '#94a3b8' }}>Click to edit text directly</span>
+        <>
+          {parts.map((part, i) => (
+            <div key={i} style={{ display: 'flex', gap: '0.3rem', marginBottom: '0.3rem', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.8rem', width: '20px', textAlign: 'center', flexShrink: 0 }}>{icons[part.type]}</span>
+              {part.type === 'heading' && (
+                <input style={{ ...inputStyle, flex: 1, fontWeight: 700, padding: '4px 8px', fontSize: '0.8rem' }} value={part.text}
+                  onChange={(e) => updatePart(i, 'text', e.target.value)} />
+              )}
+              {part.type === 'text' && (
+                <input style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.8rem' }} value={part.text}
+                  onChange={(e) => updatePart(i, 'text', e.target.value)} />
+              )}
+              {part.type === 'button' && (
+                <>
+                  <input style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.8rem', fontWeight: 600 }} value={part.text}
+                    onChange={(e) => updatePart(i, 'text', e.target.value)} placeholder="Button text" />
+                  <input style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.75rem', color: '#3b82f6' }} value={part.href || ''}
+                    onChange={(e) => updatePart(i, 'href', e.target.value)} placeholder="URL" />
+                </>
+              )}
+              {part.type === 'image' && (
+                <input style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.75rem' }} value={part.src || ''}
+                  onChange={(e) => updatePart(i, 'src', e.target.value)} placeholder="Image URL" />
+              )}
+              {part.type === 'raw' && (
+                <span style={{ fontSize: '0.7rem', color: '#94a3b8', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {part.text.replace(/<[^>]+>/g, '').slice(0, 60)}
+                </span>
+              )}
+            </div>
+          ))}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.2rem' }}>
             <button type="button" onClick={() => setShowCode(true)}
               style={{ fontSize: '0.65rem', color: '#64748b', background: 'none', border: 'none', cursor: 'pointer' }}>&lt;/&gt; HTML</button>
           </div>
-        </div>
+        </>
       ) : (
         <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
           <Suspense fallback={<textarea style={{ ...textareaStyle, minHeight: '100px', fontFamily: 'monospace', fontSize: '0.75rem' }} value={content} onChange={(e) => onChange({ ...data, content: e.target.value })} />}>
