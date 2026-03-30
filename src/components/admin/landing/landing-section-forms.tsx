@@ -5,7 +5,7 @@
  */
 import type { SectionData, HeroData, FeaturesData, PricingData, TestimonialsData, FaqData, CtaData, StatsData, HowItWorksData, TeamData, LogoWallData, NavData, FooterData, VideoData, ImageData, ImageTextData, GalleryData, MapData, RichTextData, DividerData, CountdownData, ContactFormData, BannerData, ContactFormField, LayoutData, LayoutChild, ComparisonData, AiSearchData, SocialProofData } from '@/lib/landing/landing-types'
 import { IconPicker } from './landing-icon-picker'
-import { lazy, Suspense, useState } from 'react'
+import { lazy, Suspense, useState, useRef } from 'react'
 
 /** Lazy-load MarkdocEditor (CodeMirror) to avoid bundling in main chunk */
 const MarkdocEditor = lazy(() => import('../field-renderers/markdoc-editor'))
@@ -786,40 +786,42 @@ export function MapSectionForm({ data, onChange }: FormProps<MapData>) {
 export function RichTextSectionForm({ data, onChange }: FormProps<RichTextData>) {
   const [showCode, setShowCode] = useState(false)
   const content = data.content || ''
+  const editRef = useRef<HTMLDivElement>(null)
 
-  // Extract plain text from HTML for quick summary
-  const plainText = content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
-  const summary = plainText.slice(0, 120) + (plainText.length > 120 ? '...' : '')
+  // Sync contentEditable changes back to data
+  function handleInput() {
+    if (editRef.current) {
+      onChange({ ...data, content: editRef.current.innerHTML })
+    }
+  }
 
   return (
     <>
       {data.heading !== undefined && <Field label="Heading"><input style={inputStyle} value={data.heading || ''} onChange={(e) => onChange({ ...data, heading: e.target.value })} /></Field>}
 
-      {/* Visual preview (default view) — click to see rendered content */}
-      {!showCode && (
+      {!showCode ? (
         <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
-          <div style={{ padding: '0.75rem', fontSize: '0.82rem', minHeight: '50px', background: '#fafbfc', lineHeight: 1.5 }}
-            dangerouslySetInnerHTML={{ __html: content }} />
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.35rem 0.6rem', background: '#f1f5f9', borderTop: '1px solid #e2e8f0' }}>
-            <span style={{ fontSize: '0.65rem', color: '#94a3b8' }}>{plainText.length} chars</span>
+          {/* contentEditable — user edits rendered HTML directly */}
+          <div ref={editRef} contentEditable suppressContentEditableWarning
+            onBlur={handleInput}
+            dangerouslySetInnerHTML={{ __html: content }}
+            style={{ padding: '0.75rem', fontSize: '0.82rem', minHeight: '50px', background: '#fff', lineHeight: 1.6, outline: 'none', cursor: 'text' }} />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.3rem 0.6rem', background: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
+            <span style={{ fontSize: '0.6rem', color: '#94a3b8' }}>Click to edit text directly</span>
             <button type="button" onClick={() => setShowCode(true)}
-              style={{ fontSize: '0.68rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>Edit HTML</button>
+              style={{ fontSize: '0.65rem', color: '#64748b', background: 'none', border: 'none', cursor: 'pointer' }}>&lt;/&gt; HTML</button>
           </div>
         </div>
-      )}
-
-      {/* Code editor (toggle) */}
-      {showCode && (
-        <>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
-            <span style={{ fontSize: '0.7rem', color: '#64748b' }}>HTML Editor</span>
-            <button type="button" onClick={() => setShowCode(false)}
-              style={{ fontSize: '0.68rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>Done</button>
-          </div>
+      ) : (
+        <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
           <Suspense fallback={<textarea style={{ ...textareaStyle, minHeight: '100px', fontFamily: 'monospace', fontSize: '0.75rem' }} value={content} onChange={(e) => onChange({ ...data, content: e.target.value })} />}>
             <MarkdocEditor value={content} onChange={(v) => onChange({ ...data, content: v })} />
           </Suspense>
-        </>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0.3rem 0.6rem', background: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
+            <button type="button" onClick={() => setShowCode(false)}
+              style={{ fontSize: '0.65rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer' }}>Done</button>
+          </div>
+        </div>
       )}
     </>
   )
