@@ -783,44 +783,52 @@ export function MapSectionForm({ data, onChange }: FormProps<MapData>) {
   )
 }
 
-/** Parse HTML into editable parts: headings, text paragraphs, buttons/links, images */
-function parseHtmlParts(html: string): Array<{ type: 'heading' | 'text' | 'button' | 'image' | 'raw'; text: string; href?: string; src?: string; tag?: string }> {
-  const parts: Array<{ type: 'heading' | 'text' | 'button' | 'image' | 'raw'; text: string; href?: string; src?: string; tag?: string }> = []
-  // Simple regex-based parser for common HTML elements
-  // Order matters: match links/buttons BEFORE div/span to avoid nesting issues
-  const regex = /<(h[1-6])[^>]*>([\s\S]*?)<\/\1>|<a\s[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>|<button[^>]*>([\s\S]*?)<\/button>|<img[^>]*src=["']([^"']+)["'][^>]*\/?>|<(?:p|div|span)\b[^>]*>([^<]*)<\/(?:p|div|span)>/gi
-  let match: RegExpExecArray | null
-  let lastIndex = 0
+type HtmlPart = { type: 'heading' | 'text' | 'button' | 'image'; text: string; href?: string; src?: string; tag?: string; el?: Element }
 
-  while ((match = regex.exec(html)) !== null) {
-    // Capture any raw content between matches
-    if (match.index > lastIndex) {
-      const between = html.slice(lastIndex, match.index).trim()
-      if (between) parts.push({ type: 'raw', text: between })
+/** Parse HTML into editable parts using DOMParser (reliable, no regex fragility) */
+function parseHtmlParts(html: string): HtmlPart[] {
+  if (typeof window === 'undefined') return [{ type: 'text', text: html.replace(/<[^>]+>/g, '') }]
+  const doc = new DOMParser().parseFromString(html, 'text/html')
+  const parts: HtmlPart[] = []
+
+  // Walk all elements depth-first, extract meaningful leaf content
+  function walk(node: Node) {
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const el = node as Element
+      const tag = el.tagName.toLowerCase()
+
+      // Headings
+      if (/^h[1-6]$/.test(tag)) {
+        const text = el.textContent?.trim() || ''
+        if (text) parts.push({ type: 'heading', text, tag, el })
+        return // don't recurse into heading children
+      }
+      // Links
+      if (tag === 'a' && el.getAttribute('href')) {
+        const text = el.textContent?.trim() || ''
+        if (text) parts.push({ type: 'button', text, href: el.getAttribute('href') || '#', el })
+        return
+      }
+      // Buttons
+      if (tag === 'button') {
+        const text = el.textContent?.trim() || ''
+        if (text) parts.push({ type: 'button', text, href: '#', el })
+        return
+      }
+      // Images
+      if (tag === 'img' && el.getAttribute('src')) {
+        parts.push({ type: 'image', text: '', src: el.getAttribute('src') || '', el })
+        return
+      }
+      // Recurse into children
+      for (const child of Array.from(node.childNodes)) walk(child)
+    } else if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent?.trim() || ''
+      if (text.length > 2) parts.push({ type: 'text', text })
     }
-    if (match[1]) { // heading
-      parts.push({ type: 'heading', text: match[2].replace(/<[^>]+>/g, ''), tag: match[1] })
-    } else if (match[3]) { // link
-      parts.push({ type: 'button', text: match[4].replace(/<[^>]+>/g, ''), href: match[3] })
-    } else if (match[5]) { // button
-      parts.push({ type: 'button', text: match[5].replace(/<[^>]+>/g, ''), href: '#' })
-    } else if (match[6]) { // image
-      parts.push({ type: 'image', text: '', src: match[6] })
-    } else if (match[7]) { // paragraph
-      parts.push({ type: 'text', text: match[7].replace(/<[^>]+>/g, '') })
-    }
-    lastIndex = match.index + match[0].length
   }
-  if (lastIndex < html.length) {
-    const rest = html.slice(lastIndex).trim()
-    if (rest) parts.push({ type: 'raw', text: rest })
-  }
-  // Filter out empty parts (wrapper divs with no direct text content)
-  const filtered = parts.filter(p => {
-    const clean = p.text?.replace(/<[^>]+>/g, '').trim() || p.src || ''
-    return clean.length > 0
-  })
-  return filtered.length > 0 ? filtered : [{ type: 'raw', text: html }]
+  walk(doc.body)
+  return parts.length > 0 ? parts : [{ type: 'text', text: html.replace(/<[^>]+>/g, '') }]
 }
 
 export function RichTextSectionForm({ data, onChange }: FormProps<RichTextData>) {
@@ -829,65 +837,41 @@ export function RichTextSectionForm({ data, onChange }: FormProps<RichTextData>)
   const isHtml = content.includes('<') && content.includes('>')
   const parts = isHtml ? parseHtmlParts(content) : []
 
-  /** Rebuild HTML from edited parts */
-  /** Find position of the Nth button/text occurrence in HTML (matching by part index among same-type parts) */
-  function findNthOccurrence(html: string, searchStr: string, partIdx: number, allParts: typeof parts, type: string): number {
-    // Count how many parts of same type appear before this index
-    let sameTypeBefore = 0
-    for (let j = 0; j < partIdx; j++) { if (allParts[j].type === type) sameTypeBefore++ }
-    // Find the Nth occurrence in HTML
-    let pos = -1
-    for (let n = 0; n <= sameTypeBefore; n++) {
-      pos = html.indexOf(searchStr, pos + 1)
-      if (pos < 0) return -1
-    }
-    return pos
-  }
-
+  /** Update a parsed part — re-parse HTML with DOMParser, modify the element, serialize back */
   function updatePart(idx: number, field: 'text' | 'href' | 'src', value: string) {
-    // Use the original text to find + replace the Nth occurrence
-    let html = content
-    const part = parts[idx]
-    if (!part) return
+    if (typeof window === 'undefined') return
+    const doc = new DOMParser().parseFromString(content, 'text/html')
+    const reParts: HtmlPart[] = []
 
-    // Find the exact substring in HTML that contains this part's text/href
-    // Then replace only that specific occurrence
-    const oldText = part.text
-    const escText = oldText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-
-    if (part.type === 'heading' && field === 'text') {
-      // Match heading tag containing the exact old text
-      const re = new RegExp(`(<${part.tag}\\b[^>]*>)${escText}(<\\/${part.tag}>)`, 'i')
-      html = html.replace(re, `$1${value}$2`)
-    } else if (part.type === 'button' && field === 'text') {
-      // Find the Nth <a> tag containing this exact text using indexOf
-      const searchStr = `>${oldText}</a>`
-      const pos = findNthOccurrence(html, searchStr, idx, parts, 'button')
-      if (pos >= 0) {
-        html = html.slice(0, pos + 1) + value + html.slice(pos + 1 + oldText.length)
+    // Re-walk to find matching elements in same order
+    function walk(node: Node) {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const el = node as Element
+        const tag = el.tagName.toLowerCase()
+        if (/^h[1-6]$/.test(tag) && el.textContent?.trim()) { reParts.push({ type: 'heading', text: el.textContent.trim(), tag, el }); return }
+        if (tag === 'a' && el.getAttribute('href') && el.textContent?.trim()) { reParts.push({ type: 'button', text: el.textContent.trim(), href: el.getAttribute('href')!, el }); return }
+        if (tag === 'button' && el.textContent?.trim()) { reParts.push({ type: 'button', text: el.textContent.trim(), el }); return }
+        if (tag === 'img' && el.getAttribute('src')) { reParts.push({ type: 'image', text: '', src: el.getAttribute('src')!, el }); return }
+        for (const child of Array.from(node.childNodes)) walk(child)
+      } else if (node.nodeType === Node.TEXT_NODE && (node.textContent?.trim().length || 0) > 2) {
+        reParts.push({ type: 'text', text: node.textContent!.trim(), el: node as any })
       }
-    } else if (part.type === 'button' && field === 'href') {
-      // Find <a> containing the button text, then replace its href
-      const textPos = html.indexOf(`>${oldText}</a>`)
-      if (textPos >= 0) {
-        // Search backwards from text position to find href="..."
-        const before = html.slice(0, textPos)
-        const hrefMatch = before.match(/.*href=["']([^"']*)["']/)
-        if (hrefMatch) {
-          const hrefStart = before.lastIndexOf('href=')
-          const hrefEnd = before.indexOf('"', before.indexOf('"', hrefStart) + 1) + 1
-          html = before.slice(0, hrefStart) + `href="${value}"` + before.slice(hrefEnd) + html.slice(textPos)
-        }
-      }
-    } else if ((part.type === 'text' || part.type === 'raw') && field === 'text') {
-      // Direct text replacement — first occurrence only
-      const pos = html.indexOf(oldText)
-      if (pos >= 0) html = html.slice(0, pos) + value + html.slice(pos + oldText.length)
-    } else if (part.type === 'image' && field === 'src') {
-      const escSrc = (part.src || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-      html = html.replace(new RegExp(`src=["']${escSrc}["']`, 'i'), `src="${value}"`)
     }
-    onChange({ ...data, content: html })
+    walk(doc.body)
+
+    const target = reParts[idx]
+    if (!target?.el) return
+
+    if (field === 'text') {
+      if (target.el.nodeType === Node.TEXT_NODE) { target.el.textContent = value }
+      else { target.el.textContent = value }
+    } else if (field === 'href' && target.el instanceof Element) {
+      target.el.setAttribute('href', value)
+    } else if (field === 'src' && target.el instanceof Element) {
+      target.el.setAttribute('src', value)
+    }
+
+    onChange({ ...data, content: doc.body.innerHTML })
   }
 
   const icons: Record<string, string> = { heading: '📝', text: '¶', button: '🔘', image: '🖼', raw: '📄' }
