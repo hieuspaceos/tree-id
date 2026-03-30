@@ -1,0 +1,95 @@
+---
+/**
+ * Features icon-strip variant — horizontal scrollable icon bar, icon above label, no description.
+ * Great for icon bars under hero (5-8 items).
+ * Used by landing-features.astro when variant === 'icon-strip'.
+ */
+import type { FeaturesData } from '@/lib/landing/landing-types'
+
+interface Props extends FeaturesData {}
+const { heading, subheading, items = [] } = Astro.props
+---
+
+<section class="landing-section" style="padding-top: 2.5rem; padding-bottom: 2.5rem">
+  {heading && <h2 class="mb-2 text-center text-3xl font-bold">{heading}</h2>}
+  {subheading && <p class="mx-auto mb-6 max-w-2xl text-center" style="color: var(--lp-text-muted)">{subheading}</p>}
+  <div class="lp-icon-strip-track">
+    {items.map((item) => (
+      <div class="lp-icon-strip-item">
+        {item.icon && (
+          item.icon.startsWith('http')
+            ? <img src={item.icon} alt={item.title} class="lp-icon-strip-img" loading="lazy" />
+            : <span class="lp-icon-strip-emoji" aria-hidden="true">{item.icon}</span>
+        )}
+        {!item.icon && (
+          <span class="lp-icon-strip-fallback" aria-hidden="true">✦</span>
+        )}
+        <span class="lp-icon-strip-label">{item.title}</span>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .lp-icon-strip-track {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 0.25rem;
+  }
+  .lp-icon-strip-track::-webkit-scrollbar { display: none; }
+
+  .lp-icon-strip-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    padding: 1.25rem 1.75rem;
+    border-radius: var(--lp-radius);
+    transition: background 0.2s;
+    cursor: default;
+    min-width: 100px;
+  }
+  .lp-icon-strip-item:hover {
+    background: color-mix(in srgb, var(--lp-primary) 8%, transparent);
+  }
+
+  .lp-icon-strip-img {
+    width: 2.5rem;
+    height: 2.5rem;
+    object-fit: contain;
+  }
+
+  .lp-icon-strip-emoji {
+    font-size: 2rem;
+    line-height: 1;
+  }
+
+  .lp-icon-strip-fallback {
+    font-size: 1.75rem;
+    color: var(--lp-primary);
+    line-height: 1;
+  }
+
+  .lp-icon-strip-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--lp-text);
+    white-space: nowrap;
+    letter-spacing: 0.01em;
+    text-align: center;
+  }
+
+  @media (min-width: 640px) {
+    .lp-icon-strip-track {
+      justify-content: center;
+      flex-wrap: wrap;
+      overflow-x: visible;
+    }
+  }
+</style>

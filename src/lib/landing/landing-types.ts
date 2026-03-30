@@ -10,8 +10,10 @@ export interface HeroData {
   cta?: { text: string; url: string; variant?: 'primary' | 'secondary' | 'outline' } | Array<{ text: string; url: string; variant?: 'primary' | 'secondary' | 'outline' }>
   backgroundImage?: string
   embed?: string
-  /** Layout variant: centered (default), split (text left + media right), video-bg (full-width bg), minimal (no CTA) */
-  variant?: 'centered' | 'split' | 'video-bg' | 'minimal'
+  /** Layout variant: centered (default), split (text left + media right), video-bg (full-width bg), minimal (no CTA), fullscreen (100vh + ken-burns), slider (multi-slide auto-rotate) */
+  variant?: 'centered' | 'split' | 'video-bg' | 'minimal' | 'fullscreen' | 'slider'
+  /** Multiple slides for slider variant */
+  items?: Array<{ headline: string; subheadline?: string; backgroundImage?: string }>
 }
 
 export interface FeatureItem {
@@ -32,8 +34,8 @@ export interface FeaturesData {
   subheading?: string
   items: FeatureItem[]
   columns?: 2 | 3 | 4 | 5
-  /** Layout variant: grid (default), list (icon left + text right), alternating (zigzag rows) */
-  variant?: 'grid' | 'list' | 'alternating'
+  /** Layout variant: grid (default), list (icon left + text right), alternating (zigzag rows), masonry (CSS columns), icon-strip (horizontal scrollable icon bar), bento (CSS grid first item 2-row span) */
+  variant?: 'grid' | 'list' | 'alternating' | 'masonry' | 'icon-strip' | 'bento'
 }
 
 export interface PricingPlan {
@@ -52,8 +54,12 @@ export interface PricingData {
   heading?: string
   subheading?: string
   plans: PricingPlan[]
-  /** Layout variant: cards (default), simple (horizontal row compact), highlight-center (center plan elevated) */
-  variant?: 'cards' | 'simple' | 'highlight-center'
+  /** Layout variant: cards (default), simple (horizontal row compact), highlight-center (center plan elevated), comparison (table: features as rows/plans as columns), toggle (monthly/annual switch) */
+  variant?: 'cards' | 'simple' | 'highlight-center' | 'comparison' | 'toggle'
+  /** Annual plans for toggle variant — swapped in when annual billing selected */
+  annualPlans?: PricingPlan[]
+  /** Feature rows for comparison variant — array of { label, values[] } */
+  comparisonRows?: Array<{ label: string; values: string[]; highlight?: boolean }>
 }
 
 export interface Testimonial {
@@ -68,8 +74,10 @@ export interface Testimonial {
 export interface TestimonialsData {
   heading?: string
   items: Testimonial[]
-  /** Layout variant: cards (default), single (one large quote centered), minimal (text-only, no avatars), carousel (auto-scrolling horizontal) */
-  variant?: 'cards' | 'single' | 'minimal' | 'carousel'
+  /** Layout variant: cards (default), single (one large quote centered), minimal (text-only, no avatars), carousel (auto-scrolling horizontal), quote-wall (masonry grid, text only), logo-strip (horizontal logos + featured quote) */
+  variant?: 'cards' | 'single' | 'minimal' | 'carousel' | 'quote-wall' | 'logo-strip'
+  /** Company logos for logo-strip variant */
+  logos?: Array<{ name: string; image?: string; url?: string }>
 }
 
 export interface FaqItem {
@@ -79,8 +87,8 @@ export interface FaqItem {
 export interface FaqData {
   heading?: string
   items: FaqItem[]
-  /** Layout variant: accordion (default, details/summary), two-column (Q left, A right), simple (all expanded) */
-  variant?: 'accordion' | 'two-column' | 'simple'
+  /** Layout variant: accordion (default, details/summary), two-column (Q left, A right), simple (all expanded), searchable (client-side filter input) */
+  variant?: 'accordion' | 'two-column' | 'simple' | 'searchable'
 }
 
 export interface CtaData {
@@ -88,8 +96,8 @@ export interface CtaData {
   subheadline?: string
   /** Single CTA (legacy) or array of CTAs — first = primary, rest = secondary/outline */
   cta: { text: string; url: string; variant?: 'primary' | 'secondary' | 'outline' } | Array<{ text: string; url: string; variant?: 'primary' | 'secondary' | 'outline' }>
-  /** Layout variant: centered (default), split (text left + btn right), banner (full-width gradient), minimal (text link only), with-image (bg image + overlay) */
-  variant?: 'default' | 'split' | 'banner' | 'minimal' | 'with-image'
+  /** Layout variant: centered (default), split (text left + btn right), banner (full-width gradient), minimal (text link only), with-image (bg image + overlay), floating (fixed bottom bar dismissible) */
+  variant?: 'default' | 'split' | 'banner' | 'minimal' | 'with-image' | 'floating'
   backgroundImage?: string
 }
 
@@ -102,8 +110,8 @@ export interface StatItem {
 export interface StatsData {
   heading?: string
   items: StatItem[]
-  /** Layout variant: row (default), cards (each stat in a card), large (big numbers vertical stack) */
-  variant?: 'row' | 'cards' | 'large'
+  /** Layout variant: row (default), cards (each stat in a card), large (big numbers vertical stack), counter (animated count-up on scroll) */
+  variant?: 'row' | 'cards' | 'large' | 'counter'
 }
 
 export interface StepItem {
@@ -148,21 +156,25 @@ export interface NavData {
   topBar?: Array<{ icon?: string; text: string; href?: string }>
   /** Custom nav links — if empty, auto-generated from enabled sections */
   links?: Array<{ label: string; href: string }>
-  /** Layout variant: default (logo left, links right), centered (logo center, links split), transparent (no background overlay) */
-  variant?: 'default' | 'centered' | 'transparent'
+  /** Layout variant: default (logo left, links right), centered (logo center, links split), transparent (no background overlay), hamburger (always icon, full-screen overlay), mega (dropdown panels with groups) */
+  variant?: 'default' | 'centered' | 'transparent' | 'hamburger' | 'mega'
   /** Social media links shown in nav */
   socialLinks?: Array<{ icon: string; url: string; label?: string }>
+  /** Link groups for mega dropdown variant — array of { label, links[] } */
+  groups?: Array<{ label: string; links: Array<{ label: string; href: string; description?: string }> }>
 }
 
 export interface FooterData {
   text?: string
   links?: Array<{ label: string; href: string }>
-  /** Layout variant: simple (default, centered text), columns (multi-column with link groups), minimal (just copyright) */
-  variant?: 'simple' | 'columns' | 'minimal'
-  /** Column groups for columns variant — array of { heading, links[] } */
+  /** Layout variant: simple (default, centered text), columns (multi-column with link groups), minimal (just copyright), mega (4-5 cols + newsletter + social), centered-social (centered text + large social icons) */
+  variant?: 'simple' | 'columns' | 'minimal' | 'mega' | 'centered-social'
+  /** Column groups for columns/mega variant — array of { heading, links[] } */
   columns?: Array<{ heading: string; links: Array<{ label: string; href: string }> }>
   /** Social media links shown in footer */
   socialLinks?: Array<{ icon: string; url: string; label?: string }>
+  /** Newsletter signup for mega variant */
+  newsletter?: { heading?: string; placeholder?: string; buttonText?: string; action?: string }
 }
 
 export interface VideoData {
@@ -248,10 +260,20 @@ export interface LayoutChild {
   column: number
   sections: LandingSection[]
 }
+
+/** Layout variant — determines grid template at desktop breakpoint */
+export type LayoutVariant = 'grid' | 'sidebar-left' | 'sidebar-right' | 'asymmetric' | 'thirds' | 'hero-split' | 'stacked' | 'masonry'
+
 export interface LayoutData {
   columns: number[]  // ratio array, e.g. [1, 1] = 50/50, [1, 2] = 33/67
   gap?: string
   children: LayoutChild[]
+  /** Layout variant — determines CSS grid behavior (default: grid) */
+  variant?: LayoutVariant
+  /** Reverse column order on mobile — useful when image should appear before text on small screens */
+  mobileReverse?: boolean
+  /** Vertical alignment of columns */
+  alignItems?: 'start' | 'center' | 'end' | 'stretch'
 }
 
 /** Comparison table — side-by-side feature/price comparison */

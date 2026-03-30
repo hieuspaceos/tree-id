@@ -1,15 +1,17 @@
 ---
 /**
- * CTA section with 5 layout variants:
+ * CTA section with 6 layout variants:
  * - default: centered headline + button
  * - split: text left, button right (side by side)
  * - banner: full-width gradient with large text
  * - minimal: simple text link, no button styling
  * - with-image: background image + dark overlay
+ * - floating: fixed bottom bar that appears on scroll, dismissible
  *
  * cta accepts single {text,url} (legacy) or an array — first item = primary style.
  */
 import type { CtaData } from '@/lib/landing/landing-types'
+import CtaFloating from './landing-cta-floating.astro'
 
 interface Props extends CtaData {}
 const { headline, subheadline, cta, variant = 'default', backgroundImage } = Astro.props
@@ -112,4 +114,9 @@ const primaryCta = ctaList[0]
       )}
     </div>
   </section>
+)}
+
+{/* Floating: fixed bottom bar, appears on scroll, dismissible — delegated */}
+{variant === 'floating' && (
+  <CtaFloating headline={headline} subheadline={subheadline} cta={cta} variant={variant} />
 )}

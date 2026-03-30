@@ -1,0 +1,140 @@
+---
+/**
+ * Hero fullscreen variant — 100vh, centered text, ken-burns bg animation, scroll indicator arrow.
+ * Used by landing-hero.astro when variant === 'fullscreen'.
+ */
+import type { HeroData } from '@/lib/landing/landing-types'
+
+interface Props extends HeroData {}
+const { headline, subheadline, cta, backgroundImage } = Astro.props
+
+const ctaList = Array.isArray(cta) ? cta : cta ? [cta] : []
+function ctaClass(i: number, v?: string) {
+  if (v === 'secondary') return 'landing-btn-secondary'
+  if (v === 'outline') return 'landing-btn-outline'
+  return i === 0 ? 'landing-btn-primary' : 'landing-btn-outline'
+}
+---
+
+<section
+  class="lp-hero-fullscreen"
+  style={backgroundImage ? `--lp-fs-bg: url(${backgroundImage})` : undefined}
+  aria-label="Hero"
+>
+  {backgroundImage && <div class="lp-hero-fs-bg" />}
+  <div class="lp-hero-fs-overlay" />
+  <div class="lp-hero-fs-content">
+    <h1 class="lp-hero-fs-headline">{headline}</h1>
+    {subheadline && <p class="lp-hero-fs-sub">{subheadline}</p>}
+    {ctaList.length > 0 && (
+      <div class="lp-hero-fs-cta">
+        {ctaList.map((item, i) => (
+          <a href={item.url} class={ctaClass(i, item.variant)}>{item.text}</a>
+        ))}
+      </div>
+    )}
+  </div>
+  {/* Scroll indicator arrow */}
+  <a href="#section-features" class="lp-hero-scroll-arrow" aria-label="Scroll down">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 5v14M5 12l7 7 7-7" />
+    </svg>
+  </a>
+</section>
+
+<style>
+  .lp-hero-fullscreen {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    text-align: center;
+  }
+
+  /* Ken-burns background */
+  .lp-hero-fs-bg {
+    position: absolute;
+    inset: 0;
+    background-image: var(--lp-fs-bg);
+    background-size: cover;
+    background-position: center;
+    animation: lpFsKenBurns 20s ease-in-out infinite alternate;
+    z-index: 0;
+  }
+  @keyframes lpFsKenBurns {
+    from { transform: scale(1) translate(0, 0); }
+    to   { transform: scale(1.12) translate(-2%, -1.5%); }
+  }
+
+  /* Dark gradient overlay */
+  .lp-hero-fs-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(175deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.6) 100%);
+    z-index: 1;
+  }
+
+  /* Content container */
+  .lp-hero-fs-content {
+    position: relative;
+    z-index: 2;
+    max-width: 760px;
+    padding: 2rem;
+  }
+
+  .lp-hero-fs-headline {
+    font-family: var(--lp-font-heading), serif;
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 700;
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+    color: #fff;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+  }
+
+  .lp-hero-fs-sub {
+    margin-top: 1.25rem;
+    font-size: clamp(1rem, 2.2vw, 1.25rem);
+    color: rgba(255,255,255,0.82);
+    line-height: 1.7;
+    font-weight: 300;
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .lp-hero-fs-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.875rem;
+    margin-top: 2rem;
+  }
+
+  /* Scroll arrow — bottom center, bouncing */
+  .lp-hero-scroll-arrow {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    color: rgba(255,255,255,0.7);
+    animation: lpScrollBounce 2s ease-in-out infinite;
+    transition: color 0.2s;
+    text-decoration: none;
+  }
+  .lp-hero-scroll-arrow:hover { color: #fff; }
+
+  @keyframes lpScrollBounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50%       { transform: translateX(-50%) translateY(8px); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lp-hero-fs-bg { animation: none; }
+    .lp-hero-scroll-arrow { animation: none; }
+  }
+</style>

@@ -1,0 +1,158 @@
+---
+/**
+ * Nav mega variant — desktop dropdown panels with grouped links; hamburger drawer on mobile.
+ * Receives pre-computed autoLinks, brand, brandLogo, navInlineStyle, linkColor from parent.
+ * Used by landing-nav.astro when variant === 'mega'.
+ */
+import type { NavData, LandingSection, SectionStyle } from '@/lib/landing/landing-types'
+
+interface Props extends NavData {
+  sections?: LandingSection[]
+  pageTitle?: string
+  sectionStyle?: SectionStyle
+  autoLinks: Array<{ label: string; href: string }>
+  brand: string
+  brandLogo: string | null
+  navInlineStyle: string | undefined
+  brandColor: string
+  linkColor: string
+}
+
+const { brand, brandLogo, autoLinks, socialLinks = [], navInlineStyle, brandColor, linkColor, groups = [] } = Astro.props
+const megaId = `lp-mega-${Math.random().toString(36).slice(2, 7)}`
+---
+
+<nav class="landing-nav sticky top-0 z-50" style={navInlineStyle} aria-label="Landing page navigation">
+  <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
+    <a href="#" class="text-lg font-semibold tracking-tight" style={`color: ${brandColor}`}>
+      {brandLogo ? <Fragment set:html={brandLogo} /> : brand}
+    </a>
+
+    {/* Desktop: grouped dropdown links */}
+    <div class="hidden items-center gap-1 md:flex">
+      {groups.length > 0 ? groups.map(group => (
+        <div class="lp-mega-group">
+          <button class="lp-mega-trigger rounded-full px-3 py-1.5 text-sm font-medium" style={`color: ${linkColor}`}>
+            {group.label} <span aria-hidden="true" style="font-size:0.65rem;opacity:0.6">▼</span>
+          </button>
+          <div class="lp-mega-panel" role="region">
+            {group.links.map(l => (
+              <a href={l.href} class="lp-mega-panel-link">
+                <span class="font-medium" style="color: var(--lp-text)">{l.label}</span>
+                {l.description && <span class="text-xs" style="color: var(--lp-text-muted)">{l.description}</span>}
+              </a>
+            ))}
+          </div>
+        </div>
+      )) : autoLinks.map(link => (
+        <a href={link.href} class="rounded-full px-3 py-1.5 text-sm font-medium transition-colors" style={`color: ${linkColor}`}>{link.label}</a>
+      ))}
+      {socialLinks.map(sl => (
+        <a href={sl.url} target="_blank" rel="noopener noreferrer" title={sl.label || sl.icon}
+          style={`font-size:1.1rem;padding:4px;border-radius:6px;color:${linkColor}`}
+          aria-label={sl.label || sl.icon}>
+          {sl.icon?.startsWith('http') ? <img src={sl.icon} alt={sl.label || ''} style="height:18px;width:18px;object-fit:contain" /> : sl.icon}
+        </a>
+      ))}
+    </div>
+
+    {/* Mobile: hamburger toggle */}
+    <button class="lp-mega-mobile-btn md:hidden" aria-controls={megaId} aria-expanded="false" aria-label="Open menu" style="background:none;border:none;cursor:pointer;padding:6px;display:flex;flex-direction:column;gap:5px">
+      <span style="display:block;width:22px;height:2px;background:var(--lp-text);border-radius:2px" />
+      <span style="display:block;width:22px;height:2px;background:var(--lp-text);border-radius:2px" />
+      <span style="display:block;width:22px;height:2px;background:var(--lp-text);border-radius:2px" />
+    </button>
+  </div>
+
+  {/* Mobile drawer */}
+  <div id={megaId} class="lp-mega-mobile-drawer" aria-hidden="true">
+    {(groups.length > 0 ? groups.flatMap(g => g.links) : autoLinks).map(link => (
+      <a href={link.href} class="lp-mega-mobile-link">{link.label}</a>
+    ))}
+  </div>
+</nav>
+
+<style>
+  .lp-mega-group { position: relative; }
+
+  .lp-mega-trigger {
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s;
+  }
+  .lp-mega-trigger:hover {
+    background: color-mix(in srgb, var(--lp-text) 6%, transparent);
+  }
+
+  .lp-mega-panel {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 200px;
+    background: var(--lp-surface);
+    border: 1px solid color-mix(in srgb, var(--lp-text) 10%, transparent);
+    border-radius: var(--lp-radius);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    padding: 0.5rem;
+    display: none;
+    flex-direction: column;
+    gap: 0.125rem;
+    z-index: 100;
+  }
+  .lp-mega-group:hover .lp-mega-panel,
+  .lp-mega-group:focus-within .lp-mega-panel { display: flex; }
+
+  .lp-mega-panel-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 0.625rem 0.875rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+  .lp-mega-panel-link:hover {
+    background: color-mix(in srgb, var(--lp-primary) 6%, transparent);
+  }
+
+  .lp-mega-mobile-drawer {
+    display: none;
+    flex-direction: column;
+    padding: 0.75rem 1.5rem 1rem;
+    border-top: 1px solid color-mix(in srgb, var(--lp-text) 8%, transparent);
+  }
+  .lp-mega-mobile-drawer.open { display: flex; }
+
+  .lp-mega-mobile-link {
+    padding: 0.625rem 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--lp-text);
+    text-decoration: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--lp-text) 6%, transparent);
+    transition: color 0.15s;
+  }
+  .lp-mega-mobile-link:hover { color: var(--lp-primary); }
+</style>
+
+<script>
+  document.querySelectorAll('.lp-mega-mobile-btn').forEach(btn => {
+    const drawerId = btn.getAttribute('aria-controls')
+    const drawer = drawerId ? document.getElementById(drawerId) : null
+    if (!drawer) return
+    btn.addEventListener('click', () => {
+      const open = drawer.classList.toggle('open')
+      btn.setAttribute('aria-expanded', String(open))
+      drawer.setAttribute('aria-hidden', String(!open))
+    })
+    drawer.querySelectorAll('.lp-mega-mobile-link').forEach(l => {
+      l.addEventListener('click', () => {
+        drawer.classList.remove('open')
+        btn.setAttribute('aria-expanded', 'false')
+        drawer.setAttribute('aria-hidden', 'true')
+      })
+    })
+  })
+</script>

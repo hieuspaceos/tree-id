@@ -1,14 +1,16 @@
 ---
 /**
- * Stats section with 3 layout variants:
+ * Stats section with 4 layout variants:
  * - row (default): horizontal flex row with dividers
  * - cards: each stat in its own elevated card
  * - large: big numbers, vertical stack
+ * - counter: animated count-up on scroll via IntersectionObserver + requestAnimationFrame
  */
 import type { StatsData } from '@/lib/landing/landing-types'
 
 interface Props extends StatsData {}
 const { heading, items = [], variant = 'row' } = Astro.props
+const counterId = `lp-counter-${Math.random().toString(36).slice(2, 7)}`
 ---
 
 {/* Row: horizontal with subtle dividers */}
@@ -61,3 +63,78 @@ const { heading, items = [], variant = 'row' } = Astro.props
     </div>
   </section>
 )}
+
+{/* Counter: animated count-up on scroll via IntersectionObserver */}
+{variant === 'counter' && (
+  <section class="landing-section lp-fade-up" id={counterId}>
+    {heading && <h2 class="lp-section-heading text-center mb-8">{heading}</h2>}
+    <div class={items.length <= 3 ? 'landing-grid-3' : 'landing-grid-4'}>
+      {items.map((stat, i) => (
+        <div class="p-6 text-center" style="border-radius: var(--lp-radius); background: color-mix(in srgb, var(--lp-primary) 4%, var(--lp-surface))">
+          <p
+            class="lp-counter-value"
+            data-target={stat.value}
+            data-prefix={stat.prefix || ''}
+            data-suffix={stat.suffix || ''}
+            style="font-family: var(--lp-font-heading), serif; font-size: 2.8rem; font-weight: 700; line-height: 1; color: var(--lp-primary); font-variant-numeric: tabular-nums"
+          >
+            {stat.prefix}{stat.value}{stat.suffix}
+          </p>
+          <p class="mt-2 text-sm font-medium" style="color: var(--lp-text-muted); letter-spacing: 0.02em">{stat.label}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+
+<script define:vars={{ counterId }}>
+  document.addEventListener('DOMContentLoaded', () => {
+    const section = document.getElementById(counterId)
+    if (!section) return
+
+    const counters = section.querySelectorAll('.lp-counter-value')
+    let animated = false
+
+    function parseNum(str) {
+      return parseFloat(String(str).replace(/[^0-9.]/g, '')) || 0
+    }
+
+    function animateCounters() {
+      if (animated) return
+      animated = true
+      const duration = 1600
+      const start = performance.now()
+
+      counters.forEach(el => {
+        const target = parseNum(el.dataset.target)
+        const prefix = el.dataset.prefix || ''
+        const suffix = el.dataset.suffix || ''
+        const isDecimal = String(el.dataset.target).includes('.')
+        const decimals = isDecimal ? (String(el.dataset.target).split('.')[1]?.length || 1) : 0
+
+        function tick(now) {
+          const elapsed = now - start
+          const progress = Math.min(elapsed / duration, 1)
+          // ease-out cubic
+          const eased = 1 - Math.pow(1 - progress, 3)
+          const current = target * eased
+          el.textContent = prefix + (decimals > 0 ? current.toFixed(decimals) : Math.floor(current).toLocaleString()) + suffix
+          if (progress < 1) requestAnimationFrame(tick)
+        }
+        requestAnimationFrame(tick)
+      })
+    }
+
+    if ('IntersectionObserver' in window) {
+      const obs = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting) {
+          animateCounters()
+          obs.disconnect()
+        }
+      }, { threshold: 0.3 })
+      obs.observe(section)
+    } else {
+      animateCounters()
+    }
+  })
+</script>

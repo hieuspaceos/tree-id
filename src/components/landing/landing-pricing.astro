@@ -1,14 +1,18 @@
 ---
 /**
- * Pricing section with 3 layout variants:
+ * Pricing section with 5 layout variants:
  * - cards (default): card grid layout
  * - simple: horizontal compact row
  * - highlight-center: center plan larger/elevated
+ * - comparison: table layout, features as rows, plans as columns (→ landing-pricing-comparison.astro)
+ * - toggle: monthly/annual toggle switch above standard cards (→ landing-pricing-toggle.astro)
  */
 import type { PricingData } from '@/lib/landing/landing-types'
+import PricingComparison from './landing-pricing-comparison.astro'
+import PricingToggle from './landing-pricing-toggle.astro'
 
 interface Props extends PricingData {}
-const { heading, subheading, plans = [], variant = 'cards' } = Astro.props
+const { heading, subheading, plans = [], variant = 'cards', annualPlans, comparisonRows } = Astro.props
 ---
 
 {/* Cards: grid for <=4 plans, horizontal scroll for 5+ with images */}
@@ -102,4 +106,14 @@ const { heading, subheading, plans = [], variant = 'cards' } = Astro.props
       })}
     </div>
   </section>
+)}
+
+{/* Comparison: table layout — delegated */}
+{variant === 'comparison' && (
+  <PricingComparison heading={heading} subheading={subheading} plans={plans} variant={variant} comparisonRows={comparisonRows} />
+)}
+
+{/* Toggle: monthly/annual switch — delegated */}
+{variant === 'toggle' && (
+  <PricingToggle heading={heading} subheading={subheading} plans={plans} variant={variant} annualPlans={annualPlans} />
 )}

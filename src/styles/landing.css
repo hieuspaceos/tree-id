@@ -466,6 +466,45 @@ html:has(.landing-nav) {
   background: color-mix(in srgb, var(--lp-primary) 10%, transparent);
 }
 
+/* ─── LAYOUT VARIANTS ────────────────────────── */
+
+/* Base: mobile-first single column for all variants */
+.lp-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--lp-layout-gap, 1.5rem);
+}
+
+/* Mobile reverse — swap visual order of first/last child */
+.lp-layout--reverse > :first-child { order: 2; }
+.lp-layout--reverse > :last-child  { order: 1; }
+
+/* Masonry uses CSS columns instead of grid */
+.lp-layout--masonry {
+  display: block;
+  columns: 2;
+  column-gap: var(--lp-layout-gap, 1.5rem);
+}
+.lp-layout--masonry > * {
+  break-inside: avoid;
+  margin-bottom: var(--lp-layout-gap, 1.5rem);
+}
+
+/* Desktop breakpoints — variants expand to multi-column */
+@media (min-width: 768px) {
+  /* grid: dynamic via inline style — no override needed */
+  .lp-layout--sidebar-left  { grid-template-columns: 280px 1fr; }
+  .lp-layout--sidebar-right { grid-template-columns: 1fr 280px; }
+  .lp-layout--asymmetric    { grid-template-columns: 3fr 2fr; }
+  .lp-layout--thirds        { grid-template-columns: repeat(3, 1fr); }
+  .lp-layout--hero-split    { grid-template-columns: 1.2fr 1fr; align-items: center; }
+  .lp-layout--stacked       { grid-template-columns: 1fr; }
+  .lp-layout--masonry       { columns: 3; }
+  /* Undo mobile reverse on desktop — natural document order */
+  .lp-layout--reverse > :first-child { order: unset; }
+  .lp-layout--reverse > :last-child  { order: unset; }
+}
+
 /* ─── CTA GRADIENT BACKGROUND ────────────────── */
 
 .lp-cta-gradient {

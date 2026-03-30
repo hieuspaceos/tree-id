@@ -1,0 +1,86 @@
+---
+/**
+ * Features bento variant — CSS grid, first item spans 2 rows, rest fill around it.
+ * Used by landing-features.astro when variant === 'bento'.
+ */
+import type { FeaturesData } from '@/lib/landing/landing-types'
+
+interface Props extends FeaturesData {}
+const { heading, subheading, items = [] } = Astro.props
+---
+
+<section class="landing-section">
+  {heading && <h2 class="mb-2 text-center text-3xl font-bold">{heading}</h2>}
+  {subheading && <p class="mx-auto mb-8 max-w-2xl text-center" style="color: var(--lp-text-muted)">{subheading}</p>}
+
+  <div class="lp-bento-grid">
+    {items.map((item, i) => {
+      const isFeatured = i === 0
+      const hasImage = !!item.image
+      return (
+        <div
+          class={`lp-bento-cell lp-card-hover${isFeatured ? ' lp-bento-featured' : ''}`}
+          style={`background: color-mix(in srgb, var(--lp-primary) ${isFeatured ? '8' : '4'}%, var(--lp-surface)); border-radius: var(--lp-radius); border: 1px solid color-mix(in srgb, var(--lp-primary) ${isFeatured ? '15' : '8'}%, transparent); overflow: hidden; ${isFeatured ? 'border-top: 3px solid var(--lp-primary)' : ''}`}
+        >
+          {hasImage && (
+            <img
+              src={item.image}
+              alt={item.title}
+              loading="lazy"
+              style={`width: 100%; object-fit: cover; ${isFeatured ? 'height: 200px' : 'height: 140px'}`}
+            />
+          )}
+          <div style={`padding: ${isFeatured ? '1.75rem' : '1.25rem'}`}>
+            {item.icon && !hasImage && (
+              item.icon.startsWith('http')
+                ? <img src={item.icon} alt="" class="mb-3 h-10 w-10 object-contain" />
+                : <div class="lp-icon-bg mb-3" style={isFeatured ? 'width: 3.5rem; height: 3.5rem; font-size: 1.5rem' : ''}>{item.icon}</div>
+            )}
+            <h3 class={`font-semibold mb-1 ${isFeatured ? 'text-xl' : 'text-base'}`}>{item.title}</h3>
+            {item.description && (
+              <p class="text-sm" style="color: var(--lp-text-muted); line-height: 1.6">{item.description}</p>
+            )}
+            {item.price && (
+              <div style="margin-top: 1rem; display: flex; align-items: center; justify-content: space-between">
+                <span style="font-size: 0.9rem; color: var(--lp-accent, var(--lp-primary)); font-weight: 600">{item.price}</span>
+                {item.priceType && (
+                  <span style="font-size: 0.7rem; color: var(--lp-text-muted); background: color-mix(in srgb, var(--lp-text) 6%, transparent); padding: 0.2rem 0.5rem; border-radius: 99px">{item.priceType}</span>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )
+    })}
+  </div>
+</section>
+
+<style>
+  .lp-bento-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  /* First cell — featured, spans 2 rows on desktop */
+  .lp-bento-featured {
+    grid-row: span 1;
+  }
+
+  @media (min-width: 640px) {
+    .lp-bento-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .lp-bento-grid {
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-rows: minmax(180px, auto);
+    }
+    .lp-bento-featured {
+      grid-row: span 2;
+      grid-column: span 1;
+    }
+  }
+</style>

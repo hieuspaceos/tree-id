@@ -1,14 +1,16 @@
 ---
 /**
- * FAQ section with 3 layout variants:
+ * FAQ section with 4 layout variants:
  * - accordion (default): expandable Q&A via details/summary (static HTML, no JS)
  * - two-column: questions left, answers right
  * - simple: all expanded, no toggle
+ * - searchable: search input at top, filters FAQ items client-side
  */
 import type { FaqData } from '@/lib/landing/landing-types'
 
 interface Props extends FaqData {}
 const { heading, items = [], variant = 'accordion' } = Astro.props
+const searchId = `lp-faq-search-${Math.random().toString(36).slice(2, 7)}`
 ---
 
 {/* Accordion: details/summary native HTML */}
@@ -61,3 +63,88 @@ const { heading, items = [], variant = 'accordion' } = Astro.props
     </div>
   </section>
 )}
+
+{/* Searchable: search input filters items client-side */}
+{variant === 'searchable' && (
+  <section class="landing-section" id={searchId}>
+    {heading && <h2 class="mb-6 text-center text-3xl font-bold">{heading}</h2>}
+    <div class="mx-auto max-w-2xl">
+      <div class="lp-faq-search-wrap">
+        <span class="lp-faq-search-icon" aria-hidden="true">🔍</span>
+        <input
+          type="search"
+          class="lp-faq-search-input"
+          placeholder="Search questions…"
+          aria-label="Search FAQ"
+          autocomplete="off"
+        />
+      </div>
+      <div class="lp-faq-search-list mt-5 space-y-3">
+        {items.map((faq, i) => (
+          <details class="glass-card rounded-xl lp-faq-item" data-q={faq.question.toLowerCase()} data-a={faq.answer.toLowerCase()}>
+            <summary class="cursor-pointer px-6 py-4 text-sm font-semibold select-none" style="color: var(--lp-text)">
+              {faq.question}
+            </summary>
+            <p class="px-6 pb-4 text-sm" style="color: var(--lp-text-muted)">{faq.answer}</p>
+          </details>
+        ))}
+        <p class="lp-faq-empty hidden text-center text-sm py-6" style="color: var(--lp-text-muted)">No results found.</p>
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  .lp-faq-search-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .lp-faq-search-icon {
+    position: absolute;
+    left: 0.875rem;
+    font-size: 0.95rem;
+    pointer-events: none;
+  }
+  .lp-faq-search-input {
+    width: 100%;
+    padding: 0.7rem 1rem 0.7rem 2.5rem;
+    border-radius: var(--lp-radius);
+    border: 1px solid color-mix(in srgb, var(--lp-text) 15%, transparent);
+    background: color-mix(in srgb, var(--lp-text) 4%, transparent);
+    color: var(--lp-text);
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .lp-faq-search-input:focus {
+    border-color: var(--lp-primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--lp-primary) 12%, transparent);
+  }
+  .lp-faq-search-input::placeholder { color: var(--lp-text-muted); }
+  .lp-faq-item.hidden { display: none; }
+  .lp-faq-empty.hidden { display: none; }
+</style>
+
+<script define:vars={{ searchId }}>
+  document.addEventListener('DOMContentLoaded', () => {
+    const section = document.getElementById(searchId)
+    if (!section) return
+    const input = section.querySelector('.lp-faq-search-input')
+    const items = section.querySelectorAll('.lp-faq-item')
+    const empty = section.querySelector('.lp-faq-empty')
+    if (!input || !items.length) return
+
+    input.addEventListener('input', () => {
+      const q = input.value.trim().toLowerCase()
+      let visible = 0
+      items.forEach(item => {
+        const text = (item.dataset.q || '') + ' ' + (item.dataset.a || '')
+        const match = !q || text.includes(q)
+        item.classList.toggle('hidden', !match)
+        if (match) visible++
+      })
+      empty?.classList.toggle('hidden', visible > 0)
+    })
+  })
+</script>

@@ -1,0 +1,128 @@
+---
+/**
+ * CTA floating variant — fixed bottom bar that appears after 300px scroll, dismissible.
+ * Used by landing-cta.astro when variant === 'floating'.
+ */
+import type { CtaData } from '@/lib/landing/landing-types'
+
+interface Props extends CtaData {}
+const { headline, subheadline, cta } = Astro.props
+
+const ctaList = Array.isArray(cta) ? cta : cta ? [cta] : []
+function ctaClass(i: number, v?: string) {
+  if (v === 'secondary') return 'landing-btn-secondary'
+  if (v === 'outline') return 'landing-btn-outline'
+  return i === 0 ? 'landing-btn-primary' : 'landing-btn-secondary'
+}
+const floatingId = `lp-floating-${Math.random().toString(36).slice(2, 7)}`
+---
+
+<div class="lp-floating-bar" id={floatingId} role="complementary" aria-label="Call to action" aria-hidden="true">
+  <div class="lp-floating-inner">
+    <div class="lp-floating-text">
+      <strong style="color: var(--lp-text)">{headline}</strong>
+      {subheadline && <span class="lp-floating-sub">{subheadline}</span>}
+    </div>
+    {ctaList.length > 0 && (
+      <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0">
+        {ctaList.map((item, i) => (
+          <a href={item.url} class={ctaClass(i, item.variant)} style="white-space:nowrap;font-size:0.875rem;padding:0.5rem 1.25rem">{item.text}</a>
+        ))}
+      </div>
+    )}
+  </div>
+  <button class="lp-floating-close" aria-label="Dismiss">✕</button>
+</div>
+
+<style>
+  .lp-floating-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 150;
+    background: color-mix(in srgb, var(--lp-surface) 95%, transparent);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid color-mix(in srgb, var(--lp-text) 10%, transparent);
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.08);
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    padding: 0.875rem 1.5rem;
+  }
+  .lp-floating-bar.visible {
+    transform: translateY(0);
+  }
+
+  .lp-floating-inner {
+    max-width: 72rem;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    padding-right: 2rem;
+  }
+
+  .lp-floating-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .lp-floating-sub {
+    color: var(--lp-text-muted);
+    font-size: 0.875rem;
+  }
+
+  .lp-floating-close {
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--lp-text-muted);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0.375rem;
+    border-radius: 50%;
+    transition: color 0.15s, background 0.15s;
+    line-height: 1;
+  }
+  .lp-floating-close:hover {
+    color: var(--lp-text);
+    background: color-mix(in srgb, var(--lp-text) 8%, transparent);
+  }
+
+  @media (max-width: 480px) {
+    .lp-floating-text { gap: 0.375rem; }
+    .lp-floating-sub { display: none; }
+  }
+</style>
+
+<script define:vars={{ floatingId }}>
+  document.addEventListener('DOMContentLoaded', () => {
+    const bar = document.getElementById(floatingId)
+    if (!bar) return
+
+    let shown = false
+    function checkScroll() {
+      if (!shown && window.scrollY > 300) {
+        shown = true
+        bar.classList.add('visible')
+        bar.setAttribute('aria-hidden', 'false')
+        window.removeEventListener('scroll', checkScroll)
+      }
+    }
+    window.addEventListener('scroll', checkScroll, { passive: true })
+
+    bar.querySelector('.lp-floating-close')?.addEventListener('click', () => {
+      bar.classList.remove('visible')
+      bar.setAttribute('aria-hidden', 'true')
+      setTimeout(() => bar.remove(), 400)
+    })
+  })
+</script>

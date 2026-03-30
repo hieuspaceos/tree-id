@@ -1,7 +1,7 @@
 ---
 /**
- * Layout section — splits content into columns defined by ratio array.
- * Each column renders its nested sections independently.
+ * Layout section — renders multi-column grids via named variants or ratio-based grid.
+ * Variants collapse to single column on mobile (<768px) — no runtime JS.
  * Does NOT import itself — no infinite recursion.
  */
 import type { LayoutData } from '@/lib/landing/landing-types'
@@ -30,7 +30,14 @@ import LandingAiSearch from './landing-ai-search.astro'
 
 interface Props extends LayoutData {}
 
-const { columns, gap = '1rem', children = [] } = Astro.props
+const {
+  columns,
+  gap = '1rem',
+  children = [],
+  variant = 'grid',
+  mobileReverse = false,
+  alignItems,
+} = Astro.props
 
 /** Map type to component — layout excluded to prevent infinite recursion */
 const componentMap: Record<string, any> = {
@@ -58,18 +65,39 @@ const componentMap: Record<string, any> = {
   'ai-search': LandingAiSearch,
 }
 
-const gridTemplate = columns.map(c => `${c}fr`).join(' ')
+/**
+ * For `grid` variant, generate inline grid-template-columns from ratio array.
+ * Named variants use pure CSS classes — no inline override.
+ */
+const gridTemplate = variant === 'grid' ? columns.map(c => `${c}fr`).join(' ') : undefined
+
+/**
+ * Inline style: gap always applied via CSS var, alignItems if provided.
+ * grid variant also injects grid-template-columns at all breakpoints.
+ */
+const inlineStyle = [
+  `--lp-layout-gap:${gap}`,
+  gridTemplate ? `grid-template-columns:${gridTemplate}` : '',
+  alignItems ? `align-items:${alignItems}` : '',
+].filter(Boolean).join(';')
 ---
 
 <section class="landing-section">
-  <div style={`display:grid;grid-template-columns:${gridTemplate};gap:${gap}`}>
+  <div
+    class:list={[
+      'lp-layout',
+      `lp-layout--${variant}`,
+      mobileReverse && 'lp-layout--reverse',
+    ]}
+    style={inlineStyle}
+  >
     {columns.map((_, colIdx) => {
       const colChildren = children.find(c => c.column === colIdx)
       const sections = (colChildren?.sections || [])
         .filter(s => s.enabled !== false)
         .sort((a, b) => a.order - b.order)
       return (
-        <div>
+        <div class="lp-layout__col">
           {sections.map(section => {
             const Component = componentMap[section.type]
             return Component ? <Component {...section.data as any} /> : null

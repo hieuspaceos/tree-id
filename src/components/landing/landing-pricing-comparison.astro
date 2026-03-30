@@ -1,0 +1,178 @@
+---
+/**
+ * Pricing comparison variant — table layout: features as rows, plans as columns, checkmarks.
+ * Sticky first column on mobile via horizontal scroll.
+ * Used by landing-pricing.astro when variant === 'comparison'.
+ */
+import type { PricingData } from '@/lib/landing/landing-types'
+
+interface Props extends PricingData {}
+const { heading, subheading, plans = [], comparisonRows = [] } = Astro.props
+
+/* Collect all unique feature labels if no explicit comparisonRows provided */
+const rows = comparisonRows.length > 0
+  ? comparisonRows
+  : (() => {
+      const labels = [...new Set(plans.flatMap(p => p.features ?? []))]
+      return labels.map(label => ({
+        label,
+        values: plans.map(p => (p.features ?? []).includes(label) ? '✓' : '—'),
+      }))
+    })()
+---
+
+<section class="landing-section">
+  {heading && <h2 class="mb-2 text-center text-3xl font-bold">{heading}</h2>}
+  {subheading && <p class="mx-auto mb-8 max-w-2xl text-center" style="color: var(--lp-text-muted)">{subheading}</p>}
+
+  <div class="lp-comparison-wrapper">
+    <table class="lp-comparison-table">
+      {/* Plan header row */}
+      <thead>
+        <tr>
+          <th class="lp-comparison-feature-col" scope="col" aria-label="Feature"></th>
+          {plans.map(plan => (
+            <th class={`lp-comparison-plan-col${plan.highlighted ? ' lp-comparison-highlight-col' : ''}`} scope="col">
+              {plan.highlighted && plan.badge && (
+                <div class="lp-comparison-badge">{plan.badge}</div>
+              )}
+              <div class="lp-comparison-plan-name">{plan.name}</div>
+              <div class="lp-comparison-plan-price">{plan.price}
+                {plan.period && <span class="lp-comparison-period">/{plan.period}</span>}
+              </div>
+              <a href={plan.cta?.url} class={plan.highlighted ? 'landing-btn-primary' : 'landing-btn-outline'} style="font-size:0.8rem;padding:0.4rem 1rem;display:inline-block;margin-top:0.5rem;text-align:center">
+                {plan.cta?.text}
+              </a>
+            </th>
+          ))}
+        </tr>
+      </thead>
+
+      {/* Feature rows */}
+      <tbody>
+        {rows.map((row) => (
+          <tr class={row.highlight ? 'lp-comparison-row-highlight' : 'lp-comparison-row'}>
+            <td class="lp-comparison-feature-cell" scope="row">{row.label}</td>
+            {row.values.map((val, i) => (
+              <td class={`lp-comparison-value-cell${plans[i]?.highlighted ? ' lp-comparison-highlight-col' : ''}`}>
+                {val === '✓'
+                  ? <span class="lp-comparison-check" aria-label="Included">✓</span>
+                  : val === '—' || val === ''
+                    ? <span class="lp-comparison-dash" aria-label="Not included">—</span>
+                    : <span>{val}</span>
+                }
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<style>
+  .lp-comparison-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--lp-radius);
+    border: 1px solid color-mix(in srgb, var(--lp-text) 10%, transparent);
+  }
+
+  .lp-comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 480px;
+    font-size: 0.875rem;
+  }
+
+  /* Feature label column */
+  .lp-comparison-feature-col,
+  .lp-comparison-feature-cell {
+    text-align: left;
+    padding: 0.75rem 1.25rem;
+    background: color-mix(in srgb, var(--lp-primary) 3%, var(--lp-surface));
+    color: var(--lp-text);
+    font-weight: 500;
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    min-width: 160px;
+    border-right: 1px solid color-mix(in srgb, var(--lp-text) 8%, transparent);
+  }
+
+  /* Plan columns */
+  .lp-comparison-plan-col {
+    text-align: center;
+    padding: 1rem 1.5rem 1.25rem;
+    background: var(--lp-surface);
+    border-right: 1px solid color-mix(in srgb, var(--lp-text) 8%, transparent);
+  }
+  .lp-comparison-plan-col:last-child { border-right: none; }
+
+  /* Highlighted plan column */
+  .lp-comparison-highlight-col {
+    background: color-mix(in srgb, var(--lp-primary) 6%, var(--lp-surface));
+    border-left: 2px solid var(--lp-primary);
+    border-right: 2px solid var(--lp-primary);
+  }
+
+  .lp-comparison-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--lp-primary);
+    margin-bottom: 0.25rem;
+  }
+
+  .lp-comparison-plan-name {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--lp-text);
+  }
+
+  .lp-comparison-plan-price {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--lp-primary);
+    margin: 0.25rem 0;
+    line-height: 1;
+  }
+
+  .lp-comparison-period {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--lp-text-muted);
+  }
+
+  /* Value cells */
+  .lp-comparison-value-cell {
+    text-align: center;
+    padding: 0.625rem 1rem;
+    border-top: 1px solid color-mix(in srgb, var(--lp-text) 6%, transparent);
+    border-right: 1px solid color-mix(in srgb, var(--lp-text) 6%, transparent);
+    color: var(--lp-text);
+  }
+  .lp-comparison-value-cell:last-child { border-right: none; }
+
+  .lp-comparison-check {
+    color: var(--lp-primary);
+    font-weight: 700;
+    font-size: 1rem;
+  }
+
+  .lp-comparison-dash {
+    color: var(--lp-text-muted);
+    opacity: 0.4;
+  }
+
+  /* Row alternating background */
+  .lp-comparison-row:nth-child(even) td {
+    background: color-mix(in srgb, var(--lp-text) 2%, transparent);
+  }
+
+  .lp-comparison-row-highlight td {
+    background: color-mix(in srgb, var(--lp-accent, var(--lp-primary)) 5%, transparent);
+    font-weight: 600;
+  }
+</style>

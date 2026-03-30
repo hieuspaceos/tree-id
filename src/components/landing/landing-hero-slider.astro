@@ -1,0 +1,236 @@
+---
+/**
+ * Hero slider variant — multiple slides, auto-rotate every 5s, dot navigation.
+ * Uses `items` array; falls back to single slide from headline/subheadline/backgroundImage.
+ * Used by landing-hero.astro when variant === 'slider'.
+ */
+import type { HeroData } from '@/lib/landing/landing-types'
+
+interface Props extends HeroData {}
+const { headline, subheadline, cta, backgroundImage, items } = Astro.props
+
+const ctaList = Array.isArray(cta) ? cta : cta ? [cta] : []
+
+/* Build slides — use items array or fall back to single slide */
+const slides = (items && items.length > 0)
+  ? items
+  : [{ headline, subheadline, backgroundImage }]
+
+const sliderId = `lp-slider-${Math.random().toString(36).slice(2, 7)}`
+
+function ctaClass(i: number, v?: string) {
+  if (v === 'secondary') return 'landing-btn-secondary'
+  if (v === 'outline') return 'landing-btn-outline'
+  return i === 0 ? 'landing-btn-primary' : 'landing-btn-outline'
+}
+---
+
+<section class="lp-hero-slider" id={sliderId} aria-label="Hero slideshow">
+  <div class="lp-slider-track" aria-live="polite">
+    {slides.map((slide, i) => (
+      <div
+        class={`lp-slider-slide${i === 0 ? ' active' : ''}`}
+        aria-hidden={i !== 0}
+        style={slide.backgroundImage ? `background-image: url(${slide.backgroundImage})` : undefined}
+      >
+        <div class="lp-slider-overlay" />
+        <div class="lp-slider-content">
+          <h1 class="lp-slider-headline">{slide.headline}</h1>
+          {slide.subheadline && <p class="lp-slider-sub">{slide.subheadline}</p>}
+          {i === 0 && ctaList.length > 0 && (
+            <div class="lp-hero-fs-cta" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:0.875rem;margin-top:2rem">
+              {ctaList.map((item, ci) => (
+                <a href={item.url} class={ctaClass(ci, item.variant)}>{item.text}</a>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    ))}
+  </div>
+
+  {/* Dot navigation */}
+  {slides.length > 1 && (
+    <div class="lp-slider-dots" role="tablist" aria-label="Slide navigation">
+      {slides.map((_, i) => (
+        <button
+          class={`lp-slider-dot${i === 0 ? ' active' : ''}`}
+          role="tab"
+          aria-selected={i === 0}
+          aria-label={`Slide ${i + 1}`}
+          data-index={i}
+        />
+      ))}
+    </div>
+  )}
+
+  {/* Prev / Next arrows */}
+  {slides.length > 1 && (
+    <>
+      <button class="lp-slider-arrow lp-slider-prev" aria-label="Previous slide">‹</button>
+      <button class="lp-slider-arrow lp-slider-next" aria-label="Next slide">›</button>
+    </>
+  )}
+</section>
+
+<style>
+  .lp-hero-slider {
+    position: relative;
+    min-height: 85vh;
+    overflow: hidden;
+    background: var(--lp-surface);
+  }
+
+  .lp-slider-track {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 85vh;
+  }
+
+  .lp-slider-slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    pointer-events: none;
+    background-color: var(--lp-surface);
+  }
+  .lp-slider-slide.active {
+    opacity: 1;
+    pointer-events: auto;
+    position: relative;
+    min-height: 85vh;
+  }
+
+  .lp-slider-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(175deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.25) 55%, rgba(0,0,0,0.55) 100%);
+  }
+
+  .lp-slider-content {
+    position: relative;
+    z-index: 2;
+    max-width: 760px;
+    padding: 2rem;
+  }
+
+  .lp-slider-headline {
+    font-family: var(--lp-font-heading), serif;
+    font-size: clamp(2.4rem, 6vw, 4.8rem);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    color: #fff;
+    text-shadow: 0 2px 16px rgba(0,0,0,0.3);
+  }
+
+  .lp-slider-sub {
+    margin-top: 1.25rem;
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    color: rgba(255,255,255,0.82);
+    line-height: 1.7;
+    font-weight: 300;
+    max-width: 540px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Dot indicators */
+  .lp-slider-dots {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    z-index: 10;
+  }
+
+  .lp-slider-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.4);
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .lp-slider-dot.active,
+  .lp-slider-dot[aria-selected="true"] {
+    background: #fff;
+    transform: scale(1.35);
+  }
+
+  /* Arrow buttons */
+  .lp-slider-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.35);
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(6px);
+    color: #fff;
+    font-size: 1.4rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+  .lp-slider-arrow:hover { background: rgba(0,0,0,0.5); }
+  .lp-slider-prev { left: 1rem; }
+  .lp-slider-next { right: 1rem; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lp-slider-slide { transition: none; }
+  }
+</style>
+
+<script define:vars={{ sliderId, slideCount: slides.length }}>
+  document.addEventListener('DOMContentLoaded', () => {
+    const el = document.getElementById(sliderId)
+    if (!el || slideCount < 2) return
+
+    const track = el.querySelector('.lp-slider-track')
+    const allSlides = el.querySelectorAll('.lp-slider-slide')
+    const dots = el.querySelectorAll('.lp-slider-dot')
+    let current = 0
+    let timer
+
+    function goTo(idx) {
+      allSlides[current].classList.remove('active')
+      allSlides[current].setAttribute('aria-hidden', 'true')
+      dots[current]?.classList.remove('active')
+      dots[current]?.setAttribute('aria-selected', 'false')
+      current = (idx + slideCount) % slideCount
+      allSlides[current].classList.add('active')
+      allSlides[current].setAttribute('aria-hidden', 'false')
+      dots[current]?.classList.add('active')
+      dots[current]?.setAttribute('aria-selected', 'true')
+    }
+
+    function startAuto() {
+      clearInterval(timer)
+      timer = setInterval(() => goTo(current + 1), 5000)
+    }
+
+    el.querySelector('.lp-slider-prev')?.addEventListener('click', () => { goTo(current - 1); startAuto() })
+    el.querySelector('.lp-slider-next')?.addEventListener('click', () => { goTo(current + 1); startAuto() })
+    dots.forEach((dot, i) => dot.addEventListener('click', () => { goTo(i); startAuto() }))
+
+    startAuto()
+  })
+</script>

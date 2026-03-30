@@ -1,11 +1,16 @@
 ---
 /**
- * Features section with 3 layout variants:
+ * Features section with 6 layout variants:
  * - grid (default): card grid layout
  * - list: vertical list with icon left, text right
  * - alternating: zigzag rows (image/icon alternates sides)
+ * - masonry: CSS columns layout, cards with varying heights
+ * - icon-strip: horizontal scrollable icon bar, icon above label (→ landing-features-icon-strip.astro)
+ * - bento: CSS grid, first item spans 2 rows (→ landing-features-bento.astro)
  */
 import type { FeaturesData } from '@/lib/landing/landing-types'
+import IconStrip from './landing-features-icon-strip.astro'
+import Bento from './landing-features-bento.astro'
 
 interface Props extends FeaturesData {}
 const { heading, subheading, items = [], columns = 3, variant = 'grid' } = Astro.props
@@ -99,3 +104,47 @@ const hasImages = items.some(item => item.image)
     </div>
   </section>
 )}
+
+{/* Masonry: CSS columns, cards with varying heights */}
+{variant === 'masonry' && (
+  <section class="landing-section">
+    {heading && <h2 class="mb-2 text-center text-3xl font-bold">{heading}</h2>}
+    {subheading && <p class="mx-auto mb-8 max-w-2xl text-center" style="color: var(--lp-text-muted)">{subheading}</p>}
+    <div style="columns: 1; gap: 1rem; column-gap: 1rem" class="lp-masonry-cols">
+      {items.map((item) => (
+        <div
+          class="lp-card-hover"
+          style="break-inside: avoid; margin-bottom: 1rem; padding: 1.5rem; background: color-mix(in srgb, var(--lp-primary) 5%, var(--lp-surface)); border-radius: var(--lp-radius); border: 1px solid color-mix(in srgb, var(--lp-primary) 8%, transparent)"
+        >
+          {item.image && <img src={item.image} alt={item.title} style="width: 100%; border-radius: 8px; margin-bottom: 0.875rem; object-fit: cover" loading="lazy" />}
+          {item.icon && !item.image && (
+            item.icon.startsWith('http')
+              ? <img src={item.icon} alt="" class="mb-3 h-9 w-9 object-contain" />
+              : <div class="lp-icon-bg mb-3">{item.icon}</div>
+          )}
+          <h3 class="font-semibold text-base mb-1">{item.title}</h3>
+          {item.description && <p class="text-sm" style="color: var(--lp-text-muted); line-height: 1.65">{item.description}</p>}
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+
+{/* Icon-strip: horizontal scrollable icon bar — delegated */}
+{variant === 'icon-strip' && (
+  <IconStrip heading={heading} subheading={subheading} items={items} columns={columns} variant={variant} />
+)}
+
+{/* Bento: CSS grid first-item 2-row span — delegated */}
+{variant === 'bento' && (
+  <Bento heading={heading} subheading={subheading} items={items} columns={columns} variant={variant} />
+)}
+
+<style>
+  @media (min-width: 640px) {
+    .lp-masonry-cols { columns: 2 !important; }
+  }
+  @media (min-width: 1024px) {
+    .lp-masonry-cols { columns: 3 !important; }
+  }
+</style>

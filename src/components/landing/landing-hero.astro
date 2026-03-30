@@ -1,17 +1,21 @@
 ---
 /**
- * Hero section with 4 layout variants:
+ * Hero section with 6 layout variants:
  * - centered (default): centered headline + CTA, optional background image with gradient overlay
  * - split: text left + image/embed right (50/50)
  * - video-bg: full-width background with animated zoom + gradient overlay
  * - minimal: just headline + subheadline, no CTA
+ * - fullscreen: 100vh, ken-burns bg animation, scroll indicator arrow (→ landing-hero-fullscreen.astro)
+ * - slider: multiple slides auto-rotate, dots nav (→ landing-hero-slider.astro)
  *
  * Supports: eyebrow label, cta array, embed (video/iframe), background image.
  */
 import type { HeroData } from '@/lib/landing/landing-types'
+import HeroFullscreen from './landing-hero-fullscreen.astro'
+import HeroSlider from './landing-hero-slider.astro'
 
 interface Props extends HeroData {}
-const { headline, subheadline, cta, backgroundImage, embed, variant = 'centered' } = Astro.props
+const { headline, subheadline, cta, backgroundImage, embed, variant = 'centered', items } = Astro.props
 
 const ctaList = Array.isArray(cta) ? cta : cta ? [cta] : []
 const isVideoEmbed = embed ? /\.(mp4|webm)(\?.*)?$/i.test(embed) : false
@@ -151,4 +155,14 @@ function ctaClass(index: number, ctaVariant?: string): string {
       <p class="mx-auto mt-4 max-w-2xl text-xl" style="color: var(--lp-text-muted); line-height: 1.7; font-weight: 300">{subheadline}</p>
     )}
   </section>
+)}
+
+{/* Fullscreen: 100vh, ken-burns bg, scroll indicator — delegated */}
+{variant === 'fullscreen' && (
+  <HeroFullscreen headline={headline} subheadline={subheadline} cta={cta} backgroundImage={backgroundImage} embed={embed} variant={variant} />
+)}
+
+{/* Slider: multi-slide auto-rotate, dot nav — delegated */}
+{variant === 'slider' && (
+  <HeroSlider headline={headline} subheadline={subheadline} cta={cta} backgroundImage={backgroundImage} embed={embed} variant={variant} items={items} />
 )}

@@ -1,0 +1,70 @@
+---
+/**
+ * Testimonials quote-wall variant — masonry grid of quote cards, no avatars, just text + name.
+ * Used by landing-testimonials.astro when variant === 'quote-wall'.
+ */
+import type { TestimonialsData } from '@/lib/landing/landing-types'
+
+interface Props extends TestimonialsData {}
+const { heading, items = [] } = Astro.props
+---
+
+<section class="landing-section lp-fade-up">
+  {heading && <h2 class="mb-8 text-center text-3xl font-bold">{heading}</h2>}
+  <div class="lp-qwall-grid">
+    {items.map((t) => (
+      <div class="lp-qwall-card lp-card-hover">
+        <div class="lp-quote-mark" style="font-size: 2.5rem; line-height: 1; margin-bottom: 0.5rem">❝</div>
+        <p class="lp-qwall-quote">"{t.quote}"</p>
+        <footer class="lp-qwall-byline">
+          <span class="font-semibold" style="color: var(--lp-text)">{t.name}</span>
+          {(t.role || t.company) && (
+            <span style="color: var(--lp-text-muted)"> · {[t.role, t.company].filter(Boolean).join(', ')}</span>
+          )}
+        </footer>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .lp-qwall-grid {
+    columns: 1;
+    gap: 1rem;
+    column-gap: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .lp-qwall-grid { columns: 2; }
+  }
+  @media (min-width: 1024px) {
+    .lp-qwall-grid { columns: 3; }
+  }
+
+  .lp-qwall-card {
+    break-inside: avoid;
+    margin-bottom: 1rem;
+    padding: 1.5rem;
+    background: color-mix(in srgb, var(--lp-primary) 4%, var(--lp-surface));
+    border-radius: var(--lp-radius);
+    border: 1px solid color-mix(in srgb, var(--lp-primary) 8%, transparent);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .lp-qwall-quote {
+    font-style: italic;
+    line-height: 1.7;
+    color: var(--lp-text-muted);
+    font-size: 0.9375rem;
+    flex: 1;
+  }
+
+  .lp-qwall-byline {
+    font-size: 0.8125rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid color-mix(in srgb, var(--lp-text) 8%, transparent);
+  }
+</style>

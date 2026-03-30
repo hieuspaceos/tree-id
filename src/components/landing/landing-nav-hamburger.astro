@@ -1,0 +1,208 @@
+---
+/**
+ * Nav hamburger variant — always shows hamburger icon, full-screen overlay menu on click.
+ * Minimal vanilla JS toggle. Accessible aria attributes.
+ * Used by landing-nav.astro when variant === 'hamburger'.
+ */
+import type { NavData, LandingSection, SectionStyle } from '@/lib/landing/landing-types'
+
+interface Props extends NavData {
+  sections?: LandingSection[]
+  pageTitle?: string
+  sectionStyle?: SectionStyle
+  autoLinks: Array<{ label: string; href: string }>
+  brand: string
+  brandLogo: string | null
+  navInlineStyle: string | undefined
+  brandColor: string
+}
+
+const { brand, brandLogo, autoLinks, socialLinks = [], navInlineStyle, brandColor } = Astro.props
+const menuId = `lp-hmenu-${Math.random().toString(36).slice(2, 7)}`
+---
+
+<nav class="landing-nav sticky top-0 z-50" style={navInlineStyle} aria-label="Landing page navigation">
+  <div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
+    <a href="#" class="text-lg font-semibold tracking-tight" style={`color: ${brandColor}`}>
+      {brandLogo ? <Fragment set:html={brandLogo} /> : brand}
+    </a>
+    <button
+      class="lp-hamburger-btn"
+      aria-controls={menuId}
+      aria-expanded="false"
+      aria-label="Open menu"
+    >
+      <span class="lp-hamburger-bar" />
+      <span class="lp-hamburger-bar" />
+      <span class="lp-hamburger-bar" />
+    </button>
+  </div>
+</nav>
+
+{/* Full-screen overlay */}
+<div class="lp-hamburger-overlay" id={menuId} aria-hidden="true" role="dialog" aria-modal="true" aria-label="Navigation menu">
+  <button class="lp-hamburger-close" aria-label="Close menu">✕</button>
+  <nav>
+    <ul class="lp-hamburger-links">
+      {autoLinks.map(link => (
+        <li>
+          <a href={link.href} class="lp-hamburger-link">{link.label}</a>
+        </li>
+      ))}
+    </ul>
+    {socialLinks.length > 0 && (
+      <div class="lp-hamburger-social">
+        {socialLinks.map(sl => (
+          <a href={sl.url} target="_blank" rel="noopener noreferrer" aria-label={sl.label || sl.icon}
+            style="font-size: 1.4rem; color: rgba(255,255,255,0.7)">
+            {sl.icon?.startsWith('http') ? <img src={sl.icon} alt={sl.label || ''} style="height:20px;width:20px;object-fit:contain" /> : sl.icon}
+          </a>
+        ))}
+      </div>
+    )}
+  </nav>
+</div>
+
+<style>
+  /* Hamburger button */
+  .lp-hamburger-btn {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 6px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.15s;
+  }
+  .lp-hamburger-btn:hover {
+    background: color-mix(in srgb, var(--lp-text) 8%, transparent);
+  }
+  .lp-hamburger-bar {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: var(--lp-text);
+    border-radius: 2px;
+    transition: transform 0.25s ease, opacity 0.2s;
+  }
+
+  /* Open state: X shape */
+  .lp-hamburger-btn[aria-expanded="true"] .lp-hamburger-bar:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+  .lp-hamburger-btn[aria-expanded="true"] .lp-hamburger-bar:nth-child(2) {
+    opacity: 0;
+  }
+  .lp-hamburger-btn[aria-expanded="true"] .lp-hamburger-bar:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  /* Full-screen overlay */
+  .lp-hamburger-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: color-mix(in srgb, var(--lp-bg, #fff) 96%, transparent);
+    backdrop-filter: blur(16px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.28s ease;
+  }
+  .lp-hamburger-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Close button */
+  .lp-hamburger-close {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.5rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--lp-text-muted);
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: color 0.2s, background 0.2s;
+  }
+  .lp-hamburger-close:hover {
+    color: var(--lp-text);
+    background: color-mix(in srgb, var(--lp-text) 8%, transparent);
+  }
+
+  /* Links list */
+  .lp-hamburger-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .lp-hamburger-link {
+    display: block;
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    font-weight: 700;
+    color: var(--lp-text);
+    text-decoration: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: var(--lp-radius);
+    transition: color 0.2s, background 0.2s;
+    letter-spacing: -0.01em;
+    font-family: var(--lp-font-heading), system-ui, serif;
+  }
+  .lp-hamburger-link:hover {
+    color: var(--lp-primary);
+    background: color-mix(in srgb, var(--lp-primary) 6%, transparent);
+  }
+
+  /* Social row */
+  .lp-hamburger-social {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+</style>
+
+<script define:vars={{ menuId }}>
+  document.addEventListener('DOMContentLoaded', () => {
+    const overlay = document.getElementById(menuId)
+    const btn = overlay?.previousElementSibling?.querySelector('.lp-hamburger-btn')
+    const closeBtn = overlay?.querySelector('.lp-hamburger-close')
+    const links = overlay?.querySelectorAll('.lp-hamburger-link')
+
+    function open() {
+      overlay?.classList.add('open')
+      overlay?.setAttribute('aria-hidden', 'false')
+      btn?.setAttribute('aria-expanded', 'true')
+      closeBtn?.focus()
+      document.body.style.overflow = 'hidden'
+    }
+    function close() {
+      overlay?.classList.remove('open')
+      overlay?.setAttribute('aria-hidden', 'true')
+      btn?.setAttribute('aria-expanded', 'false')
+      btn?.focus()
+      document.body.style.overflow = ''
+    }
+
+    btn?.addEventListener('click', open)
+    closeBtn?.addEventListener('click', close)
+    links?.forEach(l => l.addEventListener('click', close))
+
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && overlay?.classList.contains('open')) close()
+    })
+  })
+</script>

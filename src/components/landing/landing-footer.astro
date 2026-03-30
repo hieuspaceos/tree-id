@@ -1,17 +1,20 @@
 ---
 /**
- * Landing page footer with 3 layout variants:
+ * Landing page footer with 5 layout variants:
  * - simple (default): centered text + links
  * - columns: multi-column with link groups
  * - minimal: just copyright line
+ * - mega: 4-5 column layout with link groups, newsletter input, social icons
+ * - centered-social: centered text + large social icon row + copyright
  */
 import type { FooterData } from '@/lib/landing/landing-types'
+import FooterExtended from './landing-footer-extended.astro'
 
 interface Props extends FooterData {
   pageTitle?: string
 }
 
-const { text, links = [], columns = [], pageTitle, variant = 'simple', socialLinks = [] } = Astro.props
+const { text, links = [], columns = [], pageTitle, variant = 'simple', socialLinks = [], newsletter } = Astro.props
 const year = new Date().getFullYear()
 const copyright = text || `© ${year} ${pageTitle || ''}`
 ---
@@ -89,4 +92,13 @@ const copyright = text || `© ${year} ${pageTitle || ''}`
     )}
     {copyright}
   </footer>
+)}
+
+{/* Mega + centered-social — delegated to landing-footer-extended.astro */}
+{(variant === 'mega' || variant === 'centered-social') && (
+  <FooterExtended
+    text={text} links={links} columns={columns} pageTitle={pageTitle}
+    variant={variant} socialLinks={socialLinks} newsletter={newsletter}
+    copyright={copyright}
+  />
 )}

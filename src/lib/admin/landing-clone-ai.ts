@@ -57,15 +57,30 @@ MEDIA:
 
 LAYOUT (multi-column) — USE THIS AGGRESSIVELY:
 - layout: For side-by-side content blocks (e.g. text next to gallery, stats next to testimonials, multi-row grids).
-  Fields: columns (array of column widths, e.g. [1,1] for equal 2-col, [2,1] for 2:1 ratio), gap (CSS gap value), children (array of {column: 0|1, sections: [{type,order,enabled,data}]}).
-  Example: { "columns":[1,1], "gap":"2rem", "children":[{"column":0, "sections":[{"type":"rich-text","order":0,"enabled":true,"data":{"heading":"About","content":"..."}}]}, {"column":1, "sections":[{"type":"gallery","order":0,"enabled":true,"data":{"images":[...]}}]}] }
+  Fields: columns (array of column widths, e.g. [1,1] for equal 2-col, [2,1] for 2:1 ratio), gap (CSS gap value), variant (see variants below), mobileReverse (bool), alignItems (start|center|end|stretch), children (array of {column: 0|1, sections: [{type,order,enabled,data}]}).
+
+  Layout VARIANTS — choose the best fit for the original design:
+  - "grid" (default): equal/ratio columns from 'columns' array — use when ratios matter (e.g. [2,1] for 2:1)
+  - "sidebar-left": narrow 280px left + wide right — docs, filter+content, bio+content
+  - "sidebar-right": wide left + narrow 280px right — content+sidebar, article+TOC
+  - "asymmetric": 60/40 split (3fr 2fr) — text-heavy left + media/stats right
+  - "thirds": 3 equal columns — feature card rows, 3-step processes
+  - "hero-split": 55/45 with vertical center alignment — hero text left + image/video right
+  - "stacked": full-width rows (1fr) — vertical stack of full-width items within layout
+  - "masonry": CSS columns (not grid) — galleries, testimonial cards, mixed-height items
+
+  Example: { "columns":[1,1], "gap":"2rem", "variant":"hero-split", "mobileReverse":true, "children":[{"column":0, "sections":[{"type":"rich-text","order":0,"enabled":true,"data":{"heading":"About","content":"..."}}]}, {"column":1, "sections":[{"type":"gallery","order":0,"enabled":true,"data":{"images":[...]}}]}] }
 
   CRITICAL LAYOUT RULES:
   1. Use layout for ANY section where original shows 2+ content blocks side-by-side
-  2. "About us" sections with text + photos → layout [1,1]: rich-text left + gallery right
-  3. Sections with different column counts per row → layout [1] with nested features of different column counts
-  4. Icon bars with 5+ items → use features with columns:5
-  5. Text + image pairs that aren't simple image-text → use layout with rich-text + image sections
+  2. "About us" sections with text + photos → layout variant "asymmetric": rich-text left + gallery right
+  3. Hero with media right → layout variant "hero-split" with mobileReverse:true (image appears above text on mobile)
+  4. 3-column feature rows → layout variant "thirds"
+  5. Sidebar navigation or filters → layout variant "sidebar-left" or "sidebar-right"
+  6. Gallery of mixed-height cards → layout variant "masonry"
+  7. Sections with different column counts per row → layout [1] with nested features of different column counts
+  8. Icon bars with 5+ items → use features with columns:5
+  9. Text + image pairs that aren't simple image-text → use layout with rich-text + image sections
   Do NOT default to image-text for complex layouts — use layout + nested sections instead.
 
 Rules:
@@ -120,7 +135,7 @@ Available section types: ${SECTION_TYPES.join(', ')}
 
 For each visible section on the page, return:
 - type: best matching section type, or "unknown" if no match. Use "layout" AGGRESSIVELY when 2+ content blocks appear side-by-side in the same row (text+gallery, text+form, multi-column grids).
-- variant: layout variant (e.g. "centered", "split", "grid", "cards", "carousel")
+- variant: section variant. For layout sections choose from: grid, sidebar-left, sidebar-right, asymmetric, thirds, hero-split, stacked, masonry. For other types use their own variants (e.g. "centered", "split", "cards", "carousel").
 - confidence: 0-100 how sure you are this mapping is correct
 - itemCount: number of items (for lists, grids, testimonials, pricing plans)
 - note: any issues or details (e.g. "has video embed", "carousel with 8 items", "2-column layout")

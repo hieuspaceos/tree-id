@@ -1,17 +1,21 @@
 ---
 /**
- * Testimonials section with 4 layout variants:
+ * Testimonials section with 6 layout variants:
  * - cards (default): grid of quote cards with avatars
  * - single: one large quote centered (uses first item)
  * - minimal: text-only quotes, no avatars
  * - carousel: auto-scrolling horizontal strip with nav arrows + dots
+ * - quote-wall: masonry grid of quote cards, text + name only (→ landing-testimonials-quote-wall.astro)
+ * - logo-strip: horizontal logos + single featured quote (→ landing-testimonials-logo-strip.astro)
  *
  * Each testimonial can have `avatar` (profile pic) and/or `image` (screenshot).
  */
 import type { TestimonialsData } from '@/lib/landing/landing-types'
+import QuoteWall from './landing-testimonials-quote-wall.astro'
+import LogoStrip from './landing-testimonials-logo-strip.astro'
 
 interface Props extends TestimonialsData {}
-const { heading, items = [], variant = 'cards' } = Astro.props
+const { heading, items = [], logos = [], variant = 'cards' } = Astro.props
 
 /* Carousel duplicates items for seamless infinite scroll */
 const carouselItems = variant === 'carousel' ? [...items, ...items] : items
@@ -126,6 +130,16 @@ const carouselId = `lp-carousel-${Math.random().toString(36).slice(2, 8)}`
       ))}
     </div>
   </section>
+)}
+
+{/* Quote-wall: masonry grid, text + name only — delegated */}
+{variant === 'quote-wall' && (
+  <QuoteWall heading={heading} items={items} logos={logos} variant={variant} />
+)}
+
+{/* Logo-strip: logo scroll bar + featured quote — delegated */}
+{variant === 'logo-strip' && (
+  <LogoStrip heading={heading} items={items} logos={logos} variant={variant} />
 )}
 
 <style>

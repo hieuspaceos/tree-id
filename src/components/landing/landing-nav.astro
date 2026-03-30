@@ -1,11 +1,15 @@
 ---
 /**
- * Landing page nav section with 3 layout variants:
+ * Landing page nav section with 5 layout variants:
  * - default: logo left, links right (sticky with background)
  * - centered: logo centered, links split left/right
  * - transparent: no background, overlay style (for hero-over use)
+ * - hamburger: always hamburger icon, full-screen overlay menu (→ landing-nav-hamburger.astro)
+ * - mega: desktop dropdown panels with grouped links; hamburger on mobile
  */
 import type { NavData, LandingSection, SectionStyle } from '@/lib/landing/landing-types'
+import NavHamburger from './landing-nav-hamburger.astro'
+import NavMega from './landing-nav-mega.astro'
 
 interface Props extends NavData {
   sections?: LandingSection[]
@@ -13,7 +17,7 @@ interface Props extends NavData {
   sectionStyle?: SectionStyle
 }
 
-const { brandName, logo, topBar, links, sections = [], pageTitle, variant = 'default', socialLinks = [], sectionStyle } = Astro.props
+const { brandName, logo, topBar, links, sections = [], pageTitle, variant = 'default', socialLinks = [], sectionStyle, groups = [] } = Astro.props
 
 /** Build inline style from section style overrides (background, textColor, padding) */
 const navStyleParts: string[] = []
@@ -131,4 +135,26 @@ const brandLogo = logo
       </div>
     </div>
   </nav>
+)}
+
+{/* Hamburger: always icon, full-screen overlay — delegated */}
+{variant === 'hamburger' && (
+  <NavHamburger
+    brandName={brandName} logo={logo} topBar={topBar} links={links}
+    sections={sections} pageTitle={pageTitle} variant={variant}
+    socialLinks={socialLinks} sectionStyle={sectionStyle}
+    autoLinks={autoLinks} brand={brand} brandLogo={brandLogo}
+    navInlineStyle={navInlineStyle} brandColor={brandColor}
+  />
+)}
+
+{/* Mega: dropdown panels with groups; hamburger on mobile — delegated */}
+{variant === 'mega' && (
+  <NavMega
+    brandName={brandName} logo={logo} topBar={topBar} links={links}
+    sections={sections} pageTitle={pageTitle} variant={variant}
+    socialLinks={socialLinks} sectionStyle={sectionStyle} groups={groups}
+    autoLinks={autoLinks} brand={brand} brandLogo={brandLogo}
+    navInlineStyle={navInlineStyle} brandColor={brandColor} linkColor={linkColor}
+  />
 )}

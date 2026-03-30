@@ -1,0 +1,132 @@
+---
+/**
+ * Testimonials logo-strip variant — horizontal scrolling logo bar + single featured quote above.
+ * Uses TestimonialsData.logos for the logo strip; first item in TestimonialsData.items as featured quote.
+ * Used by landing-testimonials.astro when variant === 'logo-strip'.
+ */
+import type { TestimonialsData } from '@/lib/landing/landing-types'
+
+interface Props extends TestimonialsData {}
+const { heading, items = [], logos = [] } = Astro.props
+const featured = items[0]
+---
+
+<section class="landing-section lp-fade-up">
+  {heading && <h2 class="mb-8 text-center text-3xl font-bold">{heading}</h2>}
+
+  {/* Featured quote */}
+  {featured && (
+    <div class="lp-ls-quote">
+      <div class="lp-quote-mark" style="font-size:3rem;line-height:1;margin-bottom:0.5rem">❝</div>
+      <p class="lp-ls-quote-text">"{featured.quote}"</p>
+      <div class="lp-ls-quote-author">
+        {featured.avatar && <img src={featured.avatar} alt={featured.name} class="lp-avatar" />}
+        <div>
+          <p class="font-semibold text-sm">{featured.name}</p>
+          {(featured.role || featured.company) && (
+            <p class="text-xs" style="color: var(--lp-text-muted)">{[featured.role, featured.company].filter(Boolean).join(' · ')}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  )}
+
+  {/* Logo strip — infinite scroll animation */}
+  {logos.length > 0 && (
+    <div class="lp-ls-strip-wrapper">
+      <div class="lp-ls-strip-track">
+        {/* Duplicate for seamless loop */}
+        {[...logos, ...logos].map((logo, i) => (
+          <div class="lp-ls-logo-item" key={i}>
+            {logo.image
+              ? <img src={logo.image} alt={logo.name} class="lp-ls-logo-img" loading="lazy" />
+              : <span class="lp-ls-logo-text">{logo.name}</span>
+            }
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+</section>
+
+<style>
+  /* Featured quote block */
+  .lp-ls-quote {
+    max-width: 600px;
+    margin: 0 auto 3rem;
+    text-align: center;
+  }
+
+  .lp-ls-quote-text {
+    font-style: italic;
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    line-height: 1.75;
+    color: var(--lp-text);
+    margin-bottom: 1.25rem;
+    font-family: var(--lp-font-heading), serif;
+  }
+
+  .lp-ls-quote-author {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  /* Logo strip */
+  .lp-ls-strip-wrapper {
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    padding: 1rem 0;
+    border-top: 1px solid color-mix(in srgb, var(--lp-text) 8%, transparent);
+  }
+
+  .lp-ls-strip-track {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    width: max-content;
+    animation: lpLogoScroll 28s linear infinite;
+  }
+  .lp-ls-strip-track:hover {
+    animation-play-state: paused;
+  }
+
+  @keyframes lpLogoScroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .lp-ls-logo-item {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.55;
+    transition: opacity 0.2s;
+  }
+  .lp-ls-logo-item:hover { opacity: 1; }
+
+  .lp-ls-logo-img {
+    height: 32px;
+    width: auto;
+    object-fit: contain;
+    filter: grayscale(1);
+    transition: filter 0.2s;
+  }
+  .lp-ls-logo-item:hover .lp-ls-logo-img { filter: grayscale(0); }
+
+  .lp-ls-logo-text {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--lp-text-muted);
+    white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lp-ls-strip-track { animation: none; }
+  }
+</style>

@@ -1,0 +1,226 @@
+---
+/**
+ * Pricing toggle variant — monthly/annual toggle switch above standard cards.
+ * Uses `plans` for monthly, `annualPlans` for annual billing.
+ * Falls back to monthly-only if annualPlans not provided.
+ * Used by landing-pricing.astro when variant === 'toggle'.
+ */
+import type { PricingData } from '@/lib/landing/landing-types'
+
+interface Props extends PricingData {}
+const { heading, subheading, plans = [], annualPlans } = Astro.props
+
+const hasAnnual = annualPlans && annualPlans.length > 0
+const toggleId = `lp-ptoggle-${Math.random().toString(36).slice(2, 7)}`
+---
+
+<section class="landing-section">
+  {heading && <h2 class="mb-2 text-center text-3xl font-bold">{heading}</h2>}
+  {subheading && <p class="mx-auto mb-6 max-w-2xl text-center" style="color: var(--lp-text-muted)">{subheading}</p>}
+
+  {/* Toggle switch */}
+  {hasAnnual && (
+    <div class="lp-ptoggle-switch-row" role="group" aria-label="Billing period">
+      <span class="lp-ptoggle-label" id={`${toggleId}-monthly`}>Monthly</span>
+      <button
+        class="lp-ptoggle-btn"
+        id={`${toggleId}-btn`}
+        role="switch"
+        aria-checked="false"
+        aria-labelledby={`${toggleId}-monthly ${toggleId}-annual`}
+      >
+        <span class="lp-ptoggle-thumb" />
+      </button>
+      <span class="lp-ptoggle-label" id={`${toggleId}-annual`}>
+        Annual
+        <span class="lp-ptoggle-save">Save 20%</span>
+      </span>
+    </div>
+  )}
+
+  {/* Monthly cards */}
+  <div class="lp-ptoggle-plans" id={`${toggleId}-monthly-plans`}>
+    <div class={plans.length <= 2 ? 'landing-grid-2' : 'landing-grid-3'}>
+      {plans.map((plan) => (
+        <div class={`lp-ptoggle-card flex flex-col${plan.highlighted ? ' landing-pricing-highlight' : ''}`}>
+          {plan.highlighted && plan.badge && (
+            <div class="lp-ptoggle-badge">{plan.badge || 'Most Popular'}</div>
+          )}
+          <h3 class="font-semibold text-lg">{plan.name}</h3>
+          <div class="lp-ptoggle-price-row">
+            <span class="lp-ptoggle-price">{plan.price}</span>
+            {plan.period && <span class="lp-ptoggle-period">/{plan.period}</span>}
+          </div>
+          {plan.description && <p class="text-sm mt-1" style="color: var(--lp-text-muted)">{plan.description}</p>}
+          <ul class="lp-ptoggle-features">
+            {(plan.features ?? []).map(f => (
+              <li class="flex items-start gap-2 text-sm">
+                <span style="color: var(--lp-primary); flex-shrink:0">✓</span>{f}
+              </li>
+            ))}
+          </ul>
+          <a href={plan.cta?.url} class={plan.highlighted ? 'landing-btn-primary mt-auto' : 'landing-btn-outline mt-auto'} style="display:block;text-align:center">
+            {plan.cta?.text}
+          </a>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  {/* Annual cards — hidden by default */}
+  {hasAnnual && (
+    <div class="lp-ptoggle-plans" id={`${toggleId}-annual-plans`} style="display:none">
+      <div class={annualPlans!.length <= 2 ? 'landing-grid-2' : 'landing-grid-3'}>
+        {annualPlans!.map((plan) => (
+          <div class={`lp-ptoggle-card flex flex-col${plan.highlighted ? ' landing-pricing-highlight' : ''}`}>
+            {plan.highlighted && (
+              <div class="lp-ptoggle-badge">{plan.badge || 'Most Popular'}</div>
+            )}
+            <h3 class="font-semibold text-lg">{plan.name}</h3>
+            <div class="lp-ptoggle-price-row">
+              <span class="lp-ptoggle-price">{plan.price}</span>
+              {plan.period && <span class="lp-ptoggle-period">/{plan.period}</span>}
+            </div>
+            {plan.description && <p class="text-sm mt-1" style="color: var(--lp-text-muted)">{plan.description}</p>}
+            <ul class="lp-ptoggle-features">
+              {(plan.features ?? []).map(f => (
+                <li class="flex items-start gap-2 text-sm">
+                  <span style="color: var(--lp-primary); flex-shrink:0">✓</span>{f}
+                </li>
+              ))}
+            </ul>
+            <a href={plan.cta?.url} class={plan.highlighted ? 'landing-btn-primary mt-auto' : 'landing-btn-outline mt-auto'} style="display:block;text-align:center">
+              {plan.cta?.text}
+            </a>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+</section>
+
+<style>
+  .lp-ptoggle-switch-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .lp-ptoggle-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--lp-text);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .lp-ptoggle-save {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--lp-primary);
+    background: color-mix(in srgb, var(--lp-primary) 10%, transparent);
+    padding: 0.15rem 0.45rem;
+    border-radius: 99px;
+  }
+
+  /* Toggle switch track */
+  .lp-ptoggle-btn {
+    width: 44px;
+    height: 24px;
+    border-radius: 99px;
+    background: color-mix(in srgb, var(--lp-text) 20%, transparent);
+    border: none;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.25s;
+    flex-shrink: 0;
+  }
+  .lp-ptoggle-btn[aria-checked="true"] {
+    background: var(--lp-primary);
+  }
+
+  /* Toggle thumb */
+  .lp-ptoggle-thumb {
+    display: block;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    transition: transform 0.25s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+  .lp-ptoggle-btn[aria-checked="true"] .lp-ptoggle-thumb {
+    transform: translateX(20px);
+  }
+
+  /* Plan card */
+  .lp-ptoggle-card {
+    padding: 1.75rem;
+    background: var(--lp-surface);
+    border-radius: var(--lp-radius);
+    border: 1px solid color-mix(in srgb, var(--lp-text) 10%, transparent);
+  }
+
+  .lp-ptoggle-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--lp-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .lp-ptoggle-price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    margin: 0.5rem 0;
+  }
+
+  .lp-ptoggle-price {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: var(--lp-text);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .lp-ptoggle-period {
+    font-size: 0.85rem;
+    color: var(--lp-text-muted);
+  }
+
+  .lp-ptoggle-features {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+  }
+</style>
+
+<script define:vars={{ toggleId, hasAnnual }}>
+  if (hasAnnual) {
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById(`${toggleId}-btn`)
+      const monthly = document.getElementById(`${toggleId}-monthly-plans`)
+      const annual = document.getElementById(`${toggleId}-annual-plans`)
+      if (!btn || !monthly || !annual) return
+
+      btn.addEventListener('click', () => {
+        const isAnnual = btn.getAttribute('aria-checked') === 'true'
+        btn.setAttribute('aria-checked', String(!isAnnual))
+        monthly.style.display = isAnnual ? '' : 'none'
+        annual.style.display = isAnnual ? 'none' : ''
+      })
+    })
+  }
+</script>
