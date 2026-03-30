@@ -815,7 +815,12 @@ function parseHtmlParts(html: string): Array<{ type: 'heading' | 'text' | 'butto
     const rest = html.slice(lastIndex).trim()
     if (rest) parts.push({ type: 'raw', text: rest })
   }
-  return parts.length > 0 ? parts : [{ type: 'raw', text: html }]
+  // Filter out empty parts (wrapper divs with no direct text content)
+  const filtered = parts.filter(p => {
+    const clean = p.text?.replace(/<[^>]+>/g, '').trim() || p.src || ''
+    return clean.length > 0
+  })
+  return filtered.length > 0 ? filtered : [{ type: 'raw', text: html }]
 }
 
 export function RichTextSectionForm({ data, onChange }: FormProps<RichTextData>) {
