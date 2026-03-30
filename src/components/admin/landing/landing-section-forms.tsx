@@ -831,29 +831,35 @@ export function RichTextSectionForm({ data, onChange }: FormProps<RichTextData>)
 
   /** Rebuild HTML from edited parts */
   function updatePart(idx: number, field: 'text' | 'href' | 'src', value: string) {
-    // For simple edits, use regex replacement on original HTML
-    // This preserves classes/styles while only changing text content
+    // Use the original text to find + replace the Nth occurrence
     let html = content
     const part = parts[idx]
     if (!part) return
 
+    // Find the exact substring in HTML that contains this part's text/href
+    // Then replace only that specific occurrence
+    const oldText = part.text
+    const escText = oldText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
     if (part.type === 'heading' && field === 'text') {
-      const re = new RegExp(`(<${part.tag}[^>]*>)[\\s\\S]*?(<\\/${part.tag}>)`, 'i')
+      // Match heading tag containing the exact old text
+      const re = new RegExp(`(<${part.tag}\\b[^>]*>)${escText}(<\\/${part.tag}>)`, 'i')
       html = html.replace(re, `$1${value}$2`)
     } else if (part.type === 'button' && field === 'text') {
-      // Find the link/button with matching href and replace text
-      const escaped = (part.href || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-      const re = new RegExp(`(<a[^>]*href=["']${escaped}["'][^>]*>)[\\s\\S]*?(<\\/a>)`, 'i')
+      // Find <a> containing exact text — use text to disambiguate, not href
+      const re = new RegExp(`(<a\\b[^>]*>)${escText}(<\\/a>)`, 'i')
       html = html.replace(re, `$1${value}$2`)
     } else if (part.type === 'button' && field === 'href') {
-      const escaped = (part.href || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-      html = html.replace(new RegExp(`href=["']${escaped}["']`, 'i'), `href="${value}"`)
-    } else if (part.type === 'text' && field === 'text') {
-      const escaped = part.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-      html = html.replace(new RegExp(escaped, ''), value)
+      // Find <a> containing the button text, then replace its href
+      const re = new RegExp(`(<a\\b[^>]*?)href=["'][^"']*["']([^>]*>${escText}<\\/a>)`, 'i')
+      html = html.replace(re, `$1href="${value}"$2`)
+    } else if ((part.type === 'text' || part.type === 'raw') && field === 'text') {
+      // Direct text replacement — first occurrence only
+      const pos = html.indexOf(oldText)
+      if (pos >= 0) html = html.slice(0, pos) + value + html.slice(pos + oldText.length)
     } else if (part.type === 'image' && field === 'src') {
-      const escaped = (part.src || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-      html = html.replace(new RegExp(`src=["']${escaped}["']`, 'i'), `src="${value}"`)
+      const escSrc = (part.src || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      html = html.replace(new RegExp(`src=["']${escSrc}["']`, 'i'), `src="${value}"`)
     }
     onChange({ ...data, content: html })
   }
