@@ -787,7 +787,7 @@ export function MapSectionForm({ data, onChange }: FormProps<MapData>) {
 function parseHtmlParts(html: string): Array<{ type: 'heading' | 'text' | 'button' | 'image' | 'raw'; text: string; href?: string; src?: string; tag?: string }> {
   const parts: Array<{ type: 'heading' | 'text' | 'button' | 'image' | 'raw'; text: string; href?: string; src?: string; tag?: string }> = []
   // Simple regex-based parser for common HTML elements
-  const regex = /<(h[1-6])[^>]*>([\s\S]*?)<\/\1>|<a\s[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>|<button[^>]*>([\s\S]*?)<\/button>|<img[^>]*src=["']([^"']+)["'][^>]*\/?>|<p[^>]*>([\s\S]*?)<\/p>/gi
+  const regex = /<(h[1-6])[^>]*>([\s\S]*?)<\/\1>|<a\s[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>|<button[^>]*>([\s\S]*?)<\/button>|<img[^>]*src=["']([^"']+)["'][^>]*\/?>|<(?:p|div|span)[^>]*>([\s\S]*?)<\/(?:p|div|span)>/gi
   let match: RegExpExecArray | null
   let lastIndex = 0
 
@@ -892,9 +892,15 @@ export function RichTextSectionForm({ data, onChange }: FormProps<RichTextData>)
                   onChange={(e) => updatePart(i, 'src', e.target.value)} placeholder="Image URL" />
               )}
               {part.type === 'raw' && (
-                <span style={{ fontSize: '0.7rem', color: '#94a3b8', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {part.text.replace(/<[^>]+>/g, '').slice(0, 60)}
-                </span>
+                <input style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.75rem', color: '#64748b' }}
+                  value={part.text.replace(/<[^>]+>/g, '')}
+                  onChange={(e) => {
+                    // Replace plain text content in raw HTML
+                    const oldText = part.text.replace(/<[^>]+>/g, '')
+                    const escaped = oldText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+                    const newHtml = content.replace(new RegExp(escaped), e.target.value)
+                    onChange({ ...data, content: newHtml })
+                  }} />
               )}
             </div>
           ))}
