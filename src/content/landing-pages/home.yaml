@@ -197,47 +197,47 @@ sections:
         - label: Bolt / Lovable
         - label: Carrd / Framer
       rows:
-        - label: Time to launch
+        - label: Built for
           values:
-            - "✓ 5 minutes"
-            - "10–30 minutes"
-            - "2–4 hours"
+            - "✓ Landing pages only"
+            - "Full-stack apps"
+            - "Any website"
           highlight: true
-        - label: AI-generated copy
+        - label: Input
           values:
-            - "✓ Built-in"
-            - "✓ AI-generated"
-            - "✗ Manual"
+            - "✓ Product description"
+            - "App requirements"
+            - "Drag-and-drop"
           highlight: true
-        - label: Design skills needed
+        - label: Output
           values:
-            - "✓ None"
-            - "✓ None"
-            - "Some required"
-          highlight: true
-        - label: Landing page focused
-          values:
-            - "✓ Purpose-built"
-            - "✗ Generic app builder"
-            - "✗ Generic site builder"
-          highlight: true
-        - label: SEO & JSON-LD
-          values:
-            - "✓ Auto-generated"
-            - "✗ Manual setup"
-            - "✗ Basic"
-          highlight: true
-        - label: Free tier
-          values:
-            - "✓ 1 page, 3 AI/mo"
-            - "Limited tokens"
-            - "Limited"
+            - "✓ Live URL in 5 min"
+            - "Code repo (deploy yourself)"
+            - "Hosted page (30min–2h)"
           highlight: true
         - label: Edit after generate
           values:
-            - "✓ Visual editor"
-            - "Code editor"
-            - "Drag-and-drop"
+            - "✓ Visual section editor"
+            - "Code (React/Next.js)"
+            - "Drag-and-drop builder"
+          highlight: true
+        - label: SEO / JSON-LD
+          values:
+            - "✓ Auto meta + schema"
+            - "✗ SPA, bad for SEO"
+            - "Basic meta tags"
+          highlight: true
+        - label: Technical skills
+          values:
+            - "✓ Zero"
+            - "Need to read code"
+            - "Some design sense"
+          highlight: true
+        - label: Price
+          values:
+            - "✓ Free / $19/mo"
+            - "$20/mo (limited tokens)"
+            - "$15/mo (Framer) / $19/yr (Carrd)"
           highlight: true
     style:
       fullWidth: true
