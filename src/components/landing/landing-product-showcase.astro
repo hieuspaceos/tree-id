@@ -4,14 +4,422 @@
  * selected feature products from the AI search multi-select.
  * Listens for 'features-selected' CustomEvent, merges content, renders.
  * Pure inline JS + DOM manipulation, no React.
+ *
+ * Sections rendered: demo (iframe tabs), features (grid), comparison
+ * (stacked tables), FAQ (accordion), CTA (banner).
  */
 ---
 
-<!-- Product showcase container — hidden until features are selected -->
-<div id="product-showcase" style="display:none">
-  <div id="ps-demo"></div>
-  <div id="ps-features"></div>
-  <div id="ps-comparison"></div>
-  <div id="ps-faq"></div>
-  <div id="ps-cta"></div>
+<div id="product-showcase" class="product-showcase" style="display:none">
+  <div id="ps-demo" class="ps-section"></div>
+  <div id="ps-features" class="ps-section"></div>
+  <div id="ps-comparison" class="ps-section"></div>
+  <div id="ps-faq" class="ps-section"></div>
+  <div id="ps-cta" class="ps-section"></div>
 </div>
+
+<script is:inline>
+(function() {
+  var showcase = document.getElementById('product-showcase')
+  var demoEl = document.getElementById('ps-demo')
+  var featuresEl = document.getElementById('ps-features')
+  var comparisonEl = document.getElementById('ps-comparison')
+  var faqEl = document.getElementById('ps-faq')
+  var ctaEl = document.getElementById('ps-cta')
+  var debounceTimer = null
+
+  document.addEventListener('features-selected', function(e) {
+    clearTimeout(debounceTimer)
+    debounceTimer = setTimeout(function() {
+      handleSelection(e.detail.selected)
+    }, 200)
+  })
+
+  function handleSelection(selected) {
+    if (!selected || selected.length === 0) {
+      showcase.style.opacity = '0'
+      setTimeout(function() { showcase.style.display = 'none' }, 200)
+      return
+    }
+
+    var merged = mergeFeatures(selected)
+
+    // Fade out, swap, fade in
+    showcase.style.opacity = '0'
+    setTimeout(function() {
+      showcase.style.display = 'block'
+      demoEl.innerHTML = renderDemo(merged.demoTabs)
+      featuresEl.innerHTML = renderFeatures(merged.features)
+      comparisonEl.innerHTML = renderComparisons(merged.comparisons)
+      faqEl.innerHTML = renderFaq(merged.faq)
+      ctaEl.innerHTML = renderCta(merged.cta)
+      // Trigger reflow then fade in
+      showcase.offsetHeight
+      showcase.style.opacity = '1'
+
+      // Smooth scroll to showcase on first selection
+      showcase.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 200)
+  }
+
+  /** Merge multiple feature products into unified content */
+  function mergeFeatures(selected) {
+    // Demo: union all tabs
+    var demoTabs = []
+    selected.forEach(function(f) {
+      f.demo.tabs.forEach(function(t) { demoTabs.push(t) })
+    })
+
+    // Features: deduplicate by title
+    var seen = {}
+    var features = []
+    selected.forEach(function(f) {
+      f.features.forEach(function(feat) {
+        if (!seen[feat.title]) {
+          seen[feat.title] = true
+          features.push(feat)
+        }
+      })
+    })
+
+    // Comparison: stack per feature (each keeps its own competitors)
+    var comparisons = selected.map(function(f) {
+      return { featureLabel: f.label, competitors: f.comparison.competitors, rows: f.comparison.rows }
+    })
+
+    // FAQ: deduplicate by question text
+    var seenQ = {}
+    var faq = []
+    selected.forEach(function(f) {
+      f.faq.forEach(function(item) {
+        if (!seenQ[item.q]) {
+          seenQ[item.q] = true
+          faq.push(item)
+        }
+      })
+    })
+
+    // CTA: single = use that feature's CTA, multi = bundle CTA
+    var cta
+    if (selected.length === 1) {
+      cta = selected[0].cta
+    } else {
+      var names = selected.map(function(f) { return f.label }).join(' + ')
+      cta = {
+        headline: 'Get ' + names,
+        button: 'Start with ' + selected.length + ' features',
+        url: '/auth/login'
+      }
+    }
+
+    return { demoTabs: demoTabs, features: features, comparisons: comparisons, faq: faq, cta: cta }
+  }
+
+  /** Render demo iframe with tab switcher */
+  function renderDemo(tabs) {
+    if (!tabs.length) return ''
+    var tabBtns = tabs.map(function(t, i) {
+      var cls = i === 0 ? 'ps-demo-tab active' : 'ps-demo-tab'
+      return '<button class="' + cls + '" data-src="' + t.src + '">' + t.label + '</button>'
+    }).join('')
+
+    return '<div class="ps-demo-container">' +
+      '<p class="ps-section-label">See it live</p>' +
+      '<div class="ps-demo-tabs">' + tabBtns + '</div>' +
+      '<div class="ps-browser-frame">' +
+        '<div class="ps-browser-bar">' +
+          '<div class="ps-browser-dots"><span></span><span></span><span></span></div>' +
+          '<div class="ps-browser-url" id="ps-browser-url">tree-id.dev' + tabs[0].src + '</div>' +
+        '</div>' +
+        '<iframe id="ps-demo-frame" src="' + tabs[0].src + '" loading="lazy"></iframe>' +
+      '</div>' +
+    '</div>'
+  }
+
+  /** Render features grid */
+  function renderFeatures(items) {
+    if (!items.length) return ''
+    var cards = items.map(function(f) {
+      return '<div class="ps-feature-card">' +
+        '<div class="ps-feature-icon">' + f.icon + '</div>' +
+        '<div class="ps-feature-title">' + f.title + '</div>' +
+        '<div class="ps-feature-desc">' + f.desc + '</div>' +
+      '</div>'
+    }).join('')
+    return '<p class="ps-section-label">What you get</p>' +
+      '<div class="ps-features-grid">' + cards + '</div>'
+  }
+
+  /** Render stacked comparison tables */
+  function renderComparisons(tables) {
+    if (!tables.length) return ''
+    var html = '<p class="ps-section-label">Honest comparison</p>'
+    tables.forEach(function(table) {
+      var headerRow = '<tr><th></th><th class="ps-comp-highlight">tree-id</th>' +
+        table.competitors.map(function(c) { return '<th>' + c + '</th>' }).join('') + '</tr>'
+      var bodyRows = table.rows.map(function(row) {
+        return '<tr><td class="ps-comp-label">' + row.label + '</td>' +
+          row.values.map(function(v, i) {
+            var cls = i === 0 ? ' class="ps-comp-highlight"' : ''
+            return '<td' + cls + '>' + v + '</td>'
+          }).join('') + '</tr>'
+      }).join('')
+
+      html += '<div class="ps-comp-block">' +
+        (tables.length > 1 ? '<div class="ps-comp-title">' + table.featureLabel + '</div>' : '') +
+        '<div class="ps-comp-table-wrap"><table class="ps-comp-table">' +
+        '<thead>' + headerRow + '</thead>' +
+        '<tbody>' + bodyRows + '</tbody>' +
+        '</table></div></div>'
+    })
+    return html
+  }
+
+  /** Render FAQ accordion */
+  function renderFaq(items) {
+    if (!items.length) return ''
+    var accordions = items.map(function(item) {
+      return '<details class="ps-faq-item"><summary>' + item.q + '</summary>' +
+        '<div class="ps-faq-answer">' + item.a + '</div></details>'
+    }).join('')
+    return '<p class="ps-section-label">Questions?</p>' +
+      '<div class="ps-faq-list">' + accordions + '</div>'
+  }
+
+  /** Render CTA banner */
+  function renderCta(cta) {
+    return '<div class="ps-cta-banner">' +
+      '<div class="ps-cta-headline">' + cta.headline + '</div>' +
+      '<a class="ps-cta-button" href="' + cta.url + '">' + cta.button + '</a>' +
+    '</div>'
+  }
+
+  // Delegate demo tab clicks (event delegation on showcase container)
+  showcase.addEventListener('click', function(e) {
+    var tab = e.target.closest('.ps-demo-tab')
+    if (!tab) return
+    var src = tab.dataset.src
+    var frame = document.getElementById('ps-demo-frame')
+    var urlEl = document.getElementById('ps-browser-url')
+    if (frame) frame.src = src
+    if (urlEl) urlEl.textContent = 'tree-id.dev' + src
+    showcase.querySelectorAll('.ps-demo-tab').forEach(function(t) { t.classList.remove('active') })
+    tab.classList.add('active')
+  })
+})()
+</script>
+
+<style>
+  /* Showcase container */
+  .product-showcase {
+    max-width: 960px;
+    margin: 0 auto;
+    transition: opacity 0.3s ease;
+  }
+
+  .ps-section { margin-bottom: 4rem; }
+
+  :global(.ps-section-label) {
+    font-size: 0.75rem;
+    color: var(--lp-accent, var(--lp-primary));
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 500;
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Demo iframe */
+  :global(.ps-demo-tabs) {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+
+  :global(.ps-demo-tab) {
+    padding: 0.5rem 1.25rem;
+    border-radius: 100px;
+    border: 1px solid color-mix(in srgb, var(--lp-text) 7%, transparent);
+    background: transparent;
+    color: color-mix(in srgb, var(--lp-text) 45%, transparent);
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+
+  :global(.ps-demo-tab.active) {
+    background: color-mix(in srgb, var(--lp-accent, var(--lp-primary)) 12%, transparent);
+    color: var(--lp-accent, var(--lp-primary));
+    border-color: color-mix(in srgb, var(--lp-text) 15%, transparent);
+    font-weight: 500;
+  }
+
+  :global(.ps-browser-frame) {
+    background: #1a1a1a;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  :global(.ps-browser-bar) {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    background: #111;
+  }
+
+  :global(.ps-browser-dots) {
+    display: flex;
+    gap: 6px;
+  }
+
+  :global(.ps-browser-dots span:nth-child(1)) { width: 12px; height: 12px; border-radius: 50%; background: #ff5f57; }
+  :global(.ps-browser-dots span:nth-child(2)) { width: 12px; height: 12px; border-radius: 50%; background: #febc2e; }
+  :global(.ps-browser-dots span:nth-child(3)) { width: 12px; height: 12px; border-radius: 50%; background: #28c840; }
+
+  :global(.ps-browser-url) {
+    flex: 1;
+    text-align: center;
+    font-size: 0.75rem;
+    color: rgba(240,237,232,0.3);
+    font-family: monospace;
+  }
+
+  :global(#ps-demo-frame) {
+    width: 100%;
+    height: 500px;
+    border: none;
+    background: #0a0a0a;
+  }
+
+  /* Features grid */
+  :global(.ps-features-grid) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  :global(.ps-feature-card) {
+    background: var(--lp-surface);
+    border: 1px solid color-mix(in srgb, var(--lp-text) 7%, transparent);
+    border-radius: 14px;
+    padding: 1.25rem;
+  }
+
+  :global(.ps-feature-icon) { font-size: 1.5rem; margin-bottom: 0.5rem; }
+  :global(.ps-feature-title) { font-size: 0.95rem; font-weight: 500; margin-bottom: 0.25rem; }
+  :global(.ps-feature-desc) { font-size: 0.85rem; color: color-mix(in srgb, var(--lp-text) 50%, transparent); line-height: 1.5; }
+
+  /* Comparison tables */
+  :global(.ps-comp-block) { margin-bottom: 2rem; }
+  :global(.ps-comp-title) {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+    color: var(--lp-accent, var(--lp-primary));
+  }
+
+  :global(.ps-comp-table-wrap) { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  :global(.ps-comp-table) {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+
+  :global(.ps-comp-table th),
+  :global(.ps-comp-table td) {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid color-mix(in srgb, var(--lp-text) 7%, transparent);
+  }
+
+  :global(.ps-comp-table th) {
+    font-weight: 500;
+    font-size: 0.8rem;
+    color: color-mix(in srgb, var(--lp-text) 45%, transparent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  :global(.ps-comp-highlight) {
+    color: var(--lp-accent, var(--lp-primary)) !important;
+    font-weight: 500 !important;
+  }
+
+  :global(.ps-comp-label) {
+    font-weight: 400;
+    color: color-mix(in srgb, var(--lp-text) 60%, transparent);
+    white-space: nowrap;
+  }
+
+  /* FAQ accordion */
+  :global(.ps-faq-list) { max-width: 700px; margin: 0 auto; }
+
+  :global(.ps-faq-item) {
+    border-bottom: 1px solid color-mix(in srgb, var(--lp-text) 7%, transparent);
+  }
+
+  :global(.ps-faq-item summary) {
+    padding: 1rem 0;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 400;
+    list-style: none;
+  }
+
+  :global(.ps-faq-item summary::-webkit-details-marker) { display: none; }
+
+  :global(.ps-faq-item summary::before) {
+    content: '+';
+    float: right;
+    font-size: 1.2rem;
+    color: color-mix(in srgb, var(--lp-text) 30%, transparent);
+    transition: transform 0.2s;
+  }
+
+  :global(.ps-faq-item[open] summary::before) {
+    content: '−';
+  }
+
+  :global(.ps-faq-answer) {
+    padding: 0 0 1rem;
+    font-size: 0.9rem;
+    color: color-mix(in srgb, var(--lp-text) 60%, transparent);
+    line-height: 1.6;
+  }
+
+  /* CTA banner */
+  :global(.ps-cta-banner) {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--lp-accent, var(--lp-primary)) 15%, transparent) 0%, color-mix(in srgb, var(--lp-accent, var(--lp-primary)) 5%, transparent) 100%);
+    border-radius: 20px;
+  }
+
+  :global(.ps-cta-headline) {
+    font-family: var(--lp-font-heading, 'DM Serif Display', serif);
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.02em;
+  }
+
+  :global(.ps-cta-button) {
+    display: inline-block;
+    padding: 0.85rem 2rem;
+    background: var(--lp-accent, var(--lp-primary));
+    color: var(--lp-bg, #0a0a0a);
+    border-radius: 100px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  :global(.ps-cta-button:hover) { opacity: 0.85; transform: scale(1.03); }
+</style>
