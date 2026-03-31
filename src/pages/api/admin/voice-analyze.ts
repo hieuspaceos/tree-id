@@ -33,6 +33,9 @@ export const POST: APIRoute = async ({ request }) => {
 
     return json({ ok: true, analysis: result })
   } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      return json({ ok: false, error: 'AI analysis timed out. Please try again.' }, 504)
+    }
     console.error('Voice analysis error:', err)
     return json({ ok: false, error: 'Analysis failed' }, 500)
   }
@@ -121,6 +124,7 @@ async function callGemini(apiKey: string, userPrompt: string): Promise<Record<st
         responseMimeType: 'application/json',
       },
     }),
+    signal: AbortSignal.timeout(30000),
   })
 
   if (!res.ok) {

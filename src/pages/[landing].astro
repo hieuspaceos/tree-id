@@ -6,7 +6,7 @@ export const prerender = false
  * Priority: YAML (owner pages) → Turso DB (SaaS user pages, published only) → 404.
  * Nav and footer are rendered as sections (not from layout) so users can toggle them.
  */
-import { getCollection } from 'astro:content'
+import { getCollection, getEntry } from 'astro:content'
 import LandingLayout from '@/layouts/landing-layout.astro'
 import LandingSectionRenderer from '@/components/landing/landing-section-renderer.astro'
 import type { LandingSection, LandingDesign, LandingSeo } from '@/lib/landing/landing-types'
@@ -14,8 +14,7 @@ import type { LandingSection, LandingDesign, LandingSeo } from '@/lib/landing/la
 const { landing } = Astro.params
 
 // --- Source 1: YAML (owner pages — ck2, ck3, etc.) ---
-const yamlPages = await getCollection('landingPages')
-const yamlPage = yamlPages.find(p => p.id === landing)
+const yamlPage = await getEntry('landingPages', landing!)
 
 let sections: LandingSection[] = []
 let title = ''

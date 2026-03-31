@@ -29,7 +29,10 @@ export const GEMINI_API_URL =
 /** Section types available in the builder */
 export const SECTION_TYPES = ['nav','hero','features','pricing','testimonials','faq','cta','stats','how-it-works','team','logo-wall','footer','video','image','image-text','gallery','map','rich-text','divider','countdown','contact-form','banner','comparison','ai-search','social-proof','layout']
 
-/** @deprecated Use firecrawlFetchWithMarkdown instead — global state causes race conditions */
+/**
+ * @deprecated Legacy global state — use firecrawlFetch().markdown instead.
+ * Kept temporarily for backward compatibility; will be removed in next cleanup.
+ */
 let _lastMarkdown = ''
 export function getLastMarkdown(): string { return _lastMarkdown }
 export function setLastMarkdown(md: string) { _lastMarkdown = md }
@@ -44,8 +47,8 @@ export async function directFetch(url: string): Promise<string> {
   return (await res.text()).slice(0, 100_000)
 }
 
-/** Fetch via Firecrawl API — returns HTML, stores Markdown as side-effect */
-export async function firecrawlFetch(url: string, apiKey: string): Promise<string> {
+/** Fetch via Firecrawl API — returns { html, markdown } */
+export async function firecrawlFetch(url: string, apiKey: string): Promise<{ html: string; markdown: string }> {
   const res = await fetch('https://api.firecrawl.dev/v1/scrape', {
     method: 'POST',
     signal: AbortSignal.timeout(30000),
@@ -54,8 +57,11 @@ export async function firecrawlFetch(url: string, apiKey: string): Promise<strin
   })
   if (!res.ok) throw new Error(`Firecrawl error: ${res.status}`)
   const data = await res.json()
-  _lastMarkdown = (data?.data?.markdown || '').slice(0, 50_000)
-  return (data?.data?.html || '').slice(0, 100_000)
+  const markdown = (data?.data?.markdown || '').slice(0, 50_000)
+  const html = (data?.data?.html || '').slice(0, 100_000)
+  // Keep global state in sync for any legacy callers
+  _lastMarkdown = markdown
+  return { html, markdown }
 }
 
 /** Clean HTML — basic (scripts/SVGs, strips styles) */
@@ -98,6 +104,7 @@ export async function geminiCall(apiKey: string, systemPrompt: string, userPromp
       contents: [{ parts: [{ text: userPrompt }] }],
       generationConfig: { temperature: 0.05, maxOutputTokens: maxTokens, responseMimeType: 'application/json' },
     }),
+    signal: AbortSignal.timeout(60000),
   })
   if (!res.ok) throw new Error(`Gemini API error: ${res.status}`)
   const data = await res.json()

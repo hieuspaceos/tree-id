@@ -40,11 +40,20 @@ export async function generateLandingPageFromDescription(
     generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
   }
 
-  const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  })
+  let res: Response
+  try {
+    res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(30000),
+    })
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      console.error('Gemini API timed out after 30s for slug:', slug)
+    }
+    return null
+  }
 
   if (!res.ok) return null
 

@@ -25,6 +25,9 @@ export const POST: APIRoute = async ({ request }) => {
     const preview = await generatePreview(apiKey, voice, articleTitle, articleDescription || '')
     return json({ ok: true, preview })
   } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      return json({ ok: false, error: 'AI preview timed out. Please try again.' }, 504)
+    }
     console.error('Voice preview error:', err)
     return json({ ok: false, error: 'Preview generation failed' }, 500)
   }
@@ -84,6 +87,7 @@ Requirements:
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: { temperature: 0.8, maxOutputTokens: 2048 },
     }),
+    signal: AbortSignal.timeout(30000),
   })
 
   if (!res.ok) throw new Error(`Gemini error: ${res.status}`)

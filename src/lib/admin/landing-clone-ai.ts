@@ -12,7 +12,6 @@ import { logCloneSections } from './clone-section-logger'
 import {
   geminiCall, safeJsonParse, validateDesign, normalizeSections, addUsage,
   cleanBasic, cleanKeepStyles, cleanForStructure, directFetch, firecrawlFetch,
-  getLastMarkdown,
   type CloneResult,
 } from './clone-ai-utils'
 import {
@@ -112,8 +111,9 @@ export async function cloneLandingPage(
     let fcHtml = ''
     if (firecrawlKey) {
       try {
-        fcHtml = await firecrawlFetch(url, firecrawlKey)
-        localMarkdown = getLastMarkdown()  // capture immediately after fetch
+        const fcResult = await firecrawlFetch(url, firecrawlKey)
+        fcHtml = fcResult.html
+        localMarkdown = fcResult.markdown
       } catch {}
     }
     const directHtml = await directFetch(url)
@@ -313,9 +313,9 @@ export async function improveSections(
     return { improved: 0, sections: [], usage: { promptTokens: 0, outputTokens: 0, totalTokens: 0, estimatedCostUsd: 0 } }
   }
 
-  // Get page content for context — use stored markdown or fetch from URL
-  let pageContent = getLastMarkdown()
-  if ((!pageContent || pageContent.length < 100) && pageUrl) {
+  // Get page content for context — fetch from URL when available
+  let pageContent = ''
+  if (pageUrl) {
     try {
       const html = await directFetch(pageUrl)
       pageContent = cleanBasic(html)

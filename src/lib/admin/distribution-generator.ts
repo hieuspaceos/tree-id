@@ -121,7 +121,10 @@ export async function generateSocialPosts(
     systemInstruction: systemPrompt || undefined,
   })
 
-  const result = await model.generateContent(userPrompt)
+  const timeoutPromise = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error('AI request timed out after 30s')), 30000)
+  )
+  const result = await Promise.race([model.generateContent(userPrompt), timeoutPromise])
   const text = result.response.text()
 
   // Parse JSON response — strip markdown code fences if present
