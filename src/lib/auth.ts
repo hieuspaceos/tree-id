@@ -17,6 +17,8 @@ export function getAuth(): ReturnType<typeof betterAuth> {
     database: drizzleAdapter(getDb(), { provider: 'sqlite' }),
     baseURL: import.meta.env.PUBLIC_SITE_URL || process.env.PUBLIC_SITE_URL || 'http://localhost:4321',
     secret: import.meta.env.BETTER_AUTH_SECRET || process.env.BETTER_AUTH_SECRET,
+    trustedOrigins: ['http://localhost:4321', 'http://127.0.0.1:4321', 'http://localhost:3000'],
+    emailAndPassword: { enabled: true },
     socialProviders: {
       google: {
         clientId: import.meta.env.GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || '',
