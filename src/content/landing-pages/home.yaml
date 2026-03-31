@@ -120,6 +120,43 @@ sections:
       textColor: '#f0ede8'
       padding: '2rem 2rem 5rem'
 
+  # --- Live Examples ---
+  - type: rich-text
+    order: 2.5
+    enabled: true
+    data:
+      content: |
+        <div style="text-align:center;margin-bottom:2rem">
+          <p style="font-size:0.75rem;color:var(--lp-accent);letter-spacing:0.1em;text-transform:uppercase;font-weight:500;margin-bottom:1rem">Built with tree-id</p>
+          <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(28px,4vw,44px);letter-spacing:-0.02em">Real landing pages. Live now.</h2>
+          <p style="color:var(--lp-text-muted);margin-top:0.5rem">Click to see them in action — all generated with tree-id.</p>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;max-width:960px;margin:0 auto">
+          <a href="/ck2" target="_blank" style="text-decoration:none;background:var(--lp-surface);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:1.5rem;transition:all 0.3s;display:block">
+            <div style="font-size:1.5rem;margin-bottom:0.75rem">🚀</div>
+            <div style="font-size:1.05rem;font-weight:500;color:var(--lp-text);margin-bottom:0.5rem">ClaudeKit — AI Dev Teams</div>
+            <div style="font-size:0.85rem;color:var(--lp-text-muted);line-height:1.5;margin-bottom:1rem">SaaS product page with hero video, testimonials carousel, pricing table, social proof.</div>
+            <div style="font-size:0.8rem;color:var(--lp-accent);font-weight:500">View live →</div>
+          </a>
+          <a href="/ck3" target="_blank" style="text-decoration:none;background:var(--lp-surface);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:1.5rem;transition:all 0.3s;display:block">
+            <div style="font-size:1.5rem;margin-bottom:0.75rem">⚡</div>
+            <div style="font-size:1.05rem;font-weight:500;color:var(--lp-text);margin-bottom:0.5rem">ClaudeKit V3 — Dark Edition</div>
+            <div style="font-size:0.85rem;color:var(--lp-text-muted);line-height:1.5;margin-bottom:1rem">Dark theme landing page with comparison table, FAQ accordion, multiple CTA sections.</div>
+            <div style="font-size:0.8rem;color:var(--lp-accent);font-weight:500">View live →</div>
+          </a>
+          <a href="/toi-ban-hoa" target="_blank" style="text-decoration:none;background:var(--lp-surface);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:1.5rem;transition:all 0.3s;display:block">
+            <div style="font-size:1.5rem;margin-bottom:0.75rem">🌸</div>
+            <div style="font-size:1.05rem;font-weight:500;color:var(--lp-text);margin-bottom:0.5rem">Tôi Bán Hoa — Flower Shop</div>
+            <div style="font-size:0.85rem;color:var(--lp-text-muted);line-height:1.5;margin-bottom:1rem">Local business page with map, contact form, gallery. Vietnamese language, custom colors.</div>
+            <div style="font-size:0.8rem;color:var(--lp-accent);font-weight:500">View live →</div>
+          </a>
+        </div>
+    style:
+      fullWidth: true
+      background: '#111111'
+      textColor: '#f0ede8'
+      padding: '5rem 2rem'
+
   # --- How It Works ---
   - type: how-it-works
     order: 3
