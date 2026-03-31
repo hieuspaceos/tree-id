@@ -1,7 +1,7 @@
 /* Landing page styles — design system vars, spacing, responsive grids, section tweaks */
 
-/* Design var defaults — overridden by per-page design config via inline styles */
-.landing-page-root {
+/* Design var defaults — set on :root so inline styles on .landing-page-root win */
+:root {
   --lp-primary: #3b82f6;
   --lp-secondary: #6366f1;
   --lp-accent: #f59e0b;
@@ -12,6 +12,8 @@
   --lp-font-heading: system-ui;
   --lp-font-body: system-ui;
   --lp-radius: 12px;
+}
+.landing-page-root {
   /* Smooth type rendering */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
