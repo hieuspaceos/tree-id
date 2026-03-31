@@ -1,13 +1,13 @@
-# Tree Identity — Codebase Summary
+# TreeTwin — Codebase Summary
 
-**Status:** v3.1.0 — AI Clone Auto-Improve (Auto-retry, Design Extraction, Quality Assessment, Layout Support)
-**Last Updated:** 2026-03-29
-**Stack:** Astro 5 (hybrid SSR) + Keystatic + Supabase + SQLite + Gemini AI + Cloudflare R2 (optional)
+**Status:** v3.3.0 — Homepage Redesign + Better Auth + Product Showcase
+**Last Updated:** 2026-03-31
+**Stack:** Astro 5 (hybrid SSR) + Keystatic + Better Auth + Supabase + SQLite + Gemini AI + Cloudflare R2 (optional)
 **Deployment:** Vercel
 
 ## Overview
 
-Tree Identity is a **hybrid platform** combining static content engine with digital marketplace. Content (articles/landing pages) remains static-first and zero-database, while marketplace (products/orders/licenses) uses Supabase PostgreSQL with Google OAuth and AI-powered search. Built with Astro 5 (hybrid SSG+SSR), Keystatic (git-based CMS), Pagefind (static search), Gemini AI (intent search), Supabase Auth, and Vercel.
+TreeTwin is a **hybrid platform** combining static content engine with digital marketplace. Content (articles/landing pages) remains static-first and zero-database, while marketplace (products/orders/licenses) uses Supabase PostgreSQL with Google OAuth and AI-powered search. Built with Astro 5 (hybrid SSG+SSR), Keystatic (git-based CMS), Pagefind (static search), Gemini AI (intent search), Supabase Auth, and Vercel.
 
 **Why Hybrid Static + SSR:**
 - **Content layer:** No database, git-tracked Markdown/YAML, fully static (zero JS by default)
@@ -25,7 +25,7 @@ Tree Identity is a **hybrid platform** combining static content engine with digi
 | CMS | Keystatic | Git-based admin UI + content file storage |
 | Database | Supabase (PostgreSQL) | User profiles, products, orders, licenses, payments |
 | Database (Dev) | SQLite via better-sqlite3 | Local fallback when Supabase unavailable |
-| Auth | Supabase Auth | Google OAuth + JWT token management |
+| Auth | Better Auth | Email/password + OAuth authentication |
 | Content Format | Markdoc (articles) + YAML (notes/records) | Type-safe, semantic |
 | Search | Pagefind (static) + Gemini (AI intent) | Static index + AI product matching |
 | Storage | Cloudflare R2 | Optional, for video manifests + media |
@@ -333,7 +333,7 @@ fields:
 slug: john-doe
 definition: testimonial
 author: John Doe
-quote: "Tree ID is amazing..."
+quote: "TreeTwin is amazing..."
 image: /media/john.jpg
 role: Product Manager
 ```
@@ -756,7 +756,40 @@ See `.env.example` for full details.
 - **Accessibility:** Aria-labels on all interactive elements, form labels required, unique heading IDs
 - **SEO:** Iframe titles required, section IDs for anchor linking, JSON-LD metadata injection
 
-## Recent Changes (2026-03-28)
+## Recent Changes (2026-03-31)
+
+### v3.3.0 — Homepage Redesign + Better Auth + Product Showcase (2026-03-31)
+
+#### Rebrand: Tree Identity → TreeTwin
+- Project rebranded to TreeTwin (treetwin.io)
+- All references updated: site name, URLs, package name
+
+#### Better Auth Integration
+- Email/password signup with verification flow
+- Better Auth schema tables (user, session, account, verification)
+- Start Free → login → dashboard flow wired end-to-end
+- Replaces Supabase Auth for user authentication
+
+#### Homepage Redesign
+- DM Serif Display font + gold accent theme
+- AI search input on hero section
+- Live demo iframe preview with tab switcher
+- Live examples showcase — 3 real landing pages as proof
+- Admin editor demo GIF
+- Comparison table: TreeTwin vs Bolt vs Lovable (highlighted column, check/cross icons)
+- Video section replacing GIF rich-text
+
+#### Product Showcase Section (New)
+- New `product-showcase` section type for landing pages
+- Feature product data schema with merge logic
+- AI search upgraded to multi-select feature cards
+- Dynamic rendering of product features
+
+#### Landing Nav Enhancements
+- CTA button support in navigation bar
+- Hero badge support
+- Sign In link + Sign Up Free CTA button
+- CSS variable defaults moved to :root for better cascade
 
 ### v2.7.0 — Landing Page v2 Upgrades (2026-03-28)
 
@@ -857,5 +890,5 @@ See git log for full history. Key components:
 
 ---
 
-**Last updated:** 2026-03-29
-**Version:** v3.1.0
+**Last updated:** 2026-03-31
+**Version:** v3.3.0

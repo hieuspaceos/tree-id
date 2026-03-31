@@ -1,13 +1,22 @@
 # Development Roadmap
 
-Strategic roadmap for Tree Identity. Tracks active work, completed milestones, and future directions.
+Strategic roadmap for TreeTwin. Tracks active work, completed milestones, and future directions.
 
-## Current Status (2026-03-29)
+## Current Status (2026-03-31)
 
-**Phase:** v3.2.0 — Clone v3: Layout System + Section Variants ✓ COMPLETE
-**Completion:** v3.0.0 + v3.1.0 + v3.2.0 complete (Marketplace v1 + AI Clone v3 shipped)
+**Phase:** v3.3.0 — Homepage Redesign + Better Auth + Product Showcase ✓ COMPLETE
+**Completion:** v3.0.0 through v3.3.0 complete (Marketplace + AI Clone v3 + Better Auth shipped)
 **Active Team:** Solo (HieuSpace)
-**Key Features Completed (v3.2.0):**
+**Key Features Completed (v3.3.0):**
+- Rebrand: Tree Identity → TreeTwin (treetwin.io)
+- Better Auth: Email/password signup, session management, replaces Supabase Auth
+- Homepage redesign: DM Serif Display + gold accent, AI search hero, live demo preview
+- Product showcase section: Feature product data schema, multi-select feature cards
+- Comparison table: TreeTwin vs Bolt vs Lovable
+- Landing nav CTA button + hero badge support
+- Live examples showcase with 3 real landing pages
+
+**Previous (v3.2.0):**
 - Layout System: 8 responsive layout variants (grid, sidebar, asymmetric, thirds, hero-split, stacked, masonry)
 - Section Variants: 14 new variants, 48 total (Hero: fullscreen/slider, Features: masonry/icon-strip/bento, Pricing: comparison/toggle, etc.)
 - Smart Style Defaults: AI clone extracts colors/fonts and applies as section styles
@@ -29,6 +38,43 @@ Strategic roadmap for Tree Identity. Tracks active work, completed milestones, a
 - Astro Hybrid SSR: Server mode for marketplace/auth routes
 - AI Intent Search: Gemini-powered product semantic matching
 - Payment skeleton: `/checkout/[slug]` and `/dashboard` (local simulation)
+
+---
+
+## Phase 15 — Homepage Redesign + Better Auth + Product Showcase ✓ COMPLETE
+
+**Timeline:** 2026-03-31
+**Status:** Complete
+
+### Deliverables
+
+**Rebrand:**
+- [x] Tree Identity → TreeTwin (treetwin.io)
+- [x] Package name, site config, all references updated
+
+**Better Auth Integration:**
+- [x] Email/password signup with verification
+- [x] Better Auth schema tables (user, session, account, verification)
+- [x] Start Free → login → dashboard flow
+
+**Homepage Redesign:**
+- [x] DM Serif Display font + gold accent theme
+- [x] AI search input on hero
+- [x] Live demo iframe preview with tab switcher
+- [x] Live examples showcase (3 real landing pages)
+- [x] Admin editor demo GIF
+- [x] Comparison table: TreeTwin vs Bolt vs Lovable
+- [x] Video section replacing GIF rich-text
+
+**Product Showcase:**
+- [x] New product-showcase section type
+- [x] Feature product data schema with merge logic
+- [x] AI search upgraded to multi-select feature cards
+
+**Landing Polish:**
+- [x] Nav CTA button + hero badge support
+- [x] CSS variable defaults to :root for cascade
+- [x] Accurate comparison content, outcome-focused
 
 ---
 

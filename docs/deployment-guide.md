@@ -208,7 +208,7 @@ npm run build
 
 ### Lighthouse Scores
 
-TreeID typically scores:
+TreeTwin typically scores:
 - Performance: 95+
 - Accessibility: 100
 - Best Practices: 100

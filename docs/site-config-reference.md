@@ -1,6 +1,6 @@
 # Site Configuration Reference
 
-Tree Identity configuration is split between two places:
+TreeTwin configuration is split between two places:
 
 1. **`src/config/site-config.ts`** — Site identity (name, author, theme)
 2. **`keystatic.config.ts`** — Content collection schemas

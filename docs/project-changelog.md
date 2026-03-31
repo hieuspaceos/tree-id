@@ -1,8 +1,33 @@
 # Project Changelog
 
-All notable changes to Tree Identity are documented here.
+All notable changes to TreeTwin are documented here.
 
 ## Releases
+
+### v3.3.0 — Homepage Redesign + Better Auth + Product Showcase (2026-03-31)
+
+#### Rebrand
+- Tree Identity → TreeTwin (treetwin.io)
+
+#### Better Auth
+- Email/password signup with verification flow
+- Better Auth schema tables (user, session, account, verification)
+- Start Free → login → dashboard flow
+
+#### Homepage
+- DM Serif Display font + gold accent theme
+- AI search input hero, live demo iframe preview
+- Live examples showcase (3 real landing pages)
+- Comparison table: TreeTwin vs Bolt vs Lovable
+
+#### Product Showcase
+- New product-showcase section type with merge logic
+- AI search multi-select feature cards
+
+#### Landing Polish
+- Nav CTA button + hero badge support
+- CSS var defaults to :root
+- Video section replacing GIF rich-text
 
 ### v3.2.0 — Clone v3: Layout System + Section Variants + Enhanced Pipeline (2026-03-29)
 

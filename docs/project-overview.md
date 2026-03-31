@@ -1,8 +1,8 @@
-# Tree Identity (TreeID) — Project Overview
+# TreeTwin — Project Overview
 
 ## Core Essence
 
-Tree Identity is a **Digital Entity** serving as the "Root" in the HSpaceOS ecosystem. It bridges human thinking with AI processing capabilities.
+TreeTwin is a **Digital Entity** serving as the "Root" in the HSpaceOS ecosystem. It bridges human thinking with AI processing capabilities.
 
 - **For humans:** A professional Portfolio/Blog/Wiki with tree-structure navigation
 - **For AI/LLMs:** A structured Knowledge Graph providing clean data (Structured Data) so chatbots and AI Agents can read, understand, and reproduce the owner's style and knowledge
@@ -34,9 +34,9 @@ Standards applied so LLMs (Claude, GPT, Gemini) can crawl and accurately "recogn
 
 ## Use Cases
 
-1. **Digital Authority:** Establish presence via a single domain (hieuspace.com)
+1. **Digital Authority:** Establish presence via a single domain (treetwin.io)
 2. **Knowledge Digitization:** Convert personal knowledge into a digital asset both humans and AI can interact with, learn from, and build upon
-3. **AI Agent Integration:** External orchestration systems (GoClaw) use Tree Identity as a content API — agents draft, humans approve, then auto-publish
+3. **AI Agent Integration:** External orchestration systems (GoClaw) use TreeTwin as a content API — agents draft, humans approve, then auto-publish
 
 ## Tech Stack
 
@@ -47,6 +47,7 @@ Standards applied so LLMs (Claude, GPT, Gemini) can crawl and accurately "recogn
 | Search | Pagefind | Static search index, zero runtime cost |
 | Storage | Cloudflare R2 | Media files (optional) |
 | Deploy | Vercel | Hosting, serverless functions |
+| Auth | Better Auth | Email/password + OAuth authentication |
 | Styling | Tailwind CSS 4.0 | Theme-aware CSS variables |
 
 ## Theme System
@@ -58,7 +59,7 @@ Standards applied so LLMs (Claude, GPT, Gemini) can crawl and accurately "recogn
 
 ## Key Design Decisions
 
-- **No database** — content is git-tracked Markdown/YAML files in `src/content/`
+- **No database** — content is git-tracked Markdown/YAML files in `src/content/` (Better Auth adds user/session tables, but all content remains git-tracked)
 - **No shadcn/ui** — plain Tailwind CSS 4
 - **Zero JS by default** — Astro islands only where needed (ToC, search)
 - **Static by default** — `output: 'static'`, per-page `prerender = false` for SSR endpoints

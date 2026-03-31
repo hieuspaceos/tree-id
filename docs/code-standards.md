@@ -1,6 +1,6 @@
 # Code Standards
 
-Conventions for TreeID codebase (Astro 5 + Keystatic + React islands).
+Conventions for TreeTwin codebase (Astro 5 + Keystatic + React islands).
 
 ## File Organization
 
