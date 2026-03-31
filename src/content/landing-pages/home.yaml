@@ -197,47 +197,41 @@ sections:
         - label: Bolt / Lovable
         - label: Carrd / Framer
       rows:
-        - label: Built for
+        - label: You describe → you get
           values:
-            - "✓ Landing pages only"
-            - "Full-stack apps"
-            - "Any website"
+            - "✓ Live landing page"
+            - "A codebase to deploy"
+            - "✗ A blank canvas"
           highlight: true
-        - label: Input
+        - label: Time to first visitor
           values:
-            - "✓ Product description"
-            - "App requirements"
-            - "Drag-and-drop"
+            - "✓ Under 5 minutes"
+            - "30min+ (need to deploy)"
+            - "1–3 hours (build from scratch)"
           highlight: true
-        - label: Output
+        - label: Google finds your page
           values:
-            - "✓ Live URL in 5 min"
-            - "Code repo (deploy yourself)"
-            - "Hosted page (30min–2h)"
+            - "✓ SEO + JSON-LD auto"
+            - "✗ SPA — Google struggles"
+            - "Basic meta only"
           highlight: true
-        - label: Edit after generate
+        - label: Change headline later
           values:
-            - "✓ Visual section editor"
-            - "Code (React/Next.js)"
-            - "Drag-and-drop builder"
+            - "✓ Click and edit"
+            - "Open code, find file, edit"
+            - "Open builder, find block"
           highlight: true
-        - label: SEO / JSON-LD
+        - label: Technical skill required
           values:
-            - "✓ Auto meta + schema"
-            - "✗ SPA, bad for SEO"
-            - "Basic meta tags"
+            - "✓ Can you type? That's enough"
+            - "Read React / Next.js code"
+            - "Design sense + builder UX"
           highlight: true
-        - label: Technical skills
+        - label: What you pay
           values:
-            - "✓ Zero"
-            - "Need to read code"
-            - "Some design sense"
-          highlight: true
-        - label: Price
-          values:
-            - "✓ Free / $19/mo"
-            - "$20/mo (limited tokens)"
-            - "$15/mo (Framer) / $19/yr (Carrd)"
+            - "✓ $0 to start, $19/mo Pro"
+            - "$20/mo + hosting cost"
+            - "$15/mo Framer / $19/yr Carrd"
           highlight: true
     style:
       fullWidth: true
