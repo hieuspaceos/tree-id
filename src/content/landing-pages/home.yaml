@@ -194,36 +194,49 @@ sections:
       subheading: Why indie makers choose tree-id
       columns:
         - label: Tree-id
+        - label: Bolt / Lovable
         - label: Carrd / Framer
       rows:
         - label: Time to launch
           values:
             - "✓ 5 minutes"
+            - "10–30 minutes"
             - "2–4 hours"
           highlight: true
         - label: AI-generated copy
           values:
             - "✓ Built-in"
+            - "✓ AI-generated"
             - "✗ Manual"
           highlight: true
         - label: Design skills needed
           values:
             - "✓ None"
+            - "✓ None"
             - "Some required"
+          highlight: true
+        - label: Landing page focused
+          values:
+            - "✓ Purpose-built"
+            - "✗ Generic app builder"
+            - "✗ Generic site builder"
+          highlight: true
+        - label: SEO & JSON-LD
+          values:
+            - "✓ Auto-generated"
+            - "✗ Manual setup"
+            - "✗ Basic"
           highlight: true
         - label: Free tier
           values:
             - "✓ 1 page, 3 AI/mo"
+            - "Limited tokens"
             - "Limited"
           highlight: true
-        - label: Built for indie makers
-          values:
-            - "✓ Purpose-built"
-            - "✗ Generic"
-          highlight: true
-        - label: Time to customize
+        - label: Edit after generate
           values:
             - "✓ Visual editor"
+            - "Code editor"
             - "Drag-and-drop"
           highlight: true
     style:
