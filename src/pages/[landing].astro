@@ -2,9 +2,8 @@
 export const prerender = false
 
 /**
- * Dynamic landing page route — renders YAML-configured landing pages.
- * Each landing page config in src/content/landing-pages/*.yaml becomes a static page.
- * The 'home' slug is excluded (handled by index.astro).
+ * Dynamic landing page route — dual-source renderer.
+ * Priority: YAML (owner pages) → Turso DB (SaaS user pages, published only) → 404.
  * Nav and footer are rendered as sections (not from layout) so users can toggle them.
  */
 import { getCollection } from 'astro:content'
@@ -12,31 +11,74 @@ import LandingLayout from '@/layouts/landing-layout.astro'
 import LandingSectionRenderer from '@/components/landing/landing-section-renderer.astro'
 import type { LandingSection, LandingDesign, LandingSeo } from '@/lib/landing/landing-types'
 
-// SSR mode — fetch entry by slug from URL params
 const { landing } = Astro.params
-const pages = await getCollection('landingPages')
-const page = pages.find(p => p.id === landing)
-if (!page) return Astro.redirect('/404')
 
-let products: any[] = []
-try { products = await getCollection('products') } catch {}
-const product = products.find((pr: any) => pr.data?.landingPage === landing) ?? null
+// --- Source 1: YAML (owner pages — ck2, ck3, etc.) ---
+const yamlPages = await getCollection('landingPages')
+const yamlPage = yamlPages.find(p => p.id === landing)
 
-const sections = page.data.sections as unknown as LandingSection[]
-const pageData = page.data as Record<string, unknown>
-const design = pageData.design as LandingDesign | undefined
-const scopedCss = pageData.scopedCss as Array<{ selector: string; css: string }> | undefined
-const seo = pageData.seo as LandingSeo | undefined
-// If nav/footer section exists (even disabled), hide layout's nav/footer
-// User controls visibility via section enabled toggle — layout never overrides
+let sections: LandingSection[] = []
+let title = ''
+let description = ''
+let design: LandingDesign | undefined
+let scopedCss: Array<{ selector: string; css: string }> | undefined
+let seo: LandingSeo | undefined
+let product: any = null
+
+if (yamlPage) {
+  const pageData = yamlPage.data as Record<string, unknown>
+  sections = pageData.sections as unknown as LandingSection[]
+  title = yamlPage.data.title
+  description = yamlPage.data.description || ''
+  design = pageData.design as LandingDesign | undefined
+  scopedCss = pageData.scopedCss as Array<{ selector: string; css: string }> | undefined
+  seo = pageData.seo as LandingSeo | undefined
+
+  // Product association (YAML only)
+  let products: any[] = []
+  try { products = await getCollection('products') } catch {}
+  product = products.find((pr: any) => pr.data?.landingPage === landing) ?? null
+} else {
+  // --- Source 2: Turso DB (SaaS user pages, published only) ---
+  const tursoUrl = import.meta.env.TURSO_URL || process.env.TURSO_URL
+  if (tursoUrl) {
+    try {
+      const { getPageBySlug } = await import('@/lib/saas/landing-page-db')
+      const dbPage = await getPageBySlug(landing!)
+      if (!dbPage) return Astro.redirect('/404')
+
+      // Allow preview for page owner (authenticated + owns the page)
+      const isPreview = Astro.url.searchParams.get('preview') === 'true'
+      const saasUser = (Astro.locals as Record<string, any>).saasUser
+      if (!dbPage.published && !(isPreview && saasUser && dbPage.userId === saasUser.id)) {
+        return Astro.redirect('/404')
+      }
+
+      const config = JSON.parse(dbPage.config)
+      sections = config.sections || []
+      title = config.title || dbPage.name
+      description = config.description || ''
+      design = config.design
+      scopedCss = config.scopedCss
+      seo = config.seo
+    } catch {
+      return Astro.redirect('/404')
+    }
+  } else {
+    return Astro.redirect('/404')
+  }
+}
+
+if (sections.length === 0) return Astro.redirect('/404')
+
 const hasNav = sections.some(s => s.type === 'nav')
 const hasFooter = sections.some(s => s.type === 'footer')
 ---
 
 <LandingLayout
-  title={page.data.title}
-  description={page.data.description}
-  brandName={hasNav ? undefined : page.data.title}
+  title={title}
+  description={description}
+  brandName={hasNav ? undefined : title}
   ctaText={!hasNav && product ? 'Open Dashboard' : undefined}
   ctaHref={!hasNav && product ? `/${product.data.slug}/admin` : undefined}
   hideNav={hasNav}
@@ -47,5 +89,5 @@ const hasFooter = sections.some(s => s.type === 'footer')
   {seo?.keywords && <meta slot="head" name="keywords" content={seo.keywords} />}
   {seo?.noindex && <meta slot="head" name="robots" content="noindex, nofollow" />}
   {seo?.canonicalUrl && <link slot="head" rel="canonical" href={seo.canonicalUrl} />}
-  <LandingSectionRenderer sections={sections} pageTitle={page.data.title} scopedCss={scopedCss} />
+  <LandingSectionRenderer sections={sections} pageTitle={title} scopedCss={scopedCss} />
 </LandingLayout>
