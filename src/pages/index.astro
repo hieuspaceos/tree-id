@@ -1,72 +1,45 @@
 ---
 export const prerender = true
 
-import BaseLayout from '@/layouts/base-layout.astro'
-import SeedCard from '@/components/seed-card.astro'
-import { siteConfig } from '@/config/site-config'
-import { getAllPublishedSeeds } from '@/lib/content-helpers'
+/**
+ * Homepage — renders the 'home' landing page from content/landing-pages/home.yaml.
+ * Uses the same landing renderer pipeline as [landing].astro.
+ */
+import { getCollection } from 'astro:content'
+import LandingLayout from '@/layouts/landing-layout.astro'
+import LandingSectionRenderer from '@/components/landing/landing-section-renderer.astro'
+import type { LandingSection, LandingDesign, LandingSeo } from '@/lib/landing/landing-types'
 import { websiteJsonLd, safeJsonLd } from '@/lib/seo/json-ld'
-import SubscribeForm from '@/components/subscribe-form.astro'
 
-const seeds = await getAllPublishedSeeds()
+const pages = await getCollection('landingPages')
+const page = pages.find(p => p.id === 'home')
+
+// Fallback: if no home.yaml exists, show a simple message
+if (!page) {
+  return Astro.redirect('/404')
+}
+
+const sections = page.data.sections as unknown as LandingSection[]
+const pageData = page.data as Record<string, unknown>
+const design = pageData.design as LandingDesign | undefined
+const scopedCss = pageData.scopedCss as Array<{ selector: string; css: string }> | undefined
+const seo = pageData.seo as LandingSeo | undefined
+
+const hasNav = sections.some(s => s.type === 'nav')
+const hasFooter = sections.some(s => s.type === 'footer')
 ---
 
-<BaseLayout>
+<LandingLayout
+  title={page.data.title}
+  description={page.data.description}
+  hideNav={hasNav}
+  hideFooter={hasFooter}
+  design={design}
+>
   <Fragment slot="head">
     <script is:inline type="application/ld+json" set:html={safeJsonLd(websiteJsonLd())} />
   </Fragment>
-
-  <!-- Hero section -->
-  <section class="glass-panel mb-10 rounded-2xl px-8 py-10">
-    <div class="flex items-start gap-4">
-      <div class="hidden shrink-0 rounded-2xl bg-green-500/10 p-3 sm:block">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-green-600">
-          <path d="M12 22V12" /><path d="M12 12L8 8" /><path d="M12 12L16 8" />
-          <path d="M12 8L9 5" /><path d="M12 8L15 5" />
-          <path d="M12 5L10 3" /><path d="M12 5L14 3" />
-        </svg>
-      </div>
-      <div>
-        <h1 class="mb-2 text-3xl font-bold tracking-tight text-slate-900">
-          {siteConfig.name}
-        </h1>
-        <p class="text-lg leading-relaxed text-slate-500">
-          {siteConfig.description}
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Seeds grid -->
-  {seeds.length === 0 ? (
-    <div class="glass-panel rounded-2xl px-8 py-12 text-center">
-      <p class="text-slate-400">
-        No published seeds yet. Create one in{' '}
-        <a href="/keystatic" class="text-blue-500 hover:underline">/keystatic</a>.
-      </p>
-    </div>
-  ) : (
-    <section>
-      <h2 class="mb-5 text-sm font-semibold uppercase tracking-wider text-slate-400">
-        Recent Seeds
-      </h2>
-      <div class="grid gap-5 sm:grid-cols-2">
-        {seeds.map((seed) => (
-          <SeedCard
-            title={seed.data.title}
-            description={seed.data.description}
-            slug={seed.id}
-            publishedAt={seed.data.publishedAt ?? null}
-            tags={seed.data.tags ?? []}
-            collection={seed.collection}
-          />
-        ))}
-      </div>
-    </section>
-  )}
-
-  <div class="mt-10">
-    <SubscribeForm />
-  </div>
-</BaseLayout>
+  {seo?.ogImage && <meta slot="head" property="og:image" content={seo.ogImage} />}
+  {seo?.keywords && <meta slot="head" name="keywords" content={seo.keywords} />}
+  <LandingSectionRenderer sections={sections} pageTitle={page.data.title} scopedCss={scopedCss} />
+</LandingLayout>
