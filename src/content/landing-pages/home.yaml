@@ -30,7 +30,7 @@ sections:
         - label: FAQ
           href: '#section-faq'
       cta:
-        text: Sign In
+        text: Sign Up
         url: '/auth/login'
       variant: default
       socialLinks: []
