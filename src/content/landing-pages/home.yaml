@@ -193,31 +193,39 @@ sections:
       heading: Honest comparison
       subheading: Why indie makers choose tree-id
       columns:
-        - name: ""
-        - name: Tree-id
-          highlighted: true
-        - name: Carrd / Framer
+        - label: Tree-id
+        - label: Carrd / Framer
       rows:
         - label: Time to launch
           values:
-            - "5 minutes"
+            - "✓ 5 minutes"
             - "2–4 hours"
+          highlight: true
         - label: AI-generated copy
           values:
-            - "Built-in"
-            - "Manual"
+            - "✓ Built-in"
+            - "✗ Manual"
+          highlight: true
         - label: Design skills needed
           values:
-            - "None"
-            - "Some"
+            - "✓ None"
+            - "Some required"
+          highlight: true
         - label: Free tier
           values:
-            - "1 page, 3 AI/mo"
+            - "✓ 1 page, 3 AI/mo"
             - "Limited"
-        - label: Built for makers
+          highlight: true
+        - label: Built for indie makers
           values:
-            - "Yes"
-            - "Generic"
+            - "✓ Purpose-built"
+            - "✗ Generic"
+          highlight: true
+        - label: Time to customize
+          values:
+            - "✓ Visual editor"
+            - "Drag-and-drop"
+          highlight: true
     style:
       fullWidth: true
       background: '#111111'

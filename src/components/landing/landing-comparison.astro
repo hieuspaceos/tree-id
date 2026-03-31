@@ -1,43 +1,47 @@
 ---
 /**
  * Comparison table section — side-by-side feature/price comparison.
- * Renders a responsive grid table with header row, data rows, and optional row highlighting.
- * Values containing "✓" or "✗" render as colored check/cross icons.
+ * Renders a responsive table with column headers, check/cross icons,
+ * and highlighted first data column (our product).
  */
 import type { ComparisonData } from '@/lib/landing/landing-types'
 
 interface Props extends ComparisonData {}
 const { heading, subheading, columns = [], rows = [] } = Astro.props
-const gridCols = `1fr ${'1fr '.repeat(columns.length).trim()}`
+const colCount = columns.length + 1 // +1 for label column
 ---
 
 <section class="landing-section">
   {heading && <h2 class="mb-2 text-center text-3xl font-bold">{heading}</h2>}
-  {subheading && <p class="mx-auto mb-8 max-w-2xl text-center" style="color: var(--lp-text-muted)">{subheading}</p>}
+  {subheading && <p class="mx-auto mb-10 max-w-2xl text-center" style="color: var(--lp-text-muted)">{subheading}</p>}
 
-  <div style={`background: var(--lp-surface); border: 1px solid color-mix(in srgb, var(--lp-text) 7%, transparent); border-radius: var(--lp-radius); overflow: hidden`}>
+  <div class="comparison-table" style={`--col-count: ${colCount}`}>
     {/* Header row */}
-    <div style={`display: grid; grid-template-columns: ${gridCols}; border-bottom: 1px solid color-mix(in srgb, var(--lp-text) 7%, transparent)`}>
-      <div style="padding: 1.125rem 1.5rem; font-size: 0.75rem; color: var(--lp-text-muted); letter-spacing: 0.06em; text-transform: uppercase; font-weight: 500; background: color-mix(in srgb, var(--lp-text) 2%, transparent)"></div>
+    <div class="comparison-row comparison-header">
+      <div class="comparison-cell comparison-label-cell"></div>
       {columns.map((col, i) => (
-        <div style={`padding: 1.125rem 1.5rem; font-size: 0.75rem; color: var(--lp-text-muted); letter-spacing: 0.06em; text-transform: uppercase; font-weight: 500; background: color-mix(in srgb, var(--lp-text) 2%, transparent)${i < columns.length - 1 ? '; border-right: 1px solid color-mix(in srgb, var(--lp-text) 7%, transparent)' : ''}`}>
+        <div class={`comparison-cell comparison-col-header ${i === 0 ? 'comparison-highlighted-col' : ''}`}>
           {col.label}
         </div>
       ))}
     </div>
 
     {/* Data rows */}
-    {rows.map((row, rowIdx) => (
-      <div style={`display: grid; grid-template-columns: ${gridCols}${rowIdx < rows.length - 1 ? '; border-bottom: 1px solid color-mix(in srgb, var(--lp-text) 7%, transparent)' : ''}${row.highlight ? '; background: color-mix(in srgb, var(--lp-accent, var(--lp-primary)) 8%, transparent)' : ''}`}>
-        <div style={`padding: 1.125rem 1.5rem; font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem; font-weight: ${row.highlight ? '600' : '400'}${row.highlight ? '; color: var(--lp-accent, var(--lp-primary))' : ''}`}>
+    {rows.map((row) => (
+      <div class="comparison-row">
+        <div class="comparison-cell comparison-label-cell">
           {row.label}
         </div>
         {(row.values ?? []).map((val, i) => {
-          const isCheck = val === '✓'
-          const isCross = val === '✗'
+          const hasCheck = val.startsWith('✓')
+          const hasCross = val.startsWith('✗')
+          const cleanVal = val.replace(/^[✓✗]\s*/, '')
+          const isHighlighted = i === 0
           return (
-            <div style={`padding: 1.125rem 1.5rem; font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem${i < row.values.length - 1 ? '; border-right: 1px solid color-mix(in srgb, var(--lp-text) 7%, transparent)' : ''}`}>
-              {isCheck ? <span style="color: #4ade80; font-size: 1rem">✓</span> : isCross ? <span style={`color: color-mix(in srgb, var(--lp-text) ${row.highlight ? '40' : '20'}%, transparent); font-size: 1rem`}>✗</span> : val}
+            <div class={`comparison-cell ${isHighlighted ? 'comparison-highlighted-col' : ''} ${row.highlight && isHighlighted ? 'comparison-highlight-row' : ''}`}>
+              {hasCheck && <span class="comparison-check">✓</span>}
+              {hasCross && <span class="comparison-cross">✗</span>}
+              <span class={hasCross ? 'comparison-cross-text' : ''}>{cleanVal}</span>
             </div>
           )
         })}
@@ -45,3 +49,98 @@ const gridCols = `1fr ${'1fr '.repeat(columns.length).trim()}`
     ))}
   </div>
 </section>
+
+<style>
+  .comparison-table {
+    background: var(--lp-surface);
+    border: 1px solid color-mix(in srgb, var(--lp-text) 7%, transparent);
+    border-radius: var(--lp-radius, 16px);
+    overflow: hidden;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .comparison-row {
+    display: grid;
+    grid-template-columns: 1.2fr repeat(calc(var(--col-count) - 1), 1fr);
+    border-bottom: 1px solid color-mix(in srgb, var(--lp-text) 7%, transparent);
+  }
+
+  .comparison-row:last-child {
+    border-bottom: none;
+  }
+
+  .comparison-header {
+    background: color-mix(in srgb, var(--lp-text) 3%, transparent);
+  }
+
+  .comparison-cell {
+    padding: 1rem 1.5rem;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-right: 1px solid color-mix(in srgb, var(--lp-text) 5%, transparent);
+  }
+
+  .comparison-cell:last-child {
+    border-right: none;
+  }
+
+  .comparison-label-cell {
+    font-weight: 500;
+    color: var(--lp-text);
+  }
+
+  .comparison-col-header {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--lp-text-muted);
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* Highlighted column (first data column = our product) */
+  .comparison-highlighted-col {
+    background: color-mix(in srgb, var(--lp-accent, var(--lp-primary)) 8%, transparent);
+  }
+
+  .comparison-col-header.comparison-highlighted-col {
+    color: var(--lp-accent, var(--lp-primary));
+    background: color-mix(in srgb, var(--lp-accent, var(--lp-primary)) 12%, transparent);
+  }
+
+  .comparison-highlight-row {
+    font-weight: 500;
+  }
+
+  .comparison-check {
+    color: #4ade80;
+    font-size: 1rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .comparison-cross {
+    color: color-mix(in srgb, var(--lp-text) 25%, transparent);
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .comparison-cross-text {
+    color: var(--lp-text-muted);
+  }
+
+  @media (max-width: 640px) {
+    .comparison-cell {
+      padding: 0.75rem 0.75rem;
+      font-size: 0.8rem;
+    }
+
+    .comparison-col-header {
+      font-size: 0.7rem;
+    }
+  }
+</style>
