@@ -136,21 +136,31 @@ export async function cloneLandingPage(
     throw new Error(`Page has too little content (${words} words). Use "📋 Paste Code" mode.`)
   }
 
-  // Step 2: Choose best input format — keep <style> blocks so Gemini sees CSS colors
+  // Step 2: Choose best input format — prioritize HTML with structure over markdown
   const htmlWithStyles = cleanKeepStyles(rawHtml)
+  const structureHtml = cleanForStructure(rawHtml)
   const lastMd = localMarkdown
   let cloneInput: string
+  let inputFormat: string
   if (htmlWithStyles.length <= 80_000) {
     cloneInput = htmlWithStyles
+    inputFormat = 'html+styles'
   } else if (html.length <= 60_000) {
     cloneInput = html
+    inputFormat = 'html-clean'
+  } else if (structureHtml.length <= 80_000) {
+    // Prefer structure HTML over markdown — preserves semantic tags for layout detection
+    cloneInput = structureHtml
+    inputFormat = 'html-structure'
   } else if (lastMd.length > 500) {
     cloneInput = lastMd.slice(0, 30_000)
+    inputFormat = 'markdown'
   } else {
-    cloneInput = cleanForStructure(rawHtml).slice(0, 80_000)
+    cloneInput = structureHtml.slice(0, 80_000)
+    inputFormat = 'html-structure-trimmed'
   }
 
-  console.log(`[Clone] Input: ${cloneInput.length} chars (format: ${htmlWithStyles.length <= 80_000 ? 'html+styles' : html.length <= 60_000 ? 'html' : lastMd.length > 500 ? 'markdown' : 'structure'})`)
+  console.log(`[Clone] Input: ${cloneInput.length} chars (format: ${inputFormat})`)
 
   // Step 3: Run clone pipeline
   let r: CloneResult
