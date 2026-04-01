@@ -148,14 +148,22 @@ export async function cloneLandingPage(
   } else if (html.length <= 60_000) {
     cloneInput = html
     inputFormat = 'html-clean'
-  } else if (structureHtml.length <= 120_000) {
-    // Prefer structure HTML over markdown — preserves semantic tags + class names for layout detection
-    cloneInput = structureHtml
-    inputFormat = 'html-structure'
+  } else if (lastMd.length > 500) {
+    // For large pages: combine markdown (content + structure) with image URLs from HTML
+    // Markdown preserves headings, text, links better than stripped HTML for content-heavy sites
+    const imageUrls = [...rawHtml.matchAll(/<img[^>]+src="(https?:\/\/[^"]+)"/gi)]
+      .map(m => m[1])
+      .filter((u, i, a) => a.indexOf(u) === i)
+      .slice(0, 50)
+    const imageSection = imageUrls.length > 0
+      ? `\n\n--- IMAGE URLs found on page ---\n${imageUrls.join('\n')}`
+      : ''
+    cloneInput = lastMd.slice(0, 45_000) + imageSection
+    inputFormat = 'markdown+images'
   } else {
-    // Truncate structure HTML — still better than markdown for layout fidelity
+    // No markdown available — use structure HTML
     cloneInput = structureHtml.slice(0, 120_000)
-    inputFormat = 'html-structure-trimmed'
+    inputFormat = 'html-structure'
   }
 
   console.log(`[Clone] Input: ${cloneInput.length} chars (format: ${inputFormat})`)
