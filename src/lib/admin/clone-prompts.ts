@@ -133,10 +133,27 @@ Generate a "customCss" string to refine each section's appearance. Auto-scoped t
 
 CRITICAL PRINCIPLE: Every CSS rule MUST be derived from the original page's design system — the colors, fonts, spacing, border-radius, and shadows you already extracted in "design". Do NOT invent new styles. Do NOT add decorative effects that don't exist in the original. The goal is FAITHFUL REPRODUCTION, not creative embellishment.
 
+CRITICAL: Use CSS variables instead of hardcoded colors. Our system defines these CSS custom properties (set by the design/preset panel — when user changes preset, these vars update automatically):
+- var(--lp-primary) — primary brand color
+- var(--lp-secondary) — secondary color
+- var(--lp-accent) — accent/highlight color
+- var(--lp-bg) — page background
+- var(--lp-surface) — card/section surface color
+- var(--lp-text) — main text color
+- var(--lp-text-muted) — secondary text color
+- var(--lp-font-heading) — heading font family
+- var(--lp-font-body) — body font family
+- var(--lp-radius) — global border radius
+
+ALWAYS use var(--lp-*) in customCss for colors, fonts, and radius. NEVER hardcode hex colors. This ensures customCss stays correct when users change the design preset.
+- Use color-mix() for opacity variants: color-mix(in srgb, var(--lp-primary) 15%, transparent)
+- Use var(--lp-radius) for border-radius instead of "12px"
+- Use var(--lp-font-heading) for heading font-family overrides
+
 How to derive customCss from the design system:
-1. Use "design.colors" values — primary, secondary, accent, text, textMuted. Never introduce colors not in the palette.
-2. Use "design.fonts" — heading and body fonts. Match the original's font-size, weight, spacing.
-3. Use "design.borderRadius" — apply consistently to all cards, buttons, images.
+1. Use var(--lp-*) CSS variables for ALL color references. Never hardcode hex values.
+2. Use var(--lp-font-heading) and var(--lp-font-body) for font-family. Match the original's font-size, weight, spacing.
+3. Use var(--lp-radius) for border-radius — apply consistently to all cards, buttons, images.
 4. Extract shadow, spacing, gradient patterns from the ORIGINAL CSS — replicate them, don't invent new ones.
 
 Targetable inner elements:
@@ -152,9 +169,9 @@ What customCss should do (with purpose):
 - MATCH original image treatment: border-radius, shadows — only if original styles images this way
 
 What customCss must NOT do:
+- NEVER hardcode hex colors (#2563eb, #fff, etc.) — always use var(--lp-*) or rgba() for opacity
 - Add decorative effects not in the original (random gradients, patterns, pseudo-elements)
 - Override "style" field values (background, textColor already handled there)
-- Use colors outside the extracted design palette
 - Add hover animations the original doesn't have
 - Make sections "look cool" — make them look like the ORIGINAL
 
@@ -178,8 +195,8 @@ CONSISTENCY RULE: Before writing customCss, decide on 3 shared values derived fr
 3. Button style (from original's buttons — flat, shadow, gradient)
 Then apply these SAME values consistently across ALL sections that use cards or buttons. This ensures visual coherence without per-section improvisation.
 
-Example (design: borderRadius:"12px", primary:"#2563eb", shadow:subtle):
-"customCss": "h2 { font-size: clamp(2rem, 4vw, 2.8rem); letter-spacing: -0.02em; } .lp-card-hover { border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); } .landing-btn-primary { border-radius: 12px; }"
+Example (using CSS variables — preset-safe):
+"customCss": "h2 { font-size: clamp(2rem, 4vw, 2.8rem); letter-spacing: -0.02em; } .lp-card-hover { border-radius: var(--lp-radius); box-shadow: 0 1px 3px rgba(0,0,0,0.1); } .landing-btn-primary { border-radius: var(--lp-radius); background: var(--lp-primary); } .lp-icon-bg { background: color-mix(in srgb, var(--lp-primary) 12%, transparent); }"
 
 Return ONLY valid JSON:
 {
@@ -254,53 +271,6 @@ CRITICAL: Do NOT default everything to #ffffff. Analyze the CSS classes used on 
 
 Return ONLY valid JSON: { "styles": [{ "index": 0, "fullWidth": true, "background": "#2d4a3e", "textColor": "#ffffff" }, ...] }
 Only include entries for sections that have non-default styling. Omit sections with plain white/light default backgrounds.`
-
-/** Scoped CSS generation prompt — generates custom CSS per section to match original */
-export const SCOPED_CSS_PROMPT = `You are an expert CSS designer. I cloned a landing page into structured sections. Now I need you to generate CUSTOM CSS for each section to make it visually match the original page.
-
-Each section in my system renders inside a wrapper with attribute data-section="section-{type}" (e.g. data-section="section-hero", data-section="section-testimonials").
-
-Inside each section, the HTML uses these classes:
-- .landing-section — main section container (padding, background)
-- .lp-section-heading — section headings (font-family, size)
-- .lp-card-hover — cards with hover effects
-- .lp-icon-bg — icon circle backgrounds
-- .lp-stars — star rating display
-- .lp-quote-mark — large quote character
-- .lp-avatar — circular avatar images
-- .landing-grid-2, .landing-grid-3, .landing-grid-4 — responsive grids
-- .landing-btn-primary, .landing-btn-outline — buttons
-- .landing-stat-value — large stat numbers
-- .glass-card — generic cards
-
-For each section, write CSS that:
-1. Targets [data-section="section-{type}"] as the scope
-2. Overrides backgrounds, colors, spacing, typography to match the ORIGINAL page design
-3. Adds visual polish: gradients, shadows, hover effects, transitions
-4. Creates visual rhythm — alternate dark/light sections as in the original
-5. Makes hero sections feel immersive (large padding, overlay gradients)
-6. Makes CTA sections stand out (gradient backgrounds, large text)
-7. Makes testimonial sections atmospheric (dark bg, italic serif quotes)
-
-Rules:
-- Use CSS custom properties where possible: var(--lp-primary), var(--lp-text), etc.
-- Keep CSS concise — only override what's needed per section
-- NO @import, NO url(data:), NO javascript:, NO position:fixed
-- Do NOT change layout structure — only visual styling
-
-CRITICAL: Generate one CSS block per section. Each block MUST be scoped to its data-section selector. Do NOT use :root or global selectors. Every CSS rule inside a block is relative to its section selector.
-
-Return ONLY valid JSON with one entry PER section (not just a few — cover ALL sections):
-{
-  "sectionCss": [
-    { "selector": "[data-section=\\"section-hero\\"]", "css": ".landing-section { background: #1a2e28; min-height: 85vh; padding: 6rem 2rem; } h1 { font-size: clamp(2.5rem,6vw,5rem); color: #fff; letter-spacing: -0.02em; } p { color: rgba(255,255,255,0.8); }" },
-    { "selector": "[data-section=\\"section-stats\\"]", "css": ".landing-section { background: #2d4a3e; padding: 2rem 2rem; } .landing-stat-value { color: #d4a853; } p { color: rgba(255,255,255,0.7); }" },
-    { "selector": "[data-section=\\"section-testimonials\\"]", "css": ".landing-section { background: #1a2e28; padding: 4rem 2rem; } h2 { color: #fff; } .lp-card-hover { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); } p { color: rgba(255,255,255,0.85); } .lp-stars { color: #d4a853; }" },
-    { "selector": "[data-section=\\"section-cta\\"]", "css": ".landing-section { background: linear-gradient(135deg, #2d4a3e, #1a2e28); padding: 5rem 2rem; } h2 { color: #fff; font-size: clamp(1.8rem,4vw,3rem); } p { color: rgba(255,255,255,0.7); } .landing-btn-primary { background: #e65f2b; }" },
-    { "selector": "[data-section=\\"section-features\\"]", "css": ".lp-card-hover { border: 1px solid rgba(0,0,0,0.08); } .lp-icon-bg { background: rgba(230,95,43,0.1); }" },
-    { "selector": "[data-section=\\"section-footer\\"]", "css": ".landing-section { background: #1a2e28; padding: 3rem 2rem; } p, a, h4 { color: rgba(255,255,255,0.7); } h4 { color: #fff; }" }
-  ]
-}`
 
 /** Retry prompt — targeted fill for specific missing headings */
 export const RETRY_MISSING_PROMPT = `You are a web design expert. The page has sections that were missed in a first pass.
@@ -413,6 +383,6 @@ Rules:
 
 For each leaf section node (type="section"), add a "data" object matching the schema above.
 Also add "style" for sections with non-white backgrounds: { fullWidth, background, textColor, textMutedColor, padding }.
-Also add "customCss" string when a section needs fine-tuning beyond "style" to match the original. Every CSS rule must be derived from the page's design system (extracted colors, fonts, borderRadius, shadows). Match original typography, spacing, card styling, button styling — never invent decorative effects not in the original. Auto-scoped to #section-{type}. Target: .landing-section, h1-h3, p, .lp-card-hover, .landing-btn-primary, .lp-icon-bg, .landing-stat-value, img. Omit when "style" alone is sufficient.
+Also add "customCss" string when a section needs fine-tuning beyond "style" to match the original. CRITICAL: Use CSS variables (var(--lp-primary), var(--lp-radius), etc.) instead of hardcoded colors — this ensures CSS stays correct when users change design presets. Match original typography, spacing, card styling, button styling — never invent decorative effects not in the original. Auto-scoped to #section-{type}. Target: .landing-section, h1-h3, p, .lp-card-hover, .landing-btn-primary, .lp-icon-bg, .landing-stat-value, img. Omit when "style" alone is sufficient.
 
 Return the same JSON structure with "data", optional "style", and optional "customCss" fields added to each section node.`
