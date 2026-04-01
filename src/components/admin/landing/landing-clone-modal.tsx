@@ -406,17 +406,25 @@ export function LandingCloneModal({ onClose, onCloned }: Props) {
           </>)}
 
           {/* ERROR */}
-          {step === 'error' && (<>
-            <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-              <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>😔</div>
-              <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.5rem' }}>Analysis Failed</h3>
-              <p style={{ fontSize: '0.82rem', color: '#dc2626', background: '#fee2e2', padding: '0.6rem 0.85rem', borderRadius: '8px', textAlign: 'left' }}>{error}</p>
-            </div>
-            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-              <button onClick={onClose} style={{ padding: '0.5rem 1rem', borderRadius: '10px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', fontSize: '0.82rem' }}>Cancel</button>
-              <button onClick={() => setStep('input')} style={{ padding: '0.5rem 1.5rem', borderRadius: '10px', border: 'none', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', color: 'white', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600 }}>← Try Again</button>
-            </div>
-          </>)}
+          {step === 'error' && (() => {
+            const isTimeout = error.toLowerCase().includes('timeout') || error.toLowerCase().includes('aborted')
+            return (<>
+              <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+                <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{isTimeout ? '⏳' : '😔'}</div>
+                <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.5rem' }}>{isTimeout ? 'Taking Too Long' : 'Analysis Failed'}</h3>
+                <p style={{
+                  fontSize: '0.82rem',
+                  color: isTimeout ? '#92400e' : '#dc2626',
+                  background: isTimeout ? '#fef3c7' : '#fee2e2',
+                  padding: '0.6rem 0.85rem', borderRadius: '8px', textAlign: 'left',
+                }}>{isTimeout ? 'The AI server is busy right now. This usually works on retry.' : error}</p>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                <button onClick={onClose} style={{ padding: '0.5rem 1rem', borderRadius: '10px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', fontSize: '0.82rem' }}>Cancel</button>
+                <button onClick={() => { setStep('input'); setError('') }} style={{ padding: '0.5rem 1.5rem', borderRadius: '10px', border: 'none', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', color: 'white', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600 }}>{isTimeout ? '🔄 Retry' : '← Try Again'}</button>
+              </div>
+            </>)
+          })()}
         </div>
 
         {/* CSS animations */}
