@@ -4,6 +4,33 @@ All notable changes to TreeTwin are documented here.
 
 ## Releases
 
+### v3.4.0 — Codebase Hardening (2026-04-01)
+
+#### Security
+- PBKDF2 password hashing for multi-user + product-scoped admin login
+- Separate ADMIN_API_KEY from JWT signing secret
+- SSRF protection on image proxy (admin auth, IP blocklist, content-type validation, 10MB limit)
+- XSS prevention: sanitize-html allowlist for landing HTML + embeds
+- CSS sanitizer for AI-generated scoped styles
+- Timing-safe API key + HMAC comparison
+- Rate limiting: auth 5/min, subscribe 3/min, AI endpoints 10/min per IP
+- Path traversal prevention in content I/O and entity I/O
+- Production auth guard on checkout endpoints
+- Path validation in feature builder file generation
+- Error message sanitization (no internal details in API responses)
+
+#### Performance
+- 30s timeout on all Gemini API calls (60s for clone pipeline)
+- Removed global mutable state from clone pipeline
+- Optimized landing page query (getEntry instead of getCollection)
+
+#### Code Quality
+- Extracted shared json() + apiError() helpers (replaced 60+ duplicates)
+- Split landing-section-forms.tsx: 1319 LOC → 6 LOC + 11 modular files
+- Split landing-live-preview.tsx: 1167 LOC → 146 LOC + 11 modular files
+- Removed Supabase auth placeholder from middleware
+- Removed deprecated global markdown state
+
 ### v3.3.0 — Homepage Redesign + Better Auth + Product Showcase (2026-03-31)
 
 #### Rebrand

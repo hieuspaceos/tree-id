@@ -2,19 +2,16 @@
 
 Strategic roadmap for TreeTwin. Tracks active work, completed milestones, and future directions.
 
-## Current Status (2026-03-31)
+## Current Status (2026-04-01)
 
-**Phase:** v3.3.0 — Homepage Redesign + Better Auth + Product Showcase ✓ COMPLETE
-**Completion:** v3.0.0 through v3.3.0 complete (Marketplace + AI Clone v3 + Better Auth shipped)
+**Phase:** v3.4.0 — Codebase Hardening ✓ COMPLETE
+**Completion:** v3.0.0 through v3.4.0 complete (Marketplace + AI Clone v3 + Better Auth + Hardening shipped)
 **Active Team:** Solo (HieuSpace)
-**Key Features Completed (v3.3.0):**
-- Rebrand: Tree Identity → TreeTwin (treetwin.io)
-- Better Auth: Email/password signup, session management, replaces Supabase Auth
-- Homepage redesign: DM Serif Display + gold accent, AI search hero, live demo preview
-- Product showcase section: Feature product data schema, multi-select feature cards
-- Comparison table: TreeTwin vs Bolt vs Lovable
-- Landing nav CTA button + hero badge support
-- Live examples showcase with 3 real landing pages
+**Key Features Completed (v3.4.0):**
+- Security: PBKDF2 hashing, SSRF/XSS/path-traversal protection, rate limiting, timing-safe comparisons
+- Performance: Gemini timeouts, removed global mutable state, optimized landing queries
+- Code quality: shared API helpers (60+ deduped), two major component splits (2486 LOC → modular)
+- Cleanup: removed Supabase auth placeholder, deprecated global markdown state
 
 **Previous (v3.2.0):**
 - Layout System: 8 responsive layout variants (grid, sidebar, asymmetric, thirds, hero-split, stacked, masonry)
@@ -38,6 +35,38 @@ Strategic roadmap for TreeTwin. Tracks active work, completed milestones, and fu
 - Astro Hybrid SSR: Server mode for marketplace/auth routes
 - AI Intent Search: Gemini-powered product semantic matching
 - Payment skeleton: `/checkout/[slug]` and `/dashboard` (local simulation)
+
+---
+
+## Phase 16 — Codebase Hardening ✓ COMPLETE
+
+**Timeline:** 2026-04-01
+**Status:** Complete
+
+### Security (Phases 1-3)
+- [x] PBKDF2 password hashing for multi-user + product-scoped admin login
+- [x] Separate ADMIN_API_KEY from JWT signing secret
+- [x] SSRF protection on image proxy (admin auth, IP blocklist, content-type validation, 10MB limit)
+- [x] XSS prevention: sanitize-html allowlist for landing HTML + embeds
+- [x] CSS sanitizer for AI-generated scoped styles
+- [x] Timing-safe API key + HMAC comparison
+- [x] Rate limiting: auth 5/min, subscribe 3/min, AI endpoints 10/min per IP
+- [x] Path traversal prevention in content I/O and entity I/O
+- [x] Production auth guard on checkout endpoints
+- [x] Path validation in feature builder file generation
+- [x] Error message sanitization (no internal details in API responses)
+
+### Performance (Phase 5)
+- [x] 30s timeout on all Gemini API calls (60s for clone pipeline)
+- [x] Removed global mutable state from clone pipeline
+- [x] Optimized landing page query (getEntry instead of getCollection)
+
+### Code Quality (Phases 4+6)
+- [x] Extracted shared json() + apiError() helpers (replaced 60+ duplicates)
+- [x] Split landing-section-forms.tsx: 1319 LOC → 6 LOC + 11 modular files
+- [x] Split landing-live-preview.tsx: 1167 LOC → 146 LOC + 11 modular files
+- [x] Removed Supabase auth placeholder from middleware
+- [x] Removed deprecated global markdown state
 
 ---
 

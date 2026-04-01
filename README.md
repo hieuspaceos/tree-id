@@ -66,6 +66,7 @@ Set env vars on Vercel — only `PUBLIC_SITE_URL` is required.
 | `PUBLIC_SITE_URL` | Yes | Your deployed URL |
 | `ADMIN_PASSWORD` | No | Admin login password |
 | `ADMIN_SECRET` | No | JWT signing key (min 32 chars) |
+| `ADMIN_API_KEY` | No | Bearer token for product API access (separate from JWT secret) |
 | `ADMIN_USERS` | No | Multi-user JSON array |
 | `GITHUB_TOKEN` | No | GitHub API for production content writes |
 | `RESEND_API_KEY` | No | Email newsletter via Resend |

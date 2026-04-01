@@ -1,7 +1,7 @@
 # TreeTwin — Codebase Summary
 
-**Status:** v3.3.0 — Homepage Redesign + Better Auth + Product Showcase
-**Last Updated:** 2026-03-31
+**Status:** v3.4.0 — Codebase Hardening
+**Last Updated:** 2026-04-01
 **Stack:** Astro 5 (hybrid SSR) + Keystatic + Better Auth + Supabase + SQLite + Gemini AI + Cloudflare R2 (optional)
 **Deployment:** Vercel
 
@@ -756,7 +756,32 @@ See `.env.example` for full details.
 - **Accessibility:** Aria-labels on all interactive elements, form labels required, unique heading IDs
 - **SEO:** Iframe titles required, section IDs for anchor linking, JSON-LD metadata injection
 
-## Recent Changes (2026-03-31)
+## Recent Changes (2026-04-01)
+
+### v3.4.0 — Codebase Hardening (2026-04-01)
+
+#### Security
+- PBKDF2 password hashing for multi-user + product-scoped admin login
+- Separate ADMIN_API_KEY from JWT signing secret
+- SSRF protection on image proxy (admin auth, IP blocklist, content-type validation, 10MB limit)
+- XSS prevention: sanitize-html allowlist for landing HTML + embeds; CSS sanitizer for AI styles
+- Timing-safe API key + HMAC comparison
+- Rate limiting: auth 5/min, subscribe 3/min, AI endpoints 10/min per IP
+- Path traversal prevention in content I/O and entity I/O
+- Production auth guard on checkout; path validation in feature builder
+- Error message sanitization (no internal details in API responses)
+
+#### Performance
+- 30s timeout on Gemini API calls (60s for clone pipeline)
+- Removed global mutable state from clone pipeline
+- Optimized landing page query (getEntry instead of getCollection)
+
+#### Code Quality
+- Extracted shared json() + apiError() helpers (replaced 60+ duplicates)
+- Split landing-section-forms.tsx: 1319 → 6 LOC + 11 modules
+- Split landing-live-preview.tsx: 1167 → 146 LOC + 11 modules
+- Removed Supabase auth placeholder from middleware
+- Removed deprecated global markdown state
 
 ### v3.3.0 — Homepage Redesign + Better Auth + Product Showcase (2026-03-31)
 
@@ -890,5 +915,5 @@ See git log for full history. Key components:
 
 ---
 
-**Last updated:** 2026-03-31
-**Version:** v3.3.0
+**Last updated:** 2026-04-01
+**Version:** v3.4.0
