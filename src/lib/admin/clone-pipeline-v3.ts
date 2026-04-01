@@ -228,8 +228,11 @@ export async function cloneWithV3Pipeline(
       .join('\n')
     const cssPrompt = `You are an expert CSS designer. Generate customCss for each section to make this landing page look polished and professional.
 
-CSS variables available (use these, NEVER hardcode hex colors):
---lp-primary, --lp-secondary, --lp-accent, --lp-bg, --lp-surface, --lp-text, --lp-text-muted, --lp-radius, --lp-font-heading, --lp-font-body
+ONLY these 10 CSS variables exist (do NOT invent others like --lp-dark-bg or --lp-cream-text):
+var(--lp-primary), var(--lp-secondary), var(--lp-accent), var(--lp-bg), var(--lp-surface), var(--lp-text), var(--lp-text-muted), var(--lp-radius), var(--lp-font-heading), var(--lp-font-body)
+For dark variants use: color-mix(in srgb, var(--lp-primary) 80%, black)
+For light tints use: color-mix(in srgb, var(--lp-primary) 15%, transparent)
+For white text on dark: use #fff or rgba(255,255,255,0.9) — these are the ONLY allowed hardcoded colors
 
 Targetable elements inside each section:
 .landing-section (container), h1/h2/h3/p/a (text), .lp-card-hover (cards), .lp-icon-bg (icon circles), .landing-btn-primary/.landing-btn-outline (buttons), .landing-stat-value (numbers), .lp-stars (ratings), .lp-avatar (avatars), .landing-grid-2/3/4 (grids), img
