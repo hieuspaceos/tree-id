@@ -115,18 +115,12 @@ export async function cloneLandingPage(
         const fcResult = await firecrawlFetch(url, firecrawlKey)
         fcHtml = fcResult.html
         localMarkdown = fcResult.markdown
-        console.log(`[Clone] Firecrawl: ${fcHtml.length} chars, ${localMarkdown.length} md chars`)
-      } catch (e) {
-        console.log(`[Clone] Firecrawl failed: ${e instanceof Error ? e.message : 'unknown'}`)
-      }
-    } else {
-      console.log('[Clone] No FIRECRAWL_API_KEY — using direct fetch only')
+      } catch {}
     }
     const directHtml = await directFetch(url)
     originalHtml = directHtml  // Always keep for post-processing (Firecrawl strips CSS)
     const fcWords = cleanBasic(fcHtml).replace(/<[^>]+>/g, ' ').split(/\s+/).filter(w => w.length > 2).length
     const directWords = cleanBasic(directHtml).replace(/<[^>]+>/g, ' ').split(/\s+/).filter(w => w.length > 2).length
-    console.log(`[Clone] Firecrawl: ${fcWords} words, Direct: ${directWords} words → using ${fcWords > directWords ? 'Firecrawl' : 'Direct'}`)
     rawHtml = fcWords > directWords ? fcHtml : directHtml
   }
 
@@ -136,37 +130,19 @@ export async function cloneLandingPage(
     throw new Error(`Page has too little content (${words} words). Use "📋 Paste Code" mode.`)
   }
 
-  // Step 2: Choose best input format — prioritize HTML with structure over markdown
+  // Step 2: Choose best input format — keep <style> blocks so Gemini sees CSS colors
   const htmlWithStyles = cleanKeepStyles(rawHtml)
-  const structureHtml = cleanForStructure(rawHtml)
   const lastMd = localMarkdown
   let cloneInput: string
-  let inputFormat: string
   if (htmlWithStyles.length <= 80_000) {
     cloneInput = htmlWithStyles
-    inputFormat = 'html+styles'
   } else if (html.length <= 60_000) {
     cloneInput = html
-    inputFormat = 'html-clean'
   } else if (lastMd.length > 500) {
-    // For large pages: combine markdown (content + structure) with image URLs from HTML
-    // Markdown preserves headings, text, links better than stripped HTML for content-heavy sites
-    const imageUrls = [...rawHtml.matchAll(/<img[^>]+src="(https?:\/\/[^"]+)"/gi)]
-      .map(m => m[1])
-      .filter((u, i, a) => a.indexOf(u) === i)
-      .slice(0, 50)
-    const imageSection = imageUrls.length > 0
-      ? `\n\n--- IMAGE URLs found on page ---\n${imageUrls.join('\n')}`
-      : ''
-    cloneInput = lastMd.slice(0, 45_000) + imageSection
-    inputFormat = 'markdown+images'
+    cloneInput = lastMd.slice(0, 50_000)
   } else {
-    // No markdown available — use structure HTML
-    cloneInput = structureHtml.slice(0, 120_000)
-    inputFormat = 'html-structure'
+    cloneInput = cleanForStructure(rawHtml).slice(0, 80_000)
   }
-
-  console.log(`[Clone] Input: ${cloneInput.length} chars (format: ${inputFormat})`)
 
   // Step 3: Run clone pipeline
   let r: CloneResult

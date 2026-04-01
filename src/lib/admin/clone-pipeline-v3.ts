@@ -196,18 +196,14 @@ export async function cloneWithV3Pipeline(
   let totalOutput = 0
 
   // Step 1: extract skeleton
-  console.log('[Clone V3] Step 1: extracting skeleton...')
   const { skeleton, promptTokens: p1, outputTokens: o1 } = await extractLayoutSkeleton(apiKey, html)
-  console.log(`[Clone V3] Step 1 done: ${skeleton.rows.length} rows, ${p1}+${o1} tokens`)
   totalPrompt += p1
   totalOutput += o1
 
   // Step 2: fill content into skeleton
-  console.log('[Clone V3] Step 2: filling content...')
   const intentCtx = intent ? `\n\nUser intent: ${intent}` : ''
   const fillHtml = `URL: ${url}${intentCtx}\n\n${html}`
   const { skeleton: filled, promptTokens: p2, outputTokens: o2 } = await fillSkeletonContent(apiKey, skeleton, fillHtml)
-  console.log(`[Clone V3] Step 2 done: ${p2}+${o2} tokens`)
   totalPrompt += p2
   totalOutput += o2
 
@@ -218,58 +214,6 @@ export async function cloneWithV3Pipeline(
   for (const s of sections) { if (!s.data) s.data = {} }
 
   normalizeSections(sections)
-
-  // Step 3.5: generate customCss for sections that need visual polish
-  console.log('[Clone V3] Step 3.5: generating customCss...')
-  try {
-    const sectionSummary = sections
-      .filter(s => !['divider', 'map'].includes(s.type))
-      .map((s, i) => `[${i}] type=${s.type}, heading="${(s.data as any).headline || (s.data as any).heading || ''}", bg=${(s.style as any)?.background || 'default'}`)
-      .join('\n')
-    const cssPrompt = `You are an expert CSS designer. Generate customCss for each section to make this landing page look polished and professional.
-
-ONLY these 10 CSS variables exist (do NOT invent others like --lp-dark-bg or --lp-cream-text):
-var(--lp-primary), var(--lp-secondary), var(--lp-accent), var(--lp-bg), var(--lp-surface), var(--lp-text), var(--lp-text-muted), var(--lp-radius), var(--lp-font-heading), var(--lp-font-body)
-For dark variants use: color-mix(in srgb, var(--lp-primary) 80%, black)
-For light tints use: color-mix(in srgb, var(--lp-primary) 15%, transparent)
-For white text on dark: use #fff or rgba(255,255,255,0.9) — these are the ONLY allowed hardcoded colors
-
-Targetable elements inside each section:
-.landing-section (container), h1/h2/h3/p/a (text), .lp-card-hover (cards), .lp-icon-bg (icon circles), .landing-btn-primary/.landing-btn-outline (buttons), .landing-stat-value (numbers), .lp-stars (ratings), .lp-avatar (avatars), .landing-grid-2/3/4 (grids), img
-
-Per section type, generate CSS for:
-- hero: large typography (h1 clamp(2.5rem,5vw,4rem)), text-shadow on dark bg, bold button styling, generous padding (5rem+)
-- features: card border-radius var(--lp-radius), subtle box-shadow, hover translateY(-2px), icon-bg with color-mix
-- testimonials: italic quote styling, avatar border, card bg with color-mix, star color var(--lp-accent)
-- team: photo border-radius 50%, name font-weight 600, role color var(--lp-text-muted)
-- cta: large h2 clamp(1.8rem,4vw,2.5rem), prominent button, section padding 4rem+
-- pricing: highlighted plan border with var(--lp-primary), badge styling, feature list spacing
-- stats: large stat-value font-size clamp(2rem,4vw,3rem), label spacing
-- nav: subtle box-shadow on scroll, link hover color var(--lp-primary)
-- footer: muted link colors, column gap, smaller font-size
-
-Use color-mix(in srgb, var(--lp-primary) 15%, transparent) for subtle backgrounds.
-Use color-mix(in srgb, var(--lp-primary) 80%, black) for darker variants.
-Keep each section's CSS concise (3-8 rules). Every rule must use var(--lp-*).
-
-Return JSON: { "css": [{ "index": 0, "customCss": ".landing-section { box-shadow: 0 1px 3px rgba(0,0,0,0.08); } a:hover { color: var(--lp-primary); }" }, { "index": 1, "customCss": "h1 { font-size: clamp(2.5rem,5vw,4rem); letter-spacing: -0.02em; text-shadow: 0 2px 8px rgba(0,0,0,0.3); } .landing-btn-primary { border-radius: var(--lp-radius); box-shadow: 0 4px 14px rgba(0,0,0,0.15); }" }, ...] }
-Generate CSS for ALL sections provided in the user message.`
-    const cssUserPrompt = `Original page: ${url}\n\nSections to style:\n${sectionSummary}\n\nGenerate customCss for each section. Return JSON array.`
-    const { text: cssText, promptTokens: p3, outputTokens: o3 } = await geminiCall(apiKey, cssPrompt, cssUserPrompt, 8192)
-    const cssResult = safeJsonParse(cssText) as { css?: Array<{ index: number; customCss: string }> } | null
-    if (cssResult?.css) {
-      for (const entry of cssResult.css) {
-        if (sections[entry.index] && entry.customCss) {
-          sections[entry.index].customCss = entry.customCss
-        }
-      }
-      console.log(`[Clone V3] Step 3.5 done: ${cssResult.css.length} sections got customCss, ${p3}+${o3} tokens`)
-    }
-    totalPrompt += p3
-    totalOutput += o3
-  } catch (e) {
-    console.log(`[Clone V3] Step 3.5 skipped: ${e instanceof Error ? e.message : 'unknown'}`)
-  }
 
   const result: CloneResult = {
     title: filled.title || '',
