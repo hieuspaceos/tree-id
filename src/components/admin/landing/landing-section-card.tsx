@@ -23,6 +23,8 @@ interface Props {
   onToggle: (enabled: boolean) => void
   /** Called when user duplicates this section */
   onDuplicate: () => void
+  /** Called when per-section custom CSS changes */
+  onCustomCssChange?: (css: string) => void
   /** Called when section is expanded/selected for editing */
   onSelect?: () => void
   /** Whether this card is selected (from preview click) — auto-expands when true */
@@ -32,7 +34,7 @@ interface Props {
   onMoveToLayout?: (layoutIndex: number, columnIndex: number) => void
 }
 
-export function LandingSectionCard({ section, index, total, id, onChange, onMove, onRemove, onToggle, onDuplicate, onSelect, selected, layoutTargets, onMoveToLayout }: Props) {
+export function LandingSectionCard({ section, index, total, id, onChange, onMove, onRemove, onToggle, onDuplicate, onCustomCssChange, onSelect, selected, layoutTargets, onMoveToLayout }: Props) {
   const expanded = !!selected
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
 
@@ -87,6 +89,11 @@ export function LandingSectionCard({ section, index, total, id, onChange, onMove
         <span style={{ color: '#94a3b8', fontSize: '0.6rem', transition: 'transform 0.15s', transform: expanded ? 'rotate(90deg)' : 'none' }}>▶</span>
 
         <span style={{ flex: 1, fontWeight: 600, fontSize: '0.78rem', color: '#1e293b' }}>{label}</span>
+
+        {/* Custom CSS indicator */}
+        {section.customCss && (
+          <span style={{ fontSize: '0.6rem', color: '#8b5cf6', background: '#f5f3ff', padding: '1px 5px', borderRadius: '3px', fontWeight: 600 }} title="Has custom CSS">CSS</span>
+        )}
 
         {/* Enabled toggle */}
         <label
@@ -159,6 +166,16 @@ export function LandingSectionCard({ section, index, total, id, onChange, onMove
       {expanded && FormComponent && (
         <div style={{ padding: '0 1rem 1rem 1rem', borderTop: '1px solid #f1f5f9' }}>
           <FormComponent data={section.data as any} onChange={onChange} />
+          {/* Per-section custom CSS override */}
+          <details style={{ marginTop: '0.75rem' }}>
+            <summary style={{ fontSize: '0.7rem', color: '#64748b', cursor: 'pointer', userSelect: 'none' }}>Custom CSS</summary>
+            <textarea
+              value={section.customCss || ''}
+              onChange={(e) => onCustomCssChange?.(e.target.value)}
+              placeholder={`/* CSS scoped to #section-${section.type} */\n.landing-section h2 { font-size: 2.5rem; }`}
+              style={{ width: '100%', minHeight: '80px', marginTop: '0.4rem', padding: '8px', fontSize: '0.75rem', fontFamily: 'monospace', borderRadius: '6px', border: '1px solid #e2e8f0', resize: 'vertical', background: '#f8fafc' }}
+            />
+          </details>
         </div>
       )}
 

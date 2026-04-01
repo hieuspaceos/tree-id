@@ -218,6 +218,14 @@ export function LandingPageEditor({ slug }: Props) {
     })
   }
 
+  function updateSectionCss(index: number, css: string) {
+    updateConfig((c) => {
+      const sections = [...c.sections]
+      sections[index] = { ...sections[index], customCss: css || undefined }
+      return { ...c, sections }
+    })
+  }
+
   function moveSection(index: number, dir: 'up' | 'down') {
     updateConfig((c) => {
       const sections = [...c.sections]
@@ -523,6 +531,7 @@ export function LandingPageEditor({ slug }: Props) {
               <div key={sectionIds[i]} id={`section-card-${i}`}>
               <LandingSectionCard id={sectionIds[i]} section={section} index={i} total={config.sections.length}
                 onChange={(data) => updateSection(i, data)}
+                onCustomCssChange={(css) => updateSectionCss(i, css)}
                 onMove={(dir) => moveSection(i, dir)}
                 onRemove={() => removeSection(i)}
                 onDuplicate={() => duplicateSection(i)}

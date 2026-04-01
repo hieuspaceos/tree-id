@@ -447,6 +447,8 @@ export interface LandingSection {
   data: SectionData
   /** Per-section visual style overrides */
   style?: SectionStyle
+  /** Raw CSS override scoped to this section (sanitized before render) */
+  customCss?: string
 }
 
 /** SEO settings for landing pages */

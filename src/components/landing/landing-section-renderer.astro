@@ -74,6 +74,21 @@ function uniqueSectionId(type: string): string {
   return count === 1 ? `section-${type}` : `section-${type}-${count}`
 }
 
+/** Build per-section custom CSS blocks scoped to their section IDs */
+function buildPerSectionCss(sections: LandingSection[]): string {
+  const typeCts = new Map<string, number>()
+  return sections
+    .filter(s => s.enabled !== false && s.customCss)
+    .map(s => {
+      const count = (typeCts.get(s.type) || 0) + 1
+      typeCts.set(s.type, count)
+      const id = count === 1 ? `section-${s.type}` : `section-${s.type}-${count}`
+      return `#${id} { ${s.customCss} }`
+    })
+    .join('\n')
+}
+const perSectionCssStr = buildPerSectionCss(sections)
+
 /** Build inline style string from per-section style overrides */
 function buildSectionStyle(style?: SectionStyle): string | undefined {
   if (!style) return undefined
@@ -173,4 +188,9 @@ const componentMap: Record<string, any> = {
 {/* AI-generated scoped CSS for visual fidelity */}
 {scopedCss && scopedCss.length > 0 && (
   <style set:html={sanitizeCss(buildScopedCssString(scopedCss))} />
+)}
+
+{/* Per-section custom CSS overrides (admin-editable) */}
+{perSectionCssStr && (
+  <style set:html={sanitizeCss(perSectionCssStr)} />
 )}

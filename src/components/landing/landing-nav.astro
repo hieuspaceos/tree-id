@@ -357,8 +357,20 @@ const brandLogo = logo
 </style>
 
 <script>
-  /* Mobile nav toggle — shared by default, centered, transparent variants */
+  /* Smooth scroll for all nav anchor links (desktop + mobile) */
   document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll<HTMLAnchorElement>('.landing-nav a[href^="#"]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const href = link.getAttribute('href')
+        if (!href || href === '#') return
+        const target = document.querySelector(href)
+        if (!target) return
+        e.preventDefault()
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+    })
+
+    /* Mobile nav toggle — shared by default, centered, transparent variants */
     const hamburgers = document.querySelectorAll<HTMLButtonElement>('.lp-hamburger-btn')
     hamburgers.forEach(btn => {
       const menuId = btn.getAttribute('aria-controls')
@@ -384,9 +396,17 @@ const brandLogo = logo
       const closeBtn = menu.querySelector('.lp-mobile-close')
       closeBtn?.addEventListener('click', closeMenu)
 
-      /* Close on anchor link click */
-      menu.querySelectorAll('.lp-mobile-link').forEach(link => {
-        link.addEventListener('click', closeMenu)
+      /* Close on anchor link click + smooth scroll */
+      menu.querySelectorAll<HTMLAnchorElement>('.lp-mobile-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+          closeMenu()
+          const href = link.getAttribute('href')
+          if (!href || !href.startsWith('#')) return
+          const target = document.querySelector(href)
+          if (!target) return
+          e.preventDefault()
+          setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
+        })
       })
 
       /* Close on Escape key */
