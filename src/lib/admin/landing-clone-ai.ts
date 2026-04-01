@@ -115,12 +115,18 @@ export async function cloneLandingPage(
         const fcResult = await firecrawlFetch(url, firecrawlKey)
         fcHtml = fcResult.html
         localMarkdown = fcResult.markdown
-      } catch {}
+        console.log(`[Clone] Firecrawl: ${fcHtml.length} chars, ${localMarkdown.length} md chars`)
+      } catch (e) {
+        console.log(`[Clone] Firecrawl failed: ${e instanceof Error ? e.message : 'unknown'}`)
+      }
+    } else {
+      console.log('[Clone] No FIRECRAWL_API_KEY — using direct fetch only')
     }
     const directHtml = await directFetch(url)
     originalHtml = directHtml  // Always keep for post-processing (Firecrawl strips CSS)
     const fcWords = cleanBasic(fcHtml).replace(/<[^>]+>/g, ' ').split(/\s+/).filter(w => w.length > 2).length
     const directWords = cleanBasic(directHtml).replace(/<[^>]+>/g, ' ').split(/\s+/).filter(w => w.length > 2).length
+    console.log(`[Clone] Firecrawl: ${fcWords} words, Direct: ${directWords} words → using ${fcWords > directWords ? 'Firecrawl' : 'Direct'}`)
     rawHtml = fcWords > directWords ? fcHtml : directHtml
   }
 
@@ -139,10 +145,12 @@ export async function cloneLandingPage(
   } else if (html.length <= 60_000) {
     cloneInput = html
   } else if (lastMd.length > 500) {
-    cloneInput = lastMd.slice(0, 50_000)
+    cloneInput = lastMd.slice(0, 30_000)
   } else {
     cloneInput = cleanForStructure(rawHtml).slice(0, 80_000)
   }
+
+  console.log(`[Clone] Input: ${cloneInput.length} chars (format: ${htmlWithStyles.length <= 80_000 ? 'html+styles' : html.length <= 60_000 ? 'html' : lastMd.length > 500 ? 'markdown' : 'structure'})`)
 
   // Step 3: Run clone pipeline
   let r: CloneResult

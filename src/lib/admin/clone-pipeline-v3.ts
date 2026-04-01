@@ -196,14 +196,18 @@ export async function cloneWithV3Pipeline(
   let totalOutput = 0
 
   // Step 1: extract skeleton
+  console.log('[Clone V3] Step 1: extracting skeleton...')
   const { skeleton, promptTokens: p1, outputTokens: o1 } = await extractLayoutSkeleton(apiKey, html)
+  console.log(`[Clone V3] Step 1 done: ${skeleton.rows.length} rows, ${p1}+${o1} tokens`)
   totalPrompt += p1
   totalOutput += o1
 
   // Step 2: fill content into skeleton
+  console.log('[Clone V3] Step 2: filling content...')
   const intentCtx = intent ? `\n\nUser intent: ${intent}` : ''
   const fillHtml = `URL: ${url}${intentCtx}\n\n${html}`
   const { skeleton: filled, promptTokens: p2, outputTokens: o2 } = await fillSkeletonContent(apiKey, skeleton, fillHtml)
+  console.log(`[Clone V3] Step 2 done: ${p2}+${o2} tokens`)
   totalPrompt += p2
   totalOutput += o2
 
