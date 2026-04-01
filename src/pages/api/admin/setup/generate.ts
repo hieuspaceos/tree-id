@@ -11,7 +11,7 @@ export const prerender = false
 
 
 export const POST: APIRoute = async ({ request }) => {
-  const fc = checkFeatureEnabled('setup-wizard')
+  const fc = await checkFeatureEnabled('setup-wizard')
   if (!fc.enabled) return fc.response
 
   if (!import.meta.env.GEMINI_API_KEY) {

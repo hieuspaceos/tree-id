@@ -12,7 +12,7 @@ export const prerender = false
 
 /** GET /api/goclaw/[product]/entities/[name]/[slug] */
 export const GET: APIRoute = async ({ params, request }) => {
-  const scope = verifyProductScope(request, params.product)
+  const scope = await verifyProductScope(request, params.product)
   if (!scope.ok) return scope.response
 
   const { name, slug } = params
@@ -27,7 +27,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 
 /** PUT /api/goclaw/[product]/entities/[name]/[slug] */
 export const PUT: APIRoute = async ({ params, request }) => {
-  const scope = verifyProductScope(request, params.product)
+  const scope = await verifyProductScope(request, params.product)
   if (!scope.ok) return scope.response
 
   const { name, slug } = params
@@ -47,7 +47,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
 
 /** DELETE /api/goclaw/[product]/entities/[name]/[slug] */
 export const DELETE: APIRoute = async ({ params, request }) => {
-  const scope = verifyProductScope(request, params.product)
+  const scope = await verifyProductScope(request, params.product)
   if (!scope.ok) return scope.response
 
   const { name, slug } = params

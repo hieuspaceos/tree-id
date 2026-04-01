@@ -11,7 +11,7 @@ export const prerender = false
 
 /** GET /api/goclaw/[product]/entities — list entity definitions */
 export const GET: APIRoute = async ({ params, request }) => {
-  const scope = verifyProductScope(request, params.product)
+  const scope = await verifyProductScope(request, params.product)
   if (!scope.ok) return scope.response
 
   const defs = listEntityDefinitions()

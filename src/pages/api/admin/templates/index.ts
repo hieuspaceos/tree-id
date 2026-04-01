@@ -10,7 +10,7 @@ export const prerender = false
 
 
 export const GET: APIRoute = async ({ url }) => {
-  const fc = checkFeatureEnabled('landing')
+  const fc = await checkFeatureEnabled('landing')
   if (!fc.enabled) return fc.response
 
   const name = url.searchParams.get('name')

@@ -11,14 +11,14 @@ export const prerender = false
 
 
 export const GET: APIRoute = async () => {
-  const fc = checkFeatureEnabled('landing')
+  const fc = await checkFeatureEnabled('landing')
   if (!fc.enabled) return fc.response
   const pages = listLandingConfigs()
   return json({ ok: true, data: { entries: pages, total: pages.length } })
 }
 
 export const POST: APIRoute = async ({ request }) => {
-  const fc = checkFeatureEnabled('landing')
+  const fc = await checkFeatureEnabled('landing')
   if (!fc.enabled) return fc.response
   try {
     const body = await request.json()

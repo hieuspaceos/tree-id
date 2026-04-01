@@ -17,6 +17,7 @@ interface Props {
 }
 
 const { title, description, canonicalUrl, includeRss = false, jsonLd } = Astro.props
+const analyticsFeature = await checkFeatureEnabled('analytics')
 ---
 
 <meta charset="utf-8" />
@@ -41,7 +42,7 @@ const { title, description, canonicalUrl, includeRss = false, jsonLd } = Astro.p
 <meta name="twitter:description" content={description} />
 <meta name="robots" content="max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
 {jsonLd && <script is:inline type="application/ld+json" set:html={jsonLd} />}
-{siteConfig.analytics.measurementId && checkFeatureEnabled('analytics').enabled && (
+{siteConfig.analytics.measurementId && analyticsFeature.enabled && (
   <>
     {includeRss && <meta name="ga-measurement-id" content={siteConfig.analytics.measurementId} />}
     <script is:inline src={`https://www.googletagmanager.com/gtag/js?id=${siteConfig.analytics.measurementId}`} async></script>

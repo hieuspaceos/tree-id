@@ -42,7 +42,7 @@ function safeSlug(raw: string | null): string | null {
 }
 
 export const GET: APIRoute = async ({ url }) => {
-  const fc = checkFeatureEnabled('${name}')
+  const fc = await checkFeatureEnabled('${name}')
   if (!fc.enabled) return fc.response
 
   const slug = safeSlug(url.searchParams.get('slug'))
@@ -75,7 +75,7 @@ export const GET: APIRoute = async ({ url }) => {
 }
 
 export const POST: APIRoute = async ({ request }) => {
-  const fc = checkFeatureEnabled('${name}')
+  const fc = await checkFeatureEnabled('${name}')
   if (!fc.enabled) return fc.response
 
   const body = await request.json()
@@ -88,7 +88,7 @@ export const POST: APIRoute = async ({ request }) => {
 }
 
 export const PUT: APIRoute = async ({ url, request }) => {
-  const fc = checkFeatureEnabled('${name}')
+  const fc = await checkFeatureEnabled('${name}')
   if (!fc.enabled) return fc.response
 
   const slug = safeSlug(url.searchParams.get('slug'))
@@ -102,7 +102,7 @@ export const PUT: APIRoute = async ({ url, request }) => {
 }
 
 export const DELETE: APIRoute = async ({ url }) => {
-  const fc = checkFeatureEnabled('${name}')
+  const fc = await checkFeatureEnabled('${name}')
   if (!fc.enabled) return fc.response
 
   const slug = safeSlug(url.searchParams.get('slug'))

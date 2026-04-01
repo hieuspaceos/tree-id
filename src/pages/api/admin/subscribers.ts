@@ -12,7 +12,7 @@ export const prerender = false
 
 /** GET /api/admin/subscribers — list all subscribers */
 export const GET: APIRoute = async () => {
-  const fc = checkFeatureEnabled('email')
+  const fc = await checkFeatureEnabled('email')
   if (!fc.enabled) return fc.response
   try {
     const subscribers = getAllSubscribers()
@@ -25,7 +25,7 @@ export const GET: APIRoute = async () => {
 
 /** DELETE /api/admin/subscribers — remove subscriber by email */
 export const DELETE: APIRoute = async ({ request }) => {
-  const fc2 = checkFeatureEnabled('email')
+  const fc2 = await checkFeatureEnabled('email')
   if (!fc2.enabled) return fc2.response
   try {
     const body = await request.json()

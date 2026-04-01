@@ -11,14 +11,14 @@ export const prerender = false
 
 
 export const GET: APIRoute = async () => {
-  const fc = checkFeatureEnabled('entities')
+  const fc = await checkFeatureEnabled('entities')
   if (!fc.enabled) return fc.response
   const defs = listEntityDefinitions()
   return json({ ok: true, data: { entries: defs, total: defs.length } })
 }
 
 export const POST: APIRoute = async ({ request }) => {
-  const fc = checkFeatureEnabled('entities')
+  const fc = await checkFeatureEnabled('entities')
   if (!fc.enabled) return fc.response
   try {
     const body = await request.json() as Record<string, unknown>

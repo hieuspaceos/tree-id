@@ -6,8 +6,6 @@ import { personJsonLd, safeJsonLd } from '@/lib/seo/json-ld'
 import BaseHead from '@/components/base-head.astro'
 import Nav from '@/components/nav.astro'
 import Footer from '@/components/footer.astro'
-import Analytics from '@vercel/analytics/astro'
-import SpeedInsights from '@vercel/speed-insights/astro'
 import '@/styles/globals.css'
 
 interface Props {
@@ -19,7 +17,7 @@ const { title = siteConfig.name, description = siteConfig.description } = Astro.
 
 const personLd = personJsonLd()
 const canonicalUrl = new URL(Astro.url.pathname, siteConfig.url).href
-const themeId = getActiveThemeId()
+const themeId = await getActiveThemeId()
 const theme = getTheme(themeId)
 const themeVars = themeToStyleVars(theme)
 const styleString = Object.entries(themeVars)
@@ -50,7 +48,9 @@ const styleString = Object.entries(themeVars)
       </main>
       <Footer />
     </div>
-    <Analytics />
-    <SpeedInsights />
+    {import.meta.env.CF_ANALYTICS_TOKEN && (
+      <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon={`{"token":"${import.meta.env.CF_ANALYTICS_TOKEN}"}`} />
+    )}
   </body>
 </html>

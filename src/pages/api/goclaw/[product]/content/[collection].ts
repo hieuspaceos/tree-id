@@ -14,7 +14,7 @@ export const prerender = false
 
 /** GET /api/goclaw/[product]/content/[collection] — list entries */
 export const GET: APIRoute = async ({ params, request }) => {
-  const scope = verifyProductScope(request, params.product)
+  const scope = await verifyProductScope(request, params.product)
   if (!scope.ok) return scope.response
 
   const { collection } = params
@@ -30,7 +30,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 
 /** POST /api/goclaw/[product]/content/[collection] — create entry (always draft) */
 export const POST: APIRoute = async ({ params, request }) => {
-  const scope = verifyProductScope(request, params.product)
+  const scope = await verifyProductScope(request, params.product)
   if (!scope.ok) return scope.response
 
   const { collection } = params

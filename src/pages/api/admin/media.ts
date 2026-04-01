@@ -26,7 +26,7 @@ function buildR2Client() {
 
 /** GET — list media files from R2 */
 export const GET: APIRoute = async ({ url }) => {
-  const fc = checkFeatureEnabled('media')
+  const fc = await checkFeatureEnabled('media')
   if (!fc.enabled) return fc.response
   const bucket = process.env.R2_BUCKET
   const publicUrl = process.env.R2_PUBLIC_URL
@@ -72,7 +72,7 @@ export const GET: APIRoute = async ({ url }) => {
 
 /** DELETE — remove a file from R2 */
 export const DELETE: APIRoute = async ({ request }) => {
-  const fc = checkFeatureEnabled('media')
+  const fc = await checkFeatureEnabled('media')
   if (!fc.enabled) return fc.response
   const bucket = process.env.R2_BUCKET
   const client = buildR2Client()

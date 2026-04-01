@@ -13,7 +13,7 @@ export const prerender = false
 
 /** GET /api/goclaw/[product]/landing/sections */
 export const GET: APIRoute = async ({ params, request }) => {
-  const scope = verifyProductScope(request, params.product)
+  const scope = await verifyProductScope(request, params.product)
   if (!scope.ok) return scope.response
 
   if (!isFeatureAllowed(scope.product, 'landing')) {
@@ -30,7 +30,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 
 /** POST /api/goclaw/[product]/landing/sections — add section */
 export const POST: APIRoute = async ({ params, request }) => {
-  const scope = verifyProductScope(request, params.product)
+  const scope = await verifyProductScope(request, params.product)
   if (!scope.ok) return scope.response
 
   if (!isFeatureAllowed(scope.product, 'landing')) {

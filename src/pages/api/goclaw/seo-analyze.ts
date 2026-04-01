@@ -13,7 +13,7 @@ export const prerender = false
 
 /** POST /api/goclaw/seo-analyze — run SEO analysis on provided content */
 export const POST: APIRoute = async ({ request }) => {
-  const fc = checkFeatureEnabled('goclaw')
+  const fc = await checkFeatureEnabled('goclaw')
   if (!fc.enabled) return fc.response
   const auth = verifyGoclawApiKey(request)
   if (!auth.ok) return auth.response

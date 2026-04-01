@@ -37,7 +37,7 @@ Rules for section:
 
 
 export const POST: APIRoute = async ({ request }) => {
-  const fc = checkFeatureEnabled('feature-builder')
+  const fc = await checkFeatureEnabled('feature-builder')
   if (!fc.enabled) return fc.response
 
   const apiKey = import.meta.env.GEMINI_API_KEY

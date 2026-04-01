@@ -66,3 +66,9 @@ export const landingPages = sqliteTable('landing_pages', {
   createdAt: text('created_at').default("(datetime('now'))"),
   updatedAt: text('updated_at').default("(datetime('now'))"),
 })
+
+/** Content tables — owner instance content in Turso */
+export * from './schema-content'
+
+/** Tenant DB registry — per-user isolated Turso databases */
+export * from './schema-tenant'

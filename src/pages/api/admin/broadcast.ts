@@ -14,7 +14,7 @@ export const prerender = false
 
 /** POST /api/admin/broadcast — send email blast to all subscribers */
 export const POST: APIRoute = async ({ request }) => {
-  const fc = checkFeatureEnabled('email')
+  const fc = await checkFeatureEnabled('email')
   if (!fc.enabled) return fc.response
   try {
     if (!isEmailConfigured()) {

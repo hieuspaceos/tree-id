@@ -15,7 +15,7 @@ export const prerender = false
 
 /** GET /api/goclaw/voices/[slug] — read single voice profile */
 export const GET: APIRoute = async ({ params, request }) => {
-  const fc = checkFeatureEnabled('goclaw')
+  const fc = await checkFeatureEnabled('goclaw')
   if (!fc.enabled) return fc.response
   const auth = verifyGoclawApiKey(request)
   if (!auth.ok) return auth.response

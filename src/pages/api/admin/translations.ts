@@ -26,7 +26,7 @@ function unflatten(flat: Record<string, string>): Record<string, unknown> {
 }
 
 export const GET: APIRoute = async ({ url }) => {
-  const fc = checkFeatureEnabled('translations')
+  const fc = await checkFeatureEnabled('translations')
   if (!fc.enabled) return fc.response
   const locale = url.searchParams.get('locale') || 'en'
   const validLocales = ['en', 'vi']
@@ -48,7 +48,7 @@ export const GET: APIRoute = async ({ url }) => {
 }
 
 export const PUT: APIRoute = async ({ request }) => {
-  const fc = checkFeatureEnabled('translations')
+  const fc = await checkFeatureEnabled('translations')
   if (!fc.enabled) return fc.response
   try {
     const { locale, translations } = await request.json()

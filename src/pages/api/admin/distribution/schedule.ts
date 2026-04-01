@@ -12,7 +12,7 @@ export const prerender = false
 
 
 export const POST: APIRoute = async ({ request }) => {
-  const fc = checkFeatureEnabled('distribution')
+  const fc = await checkFeatureEnabled('distribution')
   if (!fc.enabled) return fc.response
   try {
     const body = await request.json()

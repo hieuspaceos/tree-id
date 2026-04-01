@@ -13,7 +13,7 @@ export const prerender = false
 
 /** GET /api/goclaw/[product]/content/[collection]/[slug] */
 export const GET: APIRoute = async ({ params, request }) => {
-  const scope = verifyProductScope(request, params.product)
+  const scope = await verifyProductScope(request, params.product)
   if (!scope.ok) return scope.response
 
   const { collection, slug } = params
@@ -31,7 +31,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 
 /** PUT /api/goclaw/[product]/content/[collection]/[slug] — update (force draft) */
 export const PUT: APIRoute = async ({ params, request }) => {
-  const scope = verifyProductScope(request, params.product)
+  const scope = await verifyProductScope(request, params.product)
   if (!scope.ok) return scope.response
 
   const { collection, slug } = params
@@ -61,7 +61,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
 
 /** DELETE /api/goclaw/[product]/content/[collection]/[slug] */
 export const DELETE: APIRoute = async ({ params, request }) => {
-  const scope = verifyProductScope(request, params.product)
+  const scope = await verifyProductScope(request, params.product)
   if (!scope.ok) return scope.response
 
   const { collection, slug } = params

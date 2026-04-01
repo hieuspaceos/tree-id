@@ -13,7 +13,7 @@ export const prerender = false
 
 /** GET /api/goclaw/[product]/landing/sections/[id] */
 export const GET: APIRoute = async ({ params, request }) => {
-  const scope = verifyProductScope(request, params.product)
+  const scope = await verifyProductScope(request, params.product)
   if (!scope.ok) return scope.response
 
   if (!isFeatureAllowed(scope.product, 'landing')) {
@@ -34,7 +34,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 
 /** PUT /api/goclaw/[product]/landing/sections/[id] */
 export const PUT: APIRoute = async ({ params, request }) => {
-  const scope = verifyProductScope(request, params.product)
+  const scope = await verifyProductScope(request, params.product)
   if (!scope.ok) return scope.response
 
   if (!isFeatureAllowed(scope.product, 'landing')) {
@@ -63,7 +63,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
 
 /** DELETE /api/goclaw/[product]/landing/sections/[id] */
 export const DELETE: APIRoute = async ({ params, request }) => {
-  const scope = verifyProductScope(request, params.product)
+  const scope = await verifyProductScope(request, params.product)
   if (!scope.ok) return scope.response
 
   if (!isFeatureAllowed(scope.product, 'landing')) {

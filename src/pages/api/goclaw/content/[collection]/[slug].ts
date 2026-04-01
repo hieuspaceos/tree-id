@@ -14,7 +14,7 @@ export const prerender = false
 
 /** GET /api/goclaw/content/[collection]/[slug] — read entry */
 export const GET: APIRoute = async ({ params, request }) => {
-  const fc = checkFeatureEnabled('goclaw')
+  const fc = await checkFeatureEnabled('goclaw')
   if (!fc.enabled) return fc.response
   const auth = verifyGoclawApiKey(request)
   if (!auth.ok) return auth.response
@@ -33,7 +33,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 
 /** PUT /api/goclaw/content/[collection]/[slug] — update entry (partial merge, force draft) */
 export const PUT: APIRoute = async ({ params, request }) => {
-  const fc = checkFeatureEnabled('goclaw')
+  const fc = await checkFeatureEnabled('goclaw')
   if (!fc.enabled) return fc.response
   const auth = verifyGoclawApiKey(request)
   if (!auth.ok) return auth.response
@@ -64,7 +64,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
 
 /** DELETE /api/goclaw/content/[collection]/[slug] — delete entry */
 export const DELETE: APIRoute = async ({ params, request }) => {
-  const fc = checkFeatureEnabled('goclaw')
+  const fc = await checkFeatureEnabled('goclaw')
   if (!fc.enabled) return fc.response
   const auth = verifyGoclawApiKey(request)
   if (!auth.ok) return auth.response

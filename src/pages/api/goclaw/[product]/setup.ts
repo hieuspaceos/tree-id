@@ -13,7 +13,7 @@ export const prerender = false
 
 /** POST /api/goclaw/[product]/setup */
 export const POST: APIRoute = async ({ params, request }) => {
-  const scope = verifyProductScope(request, params.product)
+  const scope = await verifyProductScope(request, params.product)
   if (!scope.ok) return scope.response
 
   if (!isFeatureAllowed(scope.product, 'landing')) {

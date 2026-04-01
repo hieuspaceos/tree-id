@@ -6,7 +6,7 @@
 import { isEmailConfigured } from '@/lib/email/resend-client'
 import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
 
-const emailFeature = checkFeatureEnabled('email')
+const emailFeature = await checkFeatureEnabled('email')
 const showForm = isEmailConfigured() && emailFeature.enabled
 ---
 

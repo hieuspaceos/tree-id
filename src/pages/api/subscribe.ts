@@ -20,7 +20,7 @@ export const POST: APIRoute = async ({ request }) => {
   const rl = checkRateLimit(`subscribe:${ip}`, 3, 60_000)
   if (rl.limited) return rl.response
 
-  const fc = checkFeatureEnabled('email')
+  const fc = await checkFeatureEnabled('email')
   if (!fc.enabled) return fc.response
   try {
     const body = await request.json()

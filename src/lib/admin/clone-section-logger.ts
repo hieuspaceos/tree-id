@@ -47,11 +47,12 @@ function saveBacklog(b: Backlog) {
 export function logCloneSections(
   url: string,
   sections: Array<{ type: string; data?: Record<string, unknown> }>,
-  /** HTML word count */
+  /** HTML word count — dev-only, no file IO in prod */
   wordCount?: number,
   /** Page headings (H2) from original — used to detect specific missing sections */
   pageHeadings?: string[]
 ) {
+  if (import.meta.env.PROD) return // No file IO in prod
   const b = readBacklog()
   b.totalClones++
   b.updatedAt = new Date().toISOString()

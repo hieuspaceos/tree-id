@@ -12,7 +12,7 @@ export const prerender = false
 
 
 export const GET: APIRoute = async ({ request, url }) => {
-  const fc = checkFeatureEnabled('goclaw')
+  const fc = await checkFeatureEnabled('goclaw')
   if (!fc.enabled) return fc.response
   const auth = verifyGoclawApiKey(request)
   if (!auth.ok) return auth.response
@@ -25,7 +25,7 @@ export const GET: APIRoute = async ({ request, url }) => {
 }
 
 export const PUT: APIRoute = async ({ request, url }) => {
-  const fc = checkFeatureEnabled('goclaw')
+  const fc = await checkFeatureEnabled('goclaw')
   if (!fc.enabled) return fc.response
   const auth = verifyGoclawApiKey(request)
   if (!auth.ok) return auth.response

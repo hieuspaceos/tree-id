@@ -18,7 +18,7 @@ export const POST: APIRoute = async ({ request }) => {
   const rl = checkRateLimit(`ai:${ip}`, 10, 60_000)
   if (rl.limited) return rl.response
 
-  const fc = checkFeatureEnabled('distribution')
+  const fc = await checkFeatureEnabled('distribution')
   if (!fc.enabled) return fc.response
   try {
     const body = await request.json()

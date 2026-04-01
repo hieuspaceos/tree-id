@@ -12,7 +12,7 @@ export const prerender = false
 
 
 export const POST: APIRoute = async ({ request }) => {
-  const fc = checkFeatureEnabled('feature-builder')
+  const fc = await checkFeatureEnabled('feature-builder')
   if (!fc.enabled) return fc.response
 
   if (!import.meta.env.GEMINI_API_KEY) {

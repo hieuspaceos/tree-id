@@ -13,7 +13,7 @@ const ALLOWED_TYPES = ['image/', 'video/', 'application/pdf']
 
 /** POST /api/admin/upload — upload file to R2 */
 export const POST: APIRoute = async ({ request }) => {
-  const fc = checkFeatureEnabled('media')
+  const fc = await checkFeatureEnabled('media')
   if (!fc.enabled) return fc.response
   try {
     const formData = await request.formData()

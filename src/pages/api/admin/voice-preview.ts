@@ -12,7 +12,7 @@ export const prerender = false
 const GEMINI_MODEL = import.meta.env.GEMINI_MODEL || 'gemini-2.5-flash'
 
 export const POST: APIRoute = async ({ request }) => {
-  const fc = checkFeatureEnabled('voices')
+  const fc = await checkFeatureEnabled('voices')
   if (!fc.enabled) return fc.response
   const apiKey = import.meta.env.GEMINI_API_KEY
   if (!apiKey) {

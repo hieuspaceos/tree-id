@@ -18,7 +18,7 @@ export const POST: APIRoute = async ({ request }) => {
   const rl = checkRateLimit(`ai:${ip}`, 10, 60_000)
   if (rl.limited) return rl.response
 
-  const fc = checkFeatureEnabled('voices')
+  const fc = await checkFeatureEnabled('voices')
   if (!fc.enabled) return fc.response
   const apiKey = import.meta.env.GEMINI_API_KEY
   if (!apiKey) {

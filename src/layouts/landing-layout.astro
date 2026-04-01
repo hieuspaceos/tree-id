@@ -8,8 +8,6 @@ import { getTheme, themeToStyleVars } from '@/themes/theme-resolver'
 import { getActiveThemeId } from '@/lib/get-active-theme-id'
 import { siteConfig } from '@/config/site-config'
 import BaseHead from '@/components/base-head.astro'
-import Analytics from '@vercel/analytics/astro'
-import SpeedInsights from '@vercel/speed-insights/astro'
 import { designToCssVars, designFontsUrl } from '@/lib/landing/landing-design-presets'
 import type { LandingDesign } from '@/lib/landing/landing-types'
 import '@/styles/globals.css'
@@ -45,7 +43,7 @@ const {
   design,
 } = Astro.props
 
-const themeId = getActiveThemeId()
+const themeId = await getActiveThemeId()
 const theme = getTheme(themeId)
 const themeVars = themeToStyleVars(theme)
 const themeStyleString = Object.entries(themeVars)
@@ -100,8 +98,10 @@ const canonicalUrl = new URL(Astro.url.pathname, siteConfig.url).href
         </footer>
       )}
     </div>
-    <Analytics />
-    <SpeedInsights />
+    {import.meta.env.CF_ANALYTICS_TOKEN && (
+      <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon={`{"token":"${import.meta.env.CF_ANALYTICS_TOKEN}"}`} />
+    )}
     <!-- Fade-up animation observer for .lp-fade-up elements -->
     <script>
       const obs = new IntersectionObserver((entries) => {

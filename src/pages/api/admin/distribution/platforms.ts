@@ -12,7 +12,7 @@ export const prerender = false
 
 
 export const GET: APIRoute = async () => {
-  const fc = checkFeatureEnabled('distribution')
+  const fc = await checkFeatureEnabled('distribution')
   if (!fc.enabled) return fc.response
   try {
     const configured = isPostizConfigured()

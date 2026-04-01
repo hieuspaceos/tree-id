@@ -1,54 +1,31 @@
 /**
- * Product I/O — server-side helpers for reading/writing product YAML configs.
- * Mirrors landing-config-reader.ts pattern for consistency.
+ * Product IO barrel — backward-compat re-exports + factory.
  */
-import fs from 'node:fs'
-import path from 'node:path'
-import yaml from 'js-yaml'
-import type { ProductConfig } from './product-types'
+export type { ProductIO } from './product-io-types'
 
-const PRODUCTS_DIR = 'src/content/products'
+// Backward-compat
+export { listProducts, readProduct, writeProduct, deleteProduct } from './product-io-local'
 
-/** List all product configs (metadata for list views) */
-export function listProducts(basePath = process.cwd()): Array<{ slug: string; name: string; description?: string; featuresCount: number; icon?: string }> {
-  const dir = path.join(basePath, PRODUCTS_DIR)
-  if (!fs.existsSync(dir)) return []
-  return fs.readdirSync(dir)
-    .filter((f) => f.endsWith('.yaml'))
-    .map((f) => {
-      const slug = f.replace('.yaml', '')
-      const config = readProduct(slug, basePath)
-      return config
-        ? { slug, name: config.name, description: config.description, featuresCount: config.features?.length ?? 0, icon: config.icon }
-        : null
-    })
-    .filter(Boolean) as Array<{ slug: string; name: string; description?: string; featuresCount: number; icon?: string }>
-}
+import type { ProductIO } from './product-io-types'
+import { TursoProductIO } from './product-io-turso'
+import * as local from './product-io-local'
 
-/** Read a single product config by slug */
-export function readProduct(slug: string, basePath = process.cwd()): ProductConfig | null {
-  const filePath = path.join(basePath, PRODUCTS_DIR, `${slug}.yaml`)
-  if (!fs.existsSync(filePath)) return null
-  try {
-    const raw = yaml.load(fs.readFileSync(filePath, 'utf-8')) as Record<string, unknown>
-    return { slug, features: [], coreCollections: [], name: '', ...raw } as ProductConfig
-  } catch {
-    return null
+// ── Factory ──
+
+let _instance: ProductIO | null = null
+
+export function getProductIO(db?: any): ProductIO {
+  if (db) return new TursoProductIO(db)
+  if (_instance) return _instance
+  if (import.meta.env.PROD && import.meta.env.TURSO_URL) {
+    _instance = new TursoProductIO()
+  } else {
+    _instance = {
+      list: async () => local.listProducts(),
+      read: async (slug) => local.readProduct(slug),
+      write: async (slug, config) => local.writeProduct(slug, config),
+      delete: async (slug) => local.deleteProduct(slug),
+    }
   }
-}
-
-/** Write a product config YAML file */
-export function writeProduct(slug: string, config: ProductConfig, basePath = process.cwd()): void {
-  const dir = path.join(basePath, PRODUCTS_DIR)
-  fs.mkdirSync(dir, { recursive: true })
-  const data = { ...config, slug }
-  fs.writeFileSync(path.join(dir, `${slug}.yaml`), yaml.dump(data, { lineWidth: 120 }))
-}
-
-/** Delete a product config YAML file */
-export function deleteProduct(slug: string, basePath = process.cwd()): boolean {
-  const filePath = path.join(basePath, PRODUCTS_DIR, `${slug}.yaml`)
-  if (!fs.existsSync(filePath)) return false
-  fs.unlinkSync(filePath)
-  return true
+  return _instance
 }

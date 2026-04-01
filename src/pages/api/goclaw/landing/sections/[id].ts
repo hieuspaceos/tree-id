@@ -17,7 +17,7 @@ function getConfig(slug: string) {
 }
 
 export const GET: APIRoute = async ({ request, url, params }) => {
-  const fc = checkFeatureEnabled('goclaw')
+  const fc = await checkFeatureEnabled('goclaw')
   if (!fc.enabled) return fc.response
   const auth = verifyGoclawApiKey(request)
   if (!auth.ok) return auth.response
@@ -33,7 +33,7 @@ export const GET: APIRoute = async ({ request, url, params }) => {
 }
 
 export const PUT: APIRoute = async ({ request, url, params }) => {
-  const fc = checkFeatureEnabled('goclaw')
+  const fc = await checkFeatureEnabled('goclaw')
   if (!fc.enabled) return fc.response
   const auth = verifyGoclawApiKey(request)
   if (!auth.ok) return auth.response
@@ -55,7 +55,7 @@ export const PUT: APIRoute = async ({ request, url, params }) => {
 }
 
 export const DELETE: APIRoute = async ({ request, url, params }) => {
-  const fc = checkFeatureEnabled('goclaw')
+  const fc = await checkFeatureEnabled('goclaw')
   if (!fc.enabled) return fc.response
   const auth = verifyGoclawApiKey(request)
   if (!auth.ok) return auth.response

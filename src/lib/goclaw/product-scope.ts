@@ -24,9 +24,9 @@ function jsonResponse(data: unknown, status: number): Response {
  * 2. Bearer API key must be valid (GOCLAW_API_KEY)
  * 3. Product slug must resolve to a known product config
  */
-export function verifyProductScope(request: Request, productSlug: string | undefined): ProductScopeResult {
+export async function verifyProductScope(request: Request, productSlug: string | undefined): Promise<ProductScopeResult> {
   // 1. Feature gate
-  const fc = checkFeatureEnabled('goclaw')
+  const fc = await checkFeatureEnabled('goclaw')
   if (!fc.enabled) return { ok: false, response: fc.response }
 
   // 2. Bearer API key
@@ -38,7 +38,7 @@ export function verifyProductScope(request: Request, productSlug: string | undef
     return { ok: false, response: jsonResponse({ ok: false, error: 'Product slug required' }, 400) }
   }
 
-  const product = readProductConfig(productSlug)
+  const product = await readProductConfig(productSlug)
   if (!product) {
     return { ok: false, response: jsonResponse({ ok: false, error: 'Product not found' }, 404) }
   }

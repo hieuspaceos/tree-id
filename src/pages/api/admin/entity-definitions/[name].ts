@@ -11,7 +11,7 @@ export const prerender = false
 
 
 export const GET: APIRoute = async ({ params }) => {
-  const fc = checkFeatureEnabled('entities')
+  const fc = await checkFeatureEnabled('entities')
   if (!fc.enabled) return fc.response
   const { name } = params
   if (!name || !isValidSlug(name)) return json({ ok: false, error: 'Invalid name' }, 400)
@@ -21,7 +21,7 @@ export const GET: APIRoute = async ({ params }) => {
 }
 
 export const PUT: APIRoute = async ({ params, request }) => {
-  const fc = checkFeatureEnabled('entities')
+  const fc = await checkFeatureEnabled('entities')
   if (!fc.enabled) return fc.response
   const { name } = params
   if (!name || !isValidSlug(name)) return json({ ok: false, error: 'Invalid name' }, 400)
@@ -37,7 +37,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
 }
 
 export const DELETE: APIRoute = async ({ params }) => {
-  const fc = checkFeatureEnabled('entities')
+  const fc = await checkFeatureEnabled('entities')
   if (!fc.enabled) return fc.response
   const { name } = params
   if (!name || !isValidSlug(name)) return json({ ok: false, error: 'Invalid name' }, 400)

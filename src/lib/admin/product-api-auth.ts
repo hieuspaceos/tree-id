@@ -3,13 +3,9 @@
  * Validates JWT session + product existence + resource access
  * Used by /api/products/[slug]/... endpoints
  */
-import fs from 'node:fs'
-import path from 'node:path'
-import yaml from 'js-yaml'
 import { verifyToken, COOKIE_NAME, timingSafeCompare } from './auth'
+import { getProductIO } from './product-io'
 import type { ProductConfig } from './product-types'
-
-const PRODUCTS_DIR = 'src/content/products'
 
 /** Result of product access validation */
 export interface ProductAuthResult {
@@ -19,16 +15,9 @@ export interface ProductAuthResult {
   status?: number
 }
 
-/** Read product YAML from disk by slug */
-export function readProductConfig(slug: string): ProductConfig | null {
-  const filePath = path.join(process.cwd(), PRODUCTS_DIR, `${slug}.yaml`)
-  if (!fs.existsSync(filePath)) return null
-  try {
-    const raw = yaml.load(fs.readFileSync(filePath, 'utf-8')) as Record<string, unknown>
-    return { slug, ...raw } as ProductConfig
-  } catch {
-    return null
-  }
+/** Read product config via IO factory */
+export async function readProductConfig(slug: string): Promise<ProductConfig | null> {
+  return getProductIO().read(slug)
 }
 
 /**
@@ -39,8 +28,8 @@ export async function validateProductAccess(
   request: Request,
   productSlug: string,
 ): Promise<ProductAuthResult> {
-  // 1. Load product config
-  const product = readProductConfig(productSlug)
+  // 1. Load product config via IO factory
+  const product = await readProductConfig(productSlug)
   if (!product) {
     return { ok: false, error: 'Product not found', status: 404 }
   }

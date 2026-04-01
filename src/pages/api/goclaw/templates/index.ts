@@ -11,7 +11,7 @@ export const prerender = false
 
 
 export const GET: APIRoute = async ({ request }) => {
-  const fc = checkFeatureEnabled('goclaw')
+  const fc = await checkFeatureEnabled('goclaw')
   if (!fc.enabled) return fc.response
   const auth = verifyGoclawApiKey(request)
   if (!auth.ok) return auth.response
