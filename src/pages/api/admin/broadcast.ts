@@ -7,15 +7,10 @@ import type { APIRoute } from 'astro'
 import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
 import { getAllSubscribers } from '@/lib/email/subscriber-io'
 import { sendBatchEmails, isEmailConfigured } from '@/lib/email/resend-client'
+import { json } from '@/lib/api-response'
 
 export const prerender = false
 
-function json(data: unknown, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  })
-}
 
 /** POST /api/admin/broadcast — send email blast to all subscribers */
 export const POST: APIRoute = async ({ request }) => {

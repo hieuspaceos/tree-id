@@ -7,15 +7,10 @@ import { getContentIO } from '@/lib/admin/content-io'
 import { validateEntry, isValidCollection } from '@/lib/admin/validation'
 import { slugify, uniqueSlug } from '@/lib/admin/slug'
 import { validateProductAccess, isCollectionAllowed } from '@/lib/admin/product-api-auth'
+import { json } from '@/lib/api-response'
 
 export const prerender = false
 
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  })
-}
 
 /** GET /api/products/[slug]/collections/[collection] — list entries */
 export const GET: APIRoute = async ({ params, request, url }) => {

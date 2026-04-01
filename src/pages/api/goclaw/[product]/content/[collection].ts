@@ -7,12 +7,10 @@ import { verifyProductScope, isCollectionAllowed } from '@/lib/goclaw/product-sc
 import { getContentIO } from '@/lib/admin/content-io'
 import { isValidCollection, validateEntry } from '@/lib/admin/validation'
 import { slugify, uniqueSlug } from '@/lib/admin/slug'
+import { json } from '@/lib/api-response'
 
 export const prerender = false
 
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } })
-}
 
 /** GET /api/goclaw/[product]/content/[collection] — list entries */
 export const GET: APIRoute = async ({ params, request }) => {

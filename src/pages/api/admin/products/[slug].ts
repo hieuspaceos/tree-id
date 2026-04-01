@@ -4,12 +4,10 @@
 import type { APIRoute } from 'astro'
 import { readProduct, writeProduct, deleteProduct } from '@/lib/admin/product-io'
 import { isValidSlug } from '@/lib/admin/validation'
+import { json } from '@/lib/api-response'
 
 export const prerender = false
 
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } })
-}
 
 export const GET: APIRoute = async ({ params }) => {
   const { slug } = params

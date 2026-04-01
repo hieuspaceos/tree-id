@@ -6,12 +6,10 @@ import { listEntityInstances, writeEntityInstance, getEntityDefinition } from '@
 import { verifyProductScope } from '@/lib/goclaw/product-scope'
 import { slugify, uniqueSlug } from '@/lib/admin/slug'
 import { isValidSlug } from '@/lib/admin/validation'
+import { json } from '@/lib/api-response'
 
 export const prerender = false
 
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } })
-}
 
 /** GET /api/goclaw/[product]/entities/[name] — list instances */
 export const GET: APIRoute = async ({ params, request }) => {

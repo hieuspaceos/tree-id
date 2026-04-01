@@ -6,12 +6,10 @@ import type { APIRoute } from 'astro'
 import { generateLandingPageFromDescription } from '@/lib/landing/ai-setup-generator'
 import { verifyProductScope, isFeatureAllowed } from '@/lib/goclaw/product-scope'
 import { isValidSlug } from '@/lib/admin/validation'
+import { json } from '@/lib/api-response'
 
 export const prerender = false
 
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } })
-}
 
 /** POST /api/goclaw/[product]/setup */
 export const POST: APIRoute = async ({ params, request }) => {

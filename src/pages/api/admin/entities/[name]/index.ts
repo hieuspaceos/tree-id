@@ -6,12 +6,10 @@ import { listEntityInstances, writeEntityInstance, getEntityDefinition } from '@
 import { isValidSlug } from '@/lib/admin/validation'
 import { slugify, uniqueSlug } from '@/lib/admin/slug'
 import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
+import { json } from '@/lib/api-response'
 
 export const prerender = false
 
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } })
-}
 
 export const GET: APIRoute = async ({ params }) => {
   const fc = checkFeatureEnabled('entities')

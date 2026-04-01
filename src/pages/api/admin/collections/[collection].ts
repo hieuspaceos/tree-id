@@ -7,6 +7,7 @@ import { analyzeSeo } from '@/lib/admin/seo-analyzer'
 import { isValidCollection } from '@/lib/admin/validation'
 import { validateEntry } from '@/lib/admin/validation'
 import { slugify, uniqueSlug } from '@/lib/admin/slug'
+import { json } from '@/lib/api-response'
 
 export const prerender = false
 
@@ -133,9 +134,3 @@ export const POST: APIRoute = async ({ params, request }) => {
   }
 }
 
-function json(data: unknown, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  })
-}

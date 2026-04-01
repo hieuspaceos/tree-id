@@ -5,15 +5,10 @@
 import type { APIRoute } from 'astro'
 import { getUserPage, updatePage, deletePage } from '@/lib/saas/landing-page-db'
 import { isValidSlug } from '@/lib/admin/validation'
+import { json } from '@/lib/api-response'
 
 export const prerender = false
 
-function json(data: unknown, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  })
-}
 
 /** GET /api/saas/landing/:slug — get a single landing page */
 export const GET: APIRoute = async ({ locals, params }) => {

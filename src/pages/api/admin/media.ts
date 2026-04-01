@@ -6,15 +6,10 @@
 import type { APIRoute } from 'astro'
 import { S3Client, ListObjectsV2Command, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
+import { json } from '@/lib/api-response'
 
 export const prerender = false
 
-function json(data: unknown, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  })
-}
 
 function buildR2Client() {
   const endpoint = process.env.R2_ENDPOINT

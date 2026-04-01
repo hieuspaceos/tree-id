@@ -7,6 +7,7 @@
 import type { APIRoute } from 'astro'
 import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
 import { checkRateLimit, getClientIp } from '@/lib/rate-limiter'
+import { json } from '@/lib/api-response'
 
 export const prerender = false
 
@@ -157,9 +158,3 @@ async function callGemini(apiKey: string, userPrompt: string): Promise<Record<st
   }
 }
 
-function json(data: unknown, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  })
-}

@@ -6,15 +6,10 @@ import type { APIRoute } from 'astro'
 import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
 import { verifyGoclawApiKey } from '@/lib/goclaw/api-auth'
 import type { WebhookPayload } from '@/lib/goclaw/types'
+import { json } from '@/lib/api-response'
 
 export const prerender = false
 
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  })
-}
 
 /** Verify HMAC-SHA256 signature from GoClaw webhook */
 async function verifyHmacSignature(body: string, signature: string, secret: string): Promise<boolean> {

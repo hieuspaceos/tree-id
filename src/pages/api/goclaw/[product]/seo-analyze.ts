@@ -4,12 +4,10 @@
 import type { APIRoute } from 'astro'
 import { analyzeSeo } from '@/lib/admin/seo-analyzer'
 import { verifyProductScope } from '@/lib/goclaw/product-scope'
+import { json } from '@/lib/api-response'
 
 export const prerender = false
 
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } })
-}
 
 /** POST /api/goclaw/[product]/seo-analyze */
 export const POST: APIRoute = async ({ params, request }) => {

@@ -7,12 +7,10 @@ import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { verifyProductScope, isFeatureAllowed } from '@/lib/goclaw/product-scope'
 import { isValidSlug } from '@/lib/admin/validation'
+import { json } from '@/lib/api-response'
 
 export const prerender = false
 
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } })
-}
 
 /** GET /api/goclaw/[product]/voices/[slug] */
 export const GET: APIRoute = async ({ params, request }) => {

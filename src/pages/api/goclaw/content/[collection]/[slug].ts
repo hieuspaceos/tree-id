@@ -7,15 +7,10 @@ import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
 import { verifyGoclawApiKey } from '@/lib/goclaw/api-auth'
 import { getContentIO } from '@/lib/admin/content-io'
 import { isValidCollection, isValidSlug, validateEntry } from '@/lib/admin/validation'
+import { json } from '@/lib/api-response'
 
 export const prerender = false
 
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  })
-}
 
 /** GET /api/goclaw/content/[collection]/[slug] — read entry */
 export const GET: APIRoute = async ({ params, request }) => {

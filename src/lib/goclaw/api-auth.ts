@@ -2,6 +2,7 @@
  * GoClaw API authentication helper
  * Verifies Bearer token against GOCLAW_API_KEY env var
  */
+import { json } from '@/lib/api-response'
 
 type AuthSuccess = { ok: true }
 type AuthFailure = { ok: false; response: Response }
@@ -46,9 +47,3 @@ export function verifyGoclawApiKey(request: Request): AuthSuccess | AuthFailure 
   return { ok: true }
 }
 
-function json(data: unknown, status: number): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  })
-}

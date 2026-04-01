@@ -6,17 +6,12 @@
 import type { APIRoute } from 'astro'
 import { listUserPages, createPage, countUserPages, isSlugTaken } from '@/lib/saas/landing-page-db'
 import { isValidSlug } from '@/lib/admin/validation'
+import { json } from '@/lib/api-response'
 
 export const prerender = false
 
 const PLAN_LIMITS: Record<string, number> = { free: 1, pro: Infinity }
 
-function json(data: unknown, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  })
-}
 
 /** GET /api/saas/landing — list current user's landing pages */
 export const GET: APIRoute = async ({ locals }) => {

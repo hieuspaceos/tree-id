@@ -6,15 +6,10 @@
 import type { APIRoute } from 'astro'
 import { clarifyFeature } from '@/lib/admin/feature-builder-ai'
 import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
+import { json } from '@/lib/api-response'
 
 export const prerender = false
 
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  })
-}
 
 export const POST: APIRoute = async ({ request }) => {
   const fc = checkFeatureEnabled('feature-builder')

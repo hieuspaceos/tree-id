@@ -6,12 +6,10 @@ import type { APIRoute } from 'astro'
 import { verifyProductScope, isCollectionAllowed } from '@/lib/goclaw/product-scope'
 import { getContentIO } from '@/lib/admin/content-io'
 import { isValidCollection, isValidSlug, validateEntry } from '@/lib/admin/validation'
+import { json } from '@/lib/api-response'
 
 export const prerender = false
 
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } })
-}
 
 /** GET /api/goclaw/[product]/content/[collection]/[slug] */
 export const GET: APIRoute = async ({ params, request }) => {

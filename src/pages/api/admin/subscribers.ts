@@ -5,15 +5,10 @@
 import type { APIRoute } from 'astro'
 import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
 import { getAllSubscribers, getSubscriberCount, removeByEmail } from '@/lib/email/subscriber-io'
+import { json } from '@/lib/api-response'
 
 export const prerender = false
 
-function json(data: unknown, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  })
-}
 
 /** GET /api/admin/subscribers — list all subscribers */
 export const GET: APIRoute = async () => {

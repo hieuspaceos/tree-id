@@ -46,19 +46,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // --- Supabase user session (marketplace auth) ---
+  // TODO: Integrate real Supabase SSR auth when marketplace launches.
+  // Placeholder stub removed — no code depends on locals.user yet.
   const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL
-  if (supabaseUrl) {
-    try {
-      const hasAuthCookie =
-        context.cookies.has('sb-access-token') ||
-        [...context.request.headers.entries()].some(([k]) => k.includes('sb-'))
-      if (hasAuthCookie) {
-        locals.user = { id: 'pending-ssr-integration' }
-      }
-    } catch {
-      // Auth detection failed — leave locals.user undefined
-    }
-  }
 
   // Protect marketplace routes — redirect to login if no session
   const protectedPaths = ['/dashboard', '/checkout']

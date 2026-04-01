@@ -7,6 +7,7 @@ import type { APIRoute } from 'astro'
 import { authenticateUser, isMultiUserMode, signToken, buildSessionCookie, buildClearCookie, COOKIE_NAME, verifyToken, verifyPassword, timingSafeCompare } from '@/lib/admin/auth'
 import { readProduct } from '@/lib/admin/product-io'
 import { checkRateLimit, getClientIp } from '@/lib/rate-limiter'
+import { json } from '@/lib/api-response'
 
 export const prerender = false
 
@@ -112,9 +113,3 @@ export const GET: APIRoute = async ({ cookies, url }) => {
   })
 }
 
-function json(data: unknown, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  })
-}

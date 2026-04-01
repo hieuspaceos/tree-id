@@ -5,12 +5,10 @@ import type { APIRoute } from 'astro'
 import { listProducts, readProduct, writeProduct } from '@/lib/admin/product-io'
 import { readLandingConfig, writeLandingConfig } from '@/lib/landing/landing-config-reader'
 import { isValidSlug } from '@/lib/admin/validation'
+import { json } from '@/lib/api-response'
 
 export const prerender = false
 
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } })
-}
 
 export const GET: APIRoute = async () => {
   const products = listProducts()

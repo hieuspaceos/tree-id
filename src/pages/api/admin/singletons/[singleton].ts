@@ -4,6 +4,7 @@
 import type { APIRoute } from 'astro'
 import { getContentIO } from '@/lib/admin/content-io'
 import { isValidSingleton, validateSingleton } from '@/lib/admin/validation'
+import { json } from '@/lib/api-response'
 
 export const prerender = false
 
@@ -45,9 +46,3 @@ export const PUT: APIRoute = async ({ params, request }) => {
   }
 }
 
-function json(data: unknown, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  })
-}

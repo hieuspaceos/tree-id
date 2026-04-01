@@ -6,12 +6,10 @@ import type { APIRoute } from 'astro'
 import { readdir, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { verifyProductScope, isFeatureAllowed } from '@/lib/goclaw/product-scope'
+import { json } from '@/lib/api-response'
 
 export const prerender = false
 
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } })
-}
 
 /** GET /api/goclaw/[product]/voices — list voice profiles */
 export const GET: APIRoute = async ({ params, request }) => {

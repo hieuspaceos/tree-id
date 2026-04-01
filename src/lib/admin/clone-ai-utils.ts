@@ -29,14 +29,6 @@ export const GEMINI_API_URL =
 /** Section types available in the builder */
 export const SECTION_TYPES = ['nav','hero','features','pricing','testimonials','faq','cta','stats','how-it-works','team','logo-wall','footer','video','image','image-text','gallery','map','rich-text','divider','countdown','contact-form','banner','comparison','ai-search','social-proof','layout']
 
-/**
- * @deprecated Legacy global state — use firecrawlFetch().markdown instead.
- * Kept temporarily for backward compatibility; will be removed in next cleanup.
- */
-let _lastMarkdown = ''
-export function getLastMarkdown(): string { return _lastMarkdown }
-export function setLastMarkdown(md: string) { _lastMarkdown = md }
-
 /** Fetch HTML via direct HTTP */
 export async function directFetch(url: string): Promise<string> {
   const res = await fetch(url, {
@@ -59,8 +51,6 @@ export async function firecrawlFetch(url: string, apiKey: string): Promise<{ htm
   const data = await res.json()
   const markdown = (data?.data?.markdown || '').slice(0, 50_000)
   const html = (data?.data?.html || '').slice(0, 100_000)
-  // Keep global state in sync for any legacy callers
-  _lastMarkdown = markdown
   return { html, markdown }
 }
 

@@ -6,15 +6,10 @@
 import type { APIRoute } from 'astro'
 import { isPostizConfigured, getConnectedPlatformMap } from '@/lib/admin/postiz-client'
 import { checkFeatureEnabled } from '@/lib/admin/feature-guard'
+import { json } from '@/lib/api-response'
 
 export const prerender = false
 
-function json(data: unknown, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  })
-}
 
 export const GET: APIRoute = async () => {
   const fc = checkFeatureEnabled('distribution')

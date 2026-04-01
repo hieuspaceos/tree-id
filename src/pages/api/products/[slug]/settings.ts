@@ -5,15 +5,10 @@
  */
 import type { APIRoute } from 'astro'
 import { validateProductAccess } from '@/lib/admin/product-api-auth'
+import { json } from '@/lib/api-response'
 
 export const prerender = false
 
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  })
-}
 
 /** GET /api/products/[slug]/settings — read product settings */
 export const GET: APIRoute = async ({ params, request }) => {
