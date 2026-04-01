@@ -158,10 +158,28 @@ What customCss must NOT do:
 - Add hover animations the original doesn't have
 - Make sections "look cool" — make them look like the ORIGINAL
 
-Example (derived from a design with borderRadius:"12px", primary:"#2563eb", dark hero):
-"customCss": "h2 { font-size: clamp(2rem, 4vw, 2.8rem); letter-spacing: -0.02em; } .lp-card-hover { border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); } .landing-btn-primary { border-radius: 12px; }"
+When to USE customCss (section has visual details "style" can't express):
+- Hero: typography scale, text-shadow on dark bg, button styling, immersive padding
+- Cards sections (features, pricing, team): card radius, shadow, hover effect matching original
+- CTA: button gradient/shadow matching brand, bold typography
+- Testimonials: quote styling, avatar treatment, card borders
+- Stats: number font-size/weight, counter styling
+- Any section where the original has distinctive typography, shadows, or component styling
 
-Generate customCss when the section needs refinement beyond basic "style" to match the original. Omit when "style" alone is sufficient. Every rule must have a clear source in the original design.
+When to OMIT customCss (default styling is correct):
+- Simple text sections (rich-text, banner) where "style" bg/text is enough
+- Dividers, spacers, maps — structural, no visual refinement needed
+- Sections where the original uses plain default styling
+- Nav and footer — unless the original has very distinctive nav/footer design
+
+CONSISTENCY RULE: Before writing customCss, decide on 3 shared values derived from the design:
+1. Card border-radius (from design.borderRadius)
+2. Card shadow intensity (from original's shadow usage — subtle, medium, or pronounced)
+3. Button style (from original's buttons — flat, shadow, gradient)
+Then apply these SAME values consistently across ALL sections that use cards or buttons. This ensures visual coherence without per-section improvisation.
+
+Example (design: borderRadius:"12px", primary:"#2563eb", shadow:subtle):
+"customCss": "h2 { font-size: clamp(2rem, 4vw, 2.8rem); letter-spacing: -0.02em; } .lp-card-hover { border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); } .landing-btn-primary { border-radius: 12px; }"
 
 Return ONLY valid JSON:
 {
