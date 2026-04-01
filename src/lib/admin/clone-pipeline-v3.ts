@@ -249,11 +249,10 @@ Use color-mix(in srgb, var(--lp-primary) 15%, transparent) for subtle background
 Use color-mix(in srgb, var(--lp-primary) 80%, black) for darker variants.
 Keep each section's CSS concise (3-8 rules). Every rule must use var(--lp-*).
 
-Sections:\n${sectionSummary}
-
 Return JSON: { "css": [{ "index": 0, "customCss": ".landing-section { box-shadow: 0 1px 3px rgba(0,0,0,0.08); } a:hover { color: var(--lp-primary); }" }, { "index": 1, "customCss": "h1 { font-size: clamp(2.5rem,5vw,4rem); letter-spacing: -0.02em; text-shadow: 0 2px 8px rgba(0,0,0,0.3); } .landing-btn-primary { border-radius: var(--lp-radius); box-shadow: 0 4px 14px rgba(0,0,0,0.15); }" }, ...] }
-Generate CSS for ALL sections listed above.`
-    const { text: cssText, promptTokens: p3, outputTokens: o3 } = await geminiCall(apiKey, cssPrompt, `Original page URL: ${url}`, 8192)
+Generate CSS for ALL sections provided in the user message.`
+    const cssUserPrompt = `Original page: ${url}\n\nSections to style:\n${sectionSummary}\n\nGenerate customCss for each section. Return JSON array.`
+    const { text: cssText, promptTokens: p3, outputTokens: o3 } = await geminiCall(apiKey, cssPrompt, cssUserPrompt, 8192)
     const cssResult = safeJsonParse(cssText) as { css?: Array<{ index: number; customCss: string }> } | null
     if (cssResult?.css) {
       for (const entry of cssResult.css) {
